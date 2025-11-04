@@ -3,7 +3,10 @@ using MissionPlanner.Properties;
 using MissionPlanner.Utilities;
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
+using WebCamService;
+using DirectShowLib;
 
 namespace MissionPlanner.GCSViews
 {
@@ -16,30 +19,40 @@ namespace MissionPlanner.GCSViews
 
         public void Activate()
         {
-            try
-            {
-                CHK_showconsole.Checked = Settings.Instance.GetBoolean("showconsole");
-            }
-            catch
-            {
-            }
+           
 
             if (Program.WindowsStoreApp)
             {
-                BUT_betaupdate.Visible = false;
-                BUT_updatecheck.Visible = false;
+                stop_camera.Visible = false;
+                start_camera.Visible = false;
             }
         }
 
-        public void BUT_updatecheck_Click(object sender, EventArgs e)
+        void cam_camimage(Image camimage)
+        {
+            Image bgimage = camimage;
+        }
+        public void start_camera_Click(object sender, EventArgs e)
         {
             try
             {
-                if (Program.WindowsStoreApp)
-                {
+                if (MainV2.MONO)
                     return;
+                if (MainV2.cam == null)
+                {
+                    try
+                    {
+                        MainV2.cam = new WebCamService.Capture(Settings.Instance.GetInt32("video_device"), new AMMediaType());
+
+                        MainV2.cam.Start();
+
+                        MainV2.cam.camimage += new CamImage(cam_camimage);
+                    }
+                    catch (Exception ex)
+                    {
+                        CustomMessageBox.Show("Camera Fail: " + ex.ToString(), Strings.ERROR);
+                    }
                 }
-                Utilities.Update.CheckForUpdate(true);
             }
             catch (Exception ex)
             {
@@ -47,10 +60,7 @@ namespace MissionPlanner.GCSViews
             }
         }
 
-        private void CHK_showconsole_CheckedChanged(object sender, EventArgs e)
-        {
-            Settings.Instance["showconsole"] = CHK_showconsole.Checked.ToString();
-        }
+       
 
         private void Help_Load(object sender, EventArgs e)
         {
@@ -63,18 +73,15 @@ namespace MissionPlanner.GCSViews
             Process.Start("https://firmware.ardupilot.org/Tools/MissionPlanner/upgrade/ChangeLog.txt");
         }
 
-        private void BUT_betaupdate_Click(object sender, EventArgs e)
+        private void stop_camera_Click(object sender, EventArgs e)
         {
             try
             {
-                Utilities.Update.dobeta = true;
-                if (Control.ModifierKeys == Keys.Control)
-                {
-                    Utilities.Update.domaster = true;
-                    CustomMessageBox.Show("This will update to MASTER release");
-                }
-
-                Utilities.Update.DoUpdate();
+            if (MainV2.cam != null)
+            {
+                MainV2.cam.Dispose();
+                MainV2.cam = null;
+            }
             }
             catch (Exception ex)
             {

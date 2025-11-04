@@ -29,61 +29,52 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Help));
-            this.CHK_showconsole = new System.Windows.Forms.CheckBox();
-            this.BUT_updatecheck = new MissionPlanner.Controls.MyButton();
-            this.linkLabel1 = new System.Windows.Forms.LinkLabel();
-            this.BUT_betaupdate = new MissionPlanner.Controls.MyButton();
+            this.start_camera = new MissionPlanner.Controls.MyButton();
+            this.stop_camera = new MissionPlanner.Controls.MyButton();
+            this.VideoBox = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.VideoBox)).BeginInit();
             this.SuspendLayout();
             // 
-            // CHK_showconsole
+            // start_camera
             // 
-            resources.ApplyResources(this.CHK_showconsole, "CHK_showconsole");
-            this.CHK_showconsole.Name = "CHK_showconsole";
-            this.CHK_showconsole.UseVisualStyleBackColor = true;
-            this.CHK_showconsole.CheckedChanged += new System.EventHandler(this.CHK_showconsole_CheckedChanged);
+            resources.ApplyResources(this.start_camera, "start_camera");
+            this.start_camera.Name = "start_camera";
+            this.start_camera.TextColorNotEnabled = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(87)))), ((int)(((byte)(4)))));
+            this.start_camera.UseVisualStyleBackColor = true;
+            this.start_camera.Click += new System.EventHandler(this.start_camera_Click);
             // 
-            // BUT_updatecheck
+            // stop_camera
             // 
-            resources.ApplyResources(this.BUT_updatecheck, "BUT_updatecheck");
-            this.BUT_updatecheck.Name = "BUT_updatecheck";
-            this.BUT_updatecheck.TextColorNotEnabled = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(87)))), ((int)(((byte)(4)))));
-            this.BUT_updatecheck.UseVisualStyleBackColor = true;
-            this.BUT_updatecheck.Click += new System.EventHandler(this.BUT_updatecheck_Click);
+            resources.ApplyResources(this.stop_camera, "stop_camera");
+            this.stop_camera.Name = "stop_camera";
+            this.stop_camera.TextColorNotEnabled = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(87)))), ((int)(((byte)(4)))));
+            this.stop_camera.UseVisualStyleBackColor = true;
+            this.stop_camera.Click += new System.EventHandler(this.stop_camera_Click);
             // 
-            // linkLabel1
+            // VideoBox
             // 
-            resources.ApplyResources(this.linkLabel1, "linkLabel1");
-            this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.TabStop = true;
-            this.linkLabel1.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
-            // 
-            // BUT_betaupdate
-            // 
-            resources.ApplyResources(this.BUT_betaupdate, "BUT_betaupdate");
-            this.BUT_betaupdate.Name = "BUT_betaupdate";
-            this.BUT_betaupdate.TextColorNotEnabled = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(87)))), ((int)(((byte)(4)))));
-            this.BUT_betaupdate.UseVisualStyleBackColor = true;
-            this.BUT_betaupdate.Click += new System.EventHandler(this.BUT_betaupdate_Click);
+            this.VideoBox.ErrorImage = global::MissionPlanner.Properties.Resources.no_video;
+            this.VideoBox.Image = global::MissionPlanner.Properties.Resources.no_video;
+            resources.ApplyResources(this.VideoBox, "VideoBox");
+            this.VideoBox.Name = "VideoBox";
+            this.VideoBox.TabStop = false;
             // 
             // Help
             // 
-            this.Controls.Add(this.BUT_betaupdate);
-            this.Controls.Add(this.linkLabel1);
-            this.Controls.Add(this.CHK_showconsole);
-            this.Controls.Add(this.BUT_updatecheck);
+            this.Controls.Add(this.VideoBox);
+            this.Controls.Add(this.stop_camera);
+            this.Controls.Add(this.start_camera);
             resources.ApplyResources(this, "$this");
             this.Name = "Help";
             this.Load += new System.EventHandler(this.Help_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.VideoBox)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
         #endregion
-        private Controls.MyButton BUT_updatecheck;
-        private System.Windows.Forms.CheckBox CHK_showconsole;
-        private System.Windows.Forms.LinkLabel linkLabel1;
-        private Controls.MyButton BUT_betaupdate;
-
+        private Controls.MyButton start_camera;
+        private Controls.MyButton stop_camera;
+        public System.Windows.Forms.PictureBox VideoBox;
     }
 }

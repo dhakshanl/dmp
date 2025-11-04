@@ -118,123 +118,93 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="CHK_showconsole.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="start_camera.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom</value>
-  </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="CHK_showconsole.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="CHK_showconsole.Location" type="System.Drawing.Point, System.Drawing">
-    <value>188, 296</value>
-  </data>
-  <data name="CHK_showconsole.Size" type="System.Drawing.Size, System.Drawing">
-    <value>257, 24</value>
-  </data>
-  <data name="CHK_showconsole.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
-  </data>
-  <data name="CHK_showconsole.Text" xml:space="preserve">
-    <value>Show Console Window (restart)</value>
-  </data>
-  <data name="&gt;&gt;CHK_showconsole.Name" xml:space="preserve">
-    <value>CHK_showconsole</value>
-  </data>
-  <data name="&gt;&gt;CHK_showconsole.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;CHK_showconsole.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;CHK_showconsole.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="BUT_updatecheck.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom</value>
-  </data>
-  <data name="BUT_updatecheck.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="start_camera.Location" type="System.Drawing.Point, System.Drawing">
     <value>146, 268</value>
   </data>
-  <data name="BUT_updatecheck.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="start_camera.Size" type="System.Drawing.Size, System.Drawing">
     <value>123, 29</value>
   </data>
-  <data name="BUT_updatecheck.TabIndex" type="System.Int32, mscorlib">
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="start_camera.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
-  <data name="BUT_updatecheck.Text" xml:space="preserve">
-    <value>Check for Updates</value>
+  <data name="start_camera.Text" xml:space="preserve">
+    <value>start camera</value>
   </data>
-  <data name="&gt;&gt;BUT_updatecheck.Name" xml:space="preserve">
-    <value>BUT_updatecheck</value>
+  <data name="&gt;&gt;start_camera.Name" xml:space="preserve">
+    <value>start_camera</value>
   </data>
-  <data name="&gt;&gt;BUT_updatecheck.Type" xml:space="preserve">
+  <data name="&gt;&gt;start_camera.Type" xml:space="preserve">
     <value>MissionPlanner.Controls.MyButton, MissionPlanner.Controls, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
-  <data name="&gt;&gt;BUT_updatecheck.Parent" xml:space="preserve">
+  <data name="&gt;&gt;start_camera.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
-  <data name="&gt;&gt;BUT_updatecheck.ZOrder" xml:space="preserve">
-    <value>3</value>
+  <data name="&gt;&gt;start_camera.ZOrder" xml:space="preserve">
+    <value>2</value>
   </data>
-  <data name="linkLabel1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+  <data name="stop_camera.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom</value>
   </data>
-  <data name="linkLabel1.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="linkLabel1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>244, 323</value>
-  </data>
-  <data name="linkLabel1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>96, 20</value>
-  </data>
-  <data name="linkLabel1.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
-  <data name="linkLabel1.Text" xml:space="preserve">
-    <value>Change Log</value>
-  </data>
-  <data name="&gt;&gt;linkLabel1.Name" xml:space="preserve">
-    <value>linkLabel1</value>
-  </data>
-  <data name="&gt;&gt;linkLabel1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.LinkLabel, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;linkLabel1.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;linkLabel1.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="BUT_betaupdate.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom</value>
-  </data>
-  <data name="BUT_betaupdate.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+  <data name="stop_camera.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
-  <data name="BUT_betaupdate.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="stop_camera.Location" type="System.Drawing.Point, System.Drawing">
     <value>275, 268</value>
   </data>
-  <data name="BUT_betaupdate.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="stop_camera.Size" type="System.Drawing.Size, System.Drawing">
     <value>123, 29</value>
   </data>
-  <data name="BUT_betaupdate.TabIndex" type="System.Int32, mscorlib">
+  <data name="stop_camera.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
   </data>
-  <data name="BUT_betaupdate.Text" xml:space="preserve">
-    <value>Check for BETA Updates</value>
+  <data name="stop_camera.Text" xml:space="preserve">
+    <value>stop camera</value>
   </data>
-  <data name="&gt;&gt;BUT_betaupdate.Name" xml:space="preserve">
-    <value>BUT_betaupdate</value>
+  <data name="&gt;&gt;stop_camera.Name" xml:space="preserve">
+    <value>stop_camera</value>
   </data>
-  <data name="&gt;&gt;BUT_betaupdate.Type" xml:space="preserve">
+  <data name="&gt;&gt;stop_camera.Type" xml:space="preserve">
     <value>MissionPlanner.Controls.MyButton, MissionPlanner.Controls, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null</value>
   </data>
-  <data name="&gt;&gt;BUT_betaupdate.Parent" xml:space="preserve">
+  <data name="&gt;&gt;stop_camera.Parent" xml:space="preserve">
     <value>$this</value>
   </data>
-  <data name="&gt;&gt;BUT_betaupdate.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;stop_camera.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="VideoBox.InitialImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="VideoBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>112, 23</value>
+  </data>
+  <data name="VideoBox.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>0, 0, 0, 0</value>
+  </data>
+  <data name="VideoBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 218</value>
+  </data>
+  <data name="VideoBox.SizeMode" type="System.Windows.Forms.PictureBoxSizeMode, System.Windows.Forms">
+    <value>Zoom</value>
+  </data>
+  <data name="VideoBox.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;VideoBox.Name" xml:space="preserve">
+    <value>VideoBox</value>
+  </data>
+  <data name="&gt;&gt;VideoBox.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;VideoBox.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;VideoBox.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
