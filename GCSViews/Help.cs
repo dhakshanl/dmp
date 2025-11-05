@@ -30,23 +30,25 @@ namespace MissionPlanner.GCSViews
 
         void cam_camimage(Image camimage)
         {
-            Image bgimage = camimage;
+            VideoBox.Image = camimage;
         }
+        public static WebCamService.Capture cam { get; set; }
+        public static bool MONO = false;
         public void start_camera_Click(object sender, EventArgs e)
         {
             try
             {
-                if (MainV2.MONO)
+                if (Help.MONO)
                     return;
-                if (MainV2.cam == null)
+                if (Help.cam == null)
                 {
                     try
                     {
-                        MainV2.cam = new WebCamService.Capture(Settings.Instance.GetInt32("video_device"), new AMMediaType());
+                        Help.cam = new WebCamService.Capture(Settings.Instance.GetInt32("video_device"), new AMMediaType());
 
-                        MainV2.cam.Start();
+                        Help.cam.Start();
 
-                        MainV2.cam.camimage += new CamImage(cam_camimage);
+                        Help.cam.camimage += new CamImage(cam_camimage);
                     }
                     catch (Exception ex)
                     {
@@ -77,16 +79,21 @@ namespace MissionPlanner.GCSViews
         {
             try
             {
-            if (MainV2.cam != null)
-            {
-                MainV2.cam.Dispose();
-                MainV2.cam = null;
-            }
+                if (Help.cam != null)
+                {
+                    Help.cam.Dispose();
+                    Help.cam = null;
+                }
             }
             catch (Exception ex)
             {
                 CustomMessageBox.Show(ex.ToString(), Strings.ERROR);
             }
+        }
+
+        private void VideoBox_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

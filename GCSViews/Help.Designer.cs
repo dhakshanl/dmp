@@ -53,11 +53,14 @@
             // 
             // VideoBox
             // 
+            resources.ApplyResources(this.VideoBox, "VideoBox");
+            this.VideoBox.BackgroundImage = global::MissionPlanner.Properties.Resources.camera_icon;
             this.VideoBox.ErrorImage = global::MissionPlanner.Properties.Resources.no_video;
             this.VideoBox.Image = global::MissionPlanner.Properties.Resources.no_video;
-            resources.ApplyResources(this.VideoBox, "VideoBox");
+            this.VideoBox.InitialImage = global::MissionPlanner.Properties.Resources.camera_icon;
             this.VideoBox.Name = "VideoBox";
             this.VideoBox.TabStop = false;
+            this.VideoBox.Click += new System.EventHandler(this.VideoBox_Click);
             // 
             // Help
             // 
