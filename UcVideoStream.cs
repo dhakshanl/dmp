@@ -92,7 +92,7 @@ namespace MissionPlanner
 
         private void start_camera_Click(object sender, EventArgs e)
         {
-            string url = "rtsp://192.168.0.23:8554/live";
+            string url = "rtsp://192.168.144.25:8554/main.264";
             InputBox.Show("rtsp url", "Enter the url to the rtsp source url", ref url);
 
             if (!string.IsNullOrWhiteSpace(url))
