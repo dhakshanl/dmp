@@ -4798,5 +4798,10 @@ namespace MissionPlanner
                 }
             }
         }
+
+        private void toolStripConnectionControl_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

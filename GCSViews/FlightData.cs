@@ -237,7 +237,7 @@ namespace MissionPlanner.GCSViews
             log.Info("Ctor Start");
 
             InitializeComponent();
-
+            this.SubMainLeft.Panel1.Controls.Add(this.hud1);
             log.Info("Components Done");
 
             instance = this;
@@ -317,12 +317,12 @@ namespace MissionPlanner.GCSViews
                 }
             }
 
-            /* It comes from the Theme not from the settings
+            //It comes from the Theme not from the settings
             if (!string.IsNullOrEmpty(Settings.Instance["hudcolor"]))
             {
                 hud1.hudcolor = Color.FromName(Settings.Instance["hudcolor"]);
             }
-            */
+            
 
             log.Info("HUD Settings");
             foreach (string item in Settings.Instance.Keys)
@@ -649,7 +649,7 @@ namespace MissionPlanner.GCSViews
                 hud1.Enabled = false;
                 hud1.Visible = false;
             }
-            //     hud1.Location = new Point(-1000,-1000);
+              hud1.Location = new Point(-1000,-1000);
 
             Settings.Instance["maplast_lat"] = gMapControl1.Position.Lat.ToString();
             Settings.Instance["maplast_lng"] = gMapControl1.Position.Lng.ToString();

@@ -320,7 +320,7 @@ namespace MissionPlanner.GCSViews
             // 
             // SubMainLeft.Panel1
             // 
-            this.SubMainLeft.Panel1.Controls.Add(this.hud1);
+            //this.SubMainLeft.Panel1.Controls.Add(this.hud1);
             // 
             // SubMainLeft.Panel2
             // 
