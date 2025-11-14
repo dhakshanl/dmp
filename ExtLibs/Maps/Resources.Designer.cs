@@ -19,7 +19,7 @@ namespace MissionPlanner.Maps {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -821,12 +821,12 @@ namespace MissionPlanner.Maps {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {\rtf1\ansi\ansicpg1252\deff0\deflang3081
-        ///{\fonttbl{\f0\fswiss\fprq2\fcharset0 Calibri;}}
-        ///\pard\sa200\sl276\slmult1\b this is dhakshan&apos;s page\line
-        ///dont mess with him\b0
-        ///\par}
-        ///    .
+        ///   Looks up a localized string similar to {\rtf1\ansi\ansicpg1252\deff0\deflang3081\deflangfe3081{\fonttbl{\f0\fswiss\fprq2\fcharset0 Calibri;}}
+        ///{\colortbl ;\red0\green0\blue255;}
+        ///{\*\generator Msftedit 5.41.21.2510;}\viewkind4\uc1\pard\nowidctlpar\sa200\sl276\slmult1\f0\fs22\par
+        ///\tab Welcome to the \b Mission Planner\b0 , mission planning for Unmanned Aerial Vehicles (\b UAV\b0 ).\par
+        ///\pard\nowidctlpar\fi720\b Help:\par
+        ///Arduplane: {\field{\*\fldinst{HYPERLINK &quot;http://ardupilot.org/plane&quot;}}{\fldrslt{\ul\cf1 http://ardupilot.org/plane}}}\f0\fs2 [rest of string was truncated]&quot;;.
         /// </summary>
         public static string help_text {
             get {
@@ -1141,7 +1141,7 @@ namespace MissionPlanner.Maps {
         ///
         ///It includes both fixed wing (APM) and rotary wing (!ArduCopter) parameters. Some may only be relevant for one platform or another.
         ///
-        ///|| *EEPROM variable name* || *Min* || *Max* || *Default* || *Multiplier* || *Enabled (0 = no, 1 = [rest of string was truncated]&quot;;.
+        ///|| *EEPROM variable name* || *Min* || *Max* || *Default* || *Multiplier* || *Enabled (0 = no, 1 = yes)* [rest of string was truncated]&quot;;.
         /// </summary>
         public static string MAVParam {
             get {

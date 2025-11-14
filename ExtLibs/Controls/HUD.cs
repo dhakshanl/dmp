@@ -271,7 +271,7 @@ namespace MissionPlanner.Controls
             objBitmap.MakeTransparent();
 
             graphicsObject = this;
-            graphicsObjectGDIP = new GdiGraphics(Graphics.FromImage(objBitmap));
+          graphicsObjectGDIP = new GdiGraphics(Graphics.FromImage(objBitmap));
         }
 
         protected override void Dispose(bool disposing)

@@ -2096,8 +2096,8 @@ mono_emit_jit_dump (MonoJitInfo *jinfo, gpointer code)
 		
 		add_basic_JitCodeLoadRecord_info (&record);
 		record.header.total_size = sizeof (record) + nameLen + 1 + jinfo->code_size;
-		record.vma = (guint64)jinfo->code_start;
-		record.code_addr = (guint64)jinfo->code_start;
+		record.vma = (gsize)jinfo->code_start;
+		record.code_addr = (gsize)jinfo->code_start;
 		record.code_size = (guint64)jinfo->code_size;
 
 		mono_os_mutex_lock (&perf_dump_mutex);
@@ -4459,9 +4459,6 @@ mini_init (const char *filename, const char *runtime_version)
 	callbacks.is_interpreter_enabled = mini_is_interpreter_enabled;
 	callbacks.get_weak_field_indexes = mono_aot_get_weak_field_indexes;
 
-#ifndef DISABLE_CRASH_REPORTING
-	callbacks.install_state_summarizer = mini_register_sigterm_handler;
-#endif
 #ifdef ENABLE_METADATA_UPDATE
 	callbacks.metadata_update_init = mini_metadata_update_init;
 	callbacks.metadata_update_published = mini_invalidate_transformed_interp_methods;
@@ -4515,6 +4512,8 @@ mini_init (const char *filename, const char *runtime_version)
 		/* So methods for multiple domains don't have the same address */
 		mono_dont_free_domains = TRUE;
 		mono_using_xdebug = TRUE;
+		if (!mono_debug_enabled())
+			mono_debug_init (MONO_DEBUG_FORMAT_MONO);
 	} else if (mini_debug_options.gdb) {
 		mono_xdebug_init ((char*)"gdb");
 		mono_dont_free_domains = TRUE;
@@ -4849,6 +4848,7 @@ register_icalls (void)
 		register_opcode_emulation (OP_FBGE_UN, __emul_fcmp_ge_un, mono_icall_sig_uint32_double_double, mono_fcmp_ge_un, FALSE);
 
 		register_opcode_emulation (OP_FCEQ, __emul_fcmp_ceq, mono_icall_sig_uint32_double_double, mono_fceq, FALSE);
+		register_opcode_emulation (OP_FCNEQ, __emul_fcmp_cneq, mono_icall_sig_uint32_double_double, mono_fcneq, FALSE);
 		register_opcode_emulation (OP_FCGT, __emul_fcmp_cgt, mono_icall_sig_uint32_double_double, mono_fcgt, FALSE);
 		register_opcode_emulation (OP_FCGT_UN, __emul_fcmp_cgt_un, mono_icall_sig_uint32_double_double, mono_fcgt_un, FALSE);
 		register_opcode_emulation (OP_FCLT, __emul_fcmp_clt, mono_icall_sig_uint32_double_double, mono_fclt, FALSE);
@@ -5269,7 +5269,7 @@ mono_precompile_assembly (MonoAssembly *ass, void *user_data)
 	}
 }
 
-void mono_precompile_assemblies ()
+void mono_precompile_assemblies (void)
 {
 	GHashTable *assemblies = g_hash_table_new (NULL, NULL);
 

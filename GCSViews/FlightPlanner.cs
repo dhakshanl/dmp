@@ -8278,8 +8278,8 @@ Column 1: Field type (RALLY is the only one at the moment -- may have RALLY_LAND
 
         //Put here since it used in multiple places
         private DialogResult zeroAltWarning(int wpno)
-        {
-           return Common.MessageShowAgain(Strings.ZeroAltWarningTitle,String.Format(Strings.ZeroAltWarning, wpno + 1),true);
+        {// Dhakshan changed zeroaltwarning into ZeroAltWarningTitle
+            return Common.MessageShowAgain(Strings.ZeroAltWarningTitle,String.Format(Strings.ZeroAltWarningTitle, wpno + 1),true);
 
         }
     }

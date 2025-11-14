@@ -71,6 +71,7 @@ namespace System.Windows.Forms {
 		private bool initialized;
 		private bool menu_state = false;
 		private Encoding encoding;
+		private IntPtr fontSet;
 
 		private int NumLockMask;
 		private int AltGrMask;
@@ -80,6 +81,7 @@ namespace System.Windows.Forms {
 			this.display = display;
 			lookup_buffer = new StringBuilder (24);
 			EnsureLayoutInitialized ();
+			SetupFontSet ();
 		}
 
 		private Encoding AnsiEncoding
@@ -153,6 +155,14 @@ namespace System.Windows.Forms {
 				Console.Error.WriteLine ("Could not get XIM");
 
 			initialized = true;
+		}
+
+		private void SetupFontSet ()
+		{
+			IntPtr list;
+			int count;
+			fontSet = XCreateFontSet (display, "fixed", out list, out count, IntPtr.Zero);
+			XFreeStringList (list);
 		}
 
 		void CreateXicForWindow (IntPtr window)
@@ -309,7 +319,7 @@ namespace System.Windows.Forms {
 			if ((xevent.KeyEvent.keycode >> 8) == 0x10)
 				xevent.KeyEvent.keycode = xevent.KeyEvent.keycode & 0xFF;
 
-			int event_time = (int)xevent.KeyEvent.time;
+			uint event_time = (uint)xevent.KeyEvent.time;
 
 			if (status == XLookupStatus.XLookupChars) {
 				// do not ignore those inputs. They are mostly from XIM.
@@ -553,7 +563,7 @@ namespace System.Windows.Forms {
 			return msg;
 		}
 
-		private MSG SendKeyboardInput (VirtualKeys vkey, int scan, int keycode, KeybdEventFlags dw_flags, int time)
+		private MSG SendKeyboardInput (VirtualKeys vkey, int scan, int keycode, KeybdEventFlags dw_flags, uint time)
 		{
 			Msg message;
 
@@ -620,7 +630,7 @@ namespace System.Windows.Forms {
 			return (IntPtr)lparam;
 		}
 
-		private void GenerateMessage (VirtualKeys vkey, int scan, int key_code, XEventName type, int event_time)
+		private void GenerateMessage (VirtualKeys vkey, int scan, int key_code, XEventName type, uint event_time)
 		{
 			bool state = (vkey == VirtualKeys.VK_NUMLOCK ? num_state : cap_state);
 			KeybdEventFlags up, down;
@@ -925,7 +935,7 @@ namespace System.Windows.Forms {
 			XIMStyles styles = (XIMStyles) Marshal.PtrToStructure (stylesPtr, typeof (XIMStyles));
 			XIMProperties [] supportedStyles = new XIMProperties [styles.count_styles];
 			for (int i = 0; i < styles.count_styles; i++)
-				supportedStyles [i] = (XIMProperties) Marshal.PtrToStructure (new IntPtr ((long) styles.supported_styles + i * Marshal.SizeOf (typeof (IntPtr))), typeof (XIMProperties));
+				supportedStyles [i] = (XIMProperties) Marshal.PtrToStructure (new IntPtr ((long) styles.supported_styles + i * Marshal.SizeOf (typeof (IntPtr))), Enum.GetUnderlyingType(typeof(XIMProperties)));
 			lock (XlibLock) {
 				XplatUIX11.XFree (stylesPtr);
 			}
@@ -1013,11 +1023,7 @@ namespace System.Windows.Forms {
 
 		private IntPtr CreateOverTheSpotXic (IntPtr window, IntPtr xim)
 		{
-			IntPtr list;
-			int count;
 			Control c = Control.FromHandle (window);
-			string xlfd = String.Format ("-*-*-*-*-*-*-{0}-*-*-*-*-*-*-*", (int) c.Font.Size);
-			IntPtr fontSet = XCreateFontSet (display, xlfd, out list, out count, IntPtr.Zero);
 			XPoint spot = new XPoint ();
 			spot.X = 0;
 			spot.Y = 0;
@@ -1039,7 +1045,6 @@ namespace System.Windows.Forms {
 					Marshal.FreeHGlobal (pSL);
 				if (pFS != IntPtr.Zero)
 					Marshal.FreeHGlobal (pFS);
-				XFreeStringList (list);
 				//XplatUIX11.XFree (preedit);
 				//XFreeFontSet (fontSet);
 			}
@@ -1182,7 +1187,7 @@ namespace System.Windows.Forms {
 			if (control == null || !control.IsHandleCreated)
 				return;
 			Hwnd hwnd = Hwnd.ObjectFromHandle (client_window);
-			if (!hwnd.mapped)
+			if (hwnd == null || !hwnd.mapped)
 				return;
 
 			int dx, dy;
@@ -1352,7 +1357,7 @@ namespace System.Windows.Forms {
 			(int) VirtualKeys.VK_DOWN, (int) VirtualKeys.VK_PRIOR, (int) VirtualKeys.VK_NEXT, (int) VirtualKeys.VK_END,
 			0, 0, 0, 0, 0, 0, 0, 0,					    /* FF58 */
 			/* misc keys */
-			(int) VirtualKeys.VK_SELECT, (int) VirtualKeys.VK_SNAPSHOT, (int) VirtualKeys.VK_EXECUTE, (int) VirtualKeys.VK_INSERT, 0, 0, 0, 0,  /* FF60 */
+			(int) VirtualKeys.VK_SELECT, (int) VirtualKeys.VK_SNAPSHOT, (int) VirtualKeys.VK_EXECUTE, (int) VirtualKeys.VK_INSERT, 0, 0, 0, (int) VirtualKeys.VK_APPS,  /* FF60 */
 			(int) VirtualKeys.VK_CANCEL, (int) VirtualKeys.VK_HELP, (int) VirtualKeys.VK_CANCEL, (int) VirtualKeys.VK_CANCEL, 0, 0, 0, 0,	    /* FF68 */
 			0, 0, 0, 0, 0, 0, 0, 0,					    /* FF70 */
 			/* keypad keys */

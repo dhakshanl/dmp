@@ -290,13 +290,13 @@ mono_gc_collection_count (int generation)
 }
 
 void
-mono_gc_stop_world ()
+mono_gc_stop_world (void)
 {
 	g_assert ("mono_gc_stop_world is not supported in Boehm");
 }
 
 void
-mono_gc_restart_world ()
+mono_gc_restart_world (void)
 {
 	g_assert ("mono_gc_restart_world is not supported in Boehm");
 }
@@ -474,19 +474,10 @@ on_gc_notification (GC_EventType event)
 		mono_trace_message (MONO_TRACE_GC, "gc took %" G_GINT64_FORMAT " usecs", (mono_100ns_ticks () - gc_start_time) / 10);
 		break;
 	default:
-		break;
+		return;
 	}
 
-	switch (event) {
-	case GC_EVENT_MARK_START:
-	case GC_EVENT_MARK_END:
-	case GC_EVENT_RECLAIM_START:
-	case GC_EVENT_RECLAIM_END:
-		break;
-	default:
-		MONO_PROFILER_RAISE (gc_event, (e, 0, TRUE));
-		break;
-	}
+	MONO_PROFILER_RAISE (gc_event, (e, 0, TRUE));
 
 	switch (event) {
 	case GC_EVENT_PRE_STOP_WORLD:
@@ -1118,12 +1109,12 @@ mono_gc_set_stack_end (void *stack_end)
 {
 }
 
-void GC_start_blocking ()
+static void GC_start_blocking (void)
 {
 
 }
 
-void GC_end_blocking ()
+static void GC_end_blocking (void)
 {
 
 }

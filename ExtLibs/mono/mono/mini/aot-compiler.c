@@ -5236,17 +5236,6 @@ check_type_depth (MonoType *t, int depth)
 static void
 add_types_from_method_header (MonoAotCompile *acfg, MonoMethod *method);
 
-static gboolean
-inst_has_vtypes (MonoGenericInst *inst)
-{
-	for (int i = 0; i < inst->type_argc; ++i) {
-		MonoType *t = inst->type_argv [i];
-		if (MONO_TYPE_ISSTRUCT (t))
-			return TRUE;
-	}
-	return FALSE;
-}
-
 /*
  * add_generic_class:
  *
@@ -8204,6 +8193,8 @@ parse_cpu_features (const gchar *attr)
 #elif defined(TARGET_WASM)
 	if (!strcmp (attr + prefix, "simd"))
 		feature = MONO_CPU_WASM_SIMD;
+#else
+	(void*)prefix;
 #endif
 
 	if (enabled)
@@ -9334,7 +9325,7 @@ append_mangled_signature (GString *s, MonoMethodSignature *sig)
 	supported = append_mangled_type (s, sig->ret);
 	if (!supported)
 		return FALSE;
-		g_string_append_printf (s, "_");
+	g_string_append_printf (s, "_");
 	if (sig->hasthis)
 		g_string_append_printf (s, "this_");
 	for (i = 0; i < sig->param_count; ++i) {

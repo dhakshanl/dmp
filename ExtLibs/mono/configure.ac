@@ -449,12 +449,9 @@ case "$host" in
 				platform_ios=yes
 				has_dtrace=no
 				;;
-			aarch64*-darwin20*)
+			aarch64*-darwin*)
 				# OSX/arm64
 				support_boehm=no
-				;;
-			aarch64*-darwin*)
-				platform_ios=yes
 				;;
 		esac
 		;;
@@ -883,7 +880,7 @@ AC_ARG_ENABLE(visibility-hidden,
 WARN=''
 if test x"$GCC" = xyes; then
 		WARN='-Wall -Wunused -Wmissing-declarations -Wpointer-arith -Wno-cast-qual -Wwrite-strings -Wno-switch -Wno-switch-enum -Wno-unused-value -Wno-attributes'
-		CFLAGS="$CFLAGS -Wmissing-prototypes -Wstrict-prototypes -Wnested-externs -Wno-format-zero-length -Wc++-compat"
+		CFLAGS="$CFLAGS -Wmissing-prototypes -Wstrict-prototypes -Wnested-externs -Wno-format-zero-length"
 
 		# We require C99 with some GNU extensions, e.g. `linux` macro
 		CFLAGS="$CFLAGS -std=gnu99"
@@ -992,14 +989,6 @@ AC_SUBST([mcs_topdir_from_srcdir])
 # gettext: prepare the translation directories. 
 # we do not configure the full gettext, as we consume it dynamically from C#
 AM_PO_SUBDIRS
-
-if test "x$USE_NLS" = "xyes"; then
-   AC_CHECK_PROG(HAVE_MSGFMT, msgfmt,yes,no)
-
-   if test "x$HAVE_MSGFMT" = "xno"; then
-	  AC_MSG_ERROR([msgfmt not found. You need to install the 'gettext' package, or pass --enable-nls=no to configure.])
-   fi
-fi
 
 AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
 
@@ -1171,42 +1160,6 @@ AC_SUBST(JEMALLOC_CPPFLAGS)
 AC_SUBST(JEMALLOC_LDFLAGS)
 AC_SUBST(JEMALLOC_AUTOCONF_FLAGS)
 fi
-
-# Terminology:
-# Crash privacy - Attempts to not send identifying information in the crash dump / to protect the obscurity of the program control flow
-# MERP - The MS telemetry profile. Not for general use.
-# Structured crashes - crashes at runtime that trigger a stack walk by mono that happens cooperatively
-
-# Structured crashes are not merp crashes. Structured crashes are json dumps made by mono during crashes. Merp upload is going to use the dumping code is a very specific way, and is enabled at runtime with an icall.
-
-#--with-crash_privacy=yes --with-structured_crashes=no means we don't wanna dump in non-merp-enabled builds, and we want to not send symbol strings. This is going to be the default pair of settings for VS4Mac.
-#--with-crash_privacy=yes --with-structured_crashes=yes means you want to see crashes on your console, and you want to not see unmanaged symbol names. This is an option for proprietary apps that have manual bugs filed.
-#--with-crash_privacy=no --with-structured_crashes=no means you want to see no crash dumps on failure and you don't care about privacy. This is how you'd set a "don't want it, don't care" configuration.
-#--with-crash_privacy=no --with-structured_crashes=yes means you want full crashes and you want to see them in the terminal, not on telemetry. This is going to be how we build for CI.
-
-AC_ARG_WITH(crash-privacy,       [  --with-crash_privacy=yes,no         If you want your crashes to not include names of symbols present in the binary. ], [], [with_crash_privacy=yes])
-AC_ARG_WITH(structured-crashes,  [  --with-structured_crashes=yes,no    If you want your unmanaged crashes to result in a small crash dump file. ],        [], [with_structured_crashes=yes])
-AC_ARG_ENABLE(crash-reporting,  [  --disable-crash-reporting            Enable or Disable crash reporting subsystem],        [crash_reporting=$enableval], [crash_reporting=yes])
-
-if test "x$with_crash_privacy" = "xyes"; then
-AC_DEFINE(MONO_PRIVATE_CRASHES,1,[Do not include names of unmanaged functions in the crash dump])
-fi
-
-if test "x$with_structured_crashes" = "xno"; then
-AC_DEFINE(DISABLE_STRUCTURED_CRASH,1,[Do not create structured crash files during unmanaged crashes])
-fi
-
-case "$host" in
-	*-mingw*|*-*-cygwin*)
-		crash_reporting=no
-		;;
-esac
-
-if test "x$crash_reporting" != "xyes"; then
-CFLAGS="$CFLAGS -DDISABLE_CRASH_REPORTING=1"
-CXXFLAGS="$CXXFLAGS -DDISABLE_CRASH_REPORTING=1"
-fi
-AM_CONDITIONAL(DISABLE_CRASH_REPORTING, test x$crash_reporting != xyes)
 
 AC_ARG_ENABLE(monodroid, [ --enable-monodroid Enable runtime support for Monodroid (Xamarin.Android)], enable_monodroid=$enableval, enable_monodroid=no)
 AM_CONDITIONAL(ENABLE_MONODROID, test x$enable_monodroid = xyes)
@@ -1747,6 +1700,14 @@ if test x$USE_NLS = xprofile_default; then
 
 	AC_SUBST([USE_NLS])
 	AC_MSG_RESULT([$USE_NLS])
+fi
+
+if test "x$USE_NLS" = "xyes"; then
+   AC_CHECK_PROG(HAVE_MSGFMT, msgfmt,yes,no)
+
+   if test "x$HAVE_MSGFMT" = "xno"; then
+	  AC_MSG_ERROR([msgfmt not found. You need to install the 'gettext' package, or pass --enable-nls=no to configure.])
+   fi
 fi
 
 AC_ARG_ENABLE(static-gcc-libs, [  --enable-static-gcc-libs      Statically link GCC support libs (for MinGW32)])
@@ -4766,10 +4727,6 @@ if test "x$host" != "x$target"; then
 		sizeof_register=8
 		AC_DEFINE(TARGET_WATCHOS, 1, [...])
 		;;
-	aarch64*darwin20*)
-		TARGET=ARM64
-		TARGET_SYS=OSX
-		;;
 	aarch64*darwin*)
 		TARGET=ARM64
 		TARGET_SYS=IOS
@@ -5876,7 +5833,7 @@ dnl **********************
 dnl *** checked builds ***
 dnl **********************
 
-AC_ARG_ENABLE(checked_build, [  --enable-checked-build=LIST      To enable checked build (expensive asserts), configure with a comma-separated LIST of checked build modules and then include that same list in the environment variable MONO_CHECK_MODE at runtime. Recognized checked build modules: all, gc, metadata, thread, private_types, crash_reporting],[
+AC_ARG_ENABLE(checked_build, [  --enable-checked-build=LIST      To enable checked build (expensive asserts), configure with a comma-separated LIST of checked build modules and then include that same list in the environment variable MONO_CHECK_MODE at runtime. Recognized checked build modules: all, gc, metadata, thread, private_types],[
 
 	if test x$enable_checked_build != x ; then
 		AC_DEFINE(ENABLE_CHECKED_BUILD,1,[Enable checked build])
@@ -5890,7 +5847,6 @@ AC_ARG_ENABLE(checked_build, [  --enable-checked-build=LIST      To enable check
 		eval "mono_checked_build_test_enable_metadata='yes'"
 		eval "mono_checked_build_test_enable_thread='yes'"
 		eval "mono_checked_build_test_enable_private_types='yes'"
-		eval "mono_checked_build_test_enable_crash_reporting='yes'"
 	fi
 
 	if test "x$mono_checked_build_test_enable_gc" = "xyes"; then
@@ -5907,14 +5863,6 @@ AC_ARG_ENABLE(checked_build, [  --enable-checked-build=LIST      To enable check
 
 	if test "x$mono_checked_build_test_enable_private_types" = "xyes"; then
 		AC_DEFINE(ENABLE_CHECKED_BUILD_PRIVATE_TYPES, 1, [Enable private types checked build])
-	fi
-
-	if test "x$mono_checked_build_test_enable_crash_reporting" = "xyes"; then
-		# Required
-		with_overridable_allocators=yes
-		AC_DEFINE(ENABLE_OVERRIDABLE_ALLOCATORS,1,[Overridable allocator support enabled])
-
-		AC_DEFINE(ENABLE_CHECKED_BUILD_CRASH_REPORTING, 1, [Enable private types checked build])
 	fi
 ], [])
 
@@ -6205,6 +6153,7 @@ AC_SUBST(mono_runtime)
 AC_SUBST(mono_runtime_wrapper)
 
 CSC_LOCATION=`cd $srcdir && pwd`/external/roslyn-binaries/Microsoft.Net.Compilers/3.9.0/csc.exe
+VBC_LOCATION=`cd $srcdir && pwd`/external/roslyn-binaries/Microsoft.Net.Compilers/3.9.0/vbc.exe
 VBCS_LOCATION=`cd $srcdir && pwd`/external/roslyn-binaries/Microsoft.Net.Compilers/3.9.0/VBCSCompiler.exe
 
 if test $csc_compiler = mcs; then
@@ -6221,6 +6170,7 @@ if test x$host_win32 = xyes; then
     mono_cfg_dir=`cygpath -w -a $mono_cfg_root`\\etc
     CSC=`cygpath -m -a $CSC`
     CSC_LOCATION=`cygpath -m -a $CSC_LOCATION`
+    VBC_LOCATION=`cygpath -m -a $VBC_LOCATION`
     VBCS_LOCATION=`cygpath -m -a $VBCS_LOCATION`
   else
     mono_cfg_dir=`echo $mono_cfg_root | tr '/' '\\'`\\etc
@@ -6978,6 +6928,7 @@ fi
 
     echo "STANDALONE_CSC_LOCATION=$CSC_LOCATION" >> $srcdir/$mcsdir/build/config.make
     echo "SERVER_CSC_LOCATION?=$CSC_LOCATION" >> $srcdir/$mcsdir/build/config.make
+    echo "VBC_LOCATION?=$VBC_LOCATION" >> $srcdir/$mcsdir/build/config.make
     echo "VBCS_LOCATION?=$VBCS_LOCATION" >> $srcdir/$mcsdir/build/config.make
 
     if test $csc_compiler = mcs; then
@@ -7125,7 +7076,6 @@ echo "
 	BTLS:            $enable_btls$btls_platform_string
 	CGROUP:		 $ac_cv_header_linux_cgroupstats_h
 	jemalloc:        $with_jemalloc (always use: $with_jemalloc_always)
-	crash reporting: $crash_reporting (private crashes: $with_crash_privacy)
 	$disabled
 "
 if test x$with_static_mono = xno -a "x$host_win32" != "xyes"; then

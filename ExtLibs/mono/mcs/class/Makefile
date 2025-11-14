@@ -290,6 +290,7 @@ net_4_x_parallel_dirs = \
 	System.Drawing.Design		\
 	ICSharpCode.SharpZipLib		\
 	Microsoft.CSharp	\
+	Microsoft.VisualBasic	\
 	System.ServiceModel.Internals	\
 	SMDiagnostics	\
 	System.Runtime.Serialization	\
@@ -550,7 +551,7 @@ package-monolite-latest-all-platforms:
 	$(MAKE) package-monolite-latest HOST_PLATFORM=win32
 	$(MAKE) package-monolite-latest HOST_PLATFORM=unix
 
-monolite_url = https://download.mono-project.com/monolite/monolite-$(BUILD_PLATFORM)-$(MONO_CORLIB_VERSION)-latest.tar.gz
+monolite_url = https://dl.winehq.org/mono/monolite/monolite-$(BUILD_PLATFORM)-$(MONO_CORLIB_VERSION)-latest.tar.gz
 
 get-monolite-latest:
 	-rm -fr lib/monolite-$(BUILD_PLATFORM)/$(MONO_CORLIB_VERSION)

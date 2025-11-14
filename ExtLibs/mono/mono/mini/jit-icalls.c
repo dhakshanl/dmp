@@ -671,6 +671,12 @@ mono_fceq (double a, double b)
 }
 
 gboolean
+mono_fcneq (double a, double b)
+{
+	return a != b;
+}
+
+gboolean
 mono_fcgt (double a, double b)
 {
 	return a > b;
@@ -1596,7 +1602,7 @@ mono_throw_method_access (MonoMethod *caller, MonoMethod *callee)
 }
 
 void
-mono_throw_bad_image ()
+mono_throw_bad_image (void)
 {
 	ERROR_DECL (error);
 	mono_error_set_generic_error (error, "System", "BadImageFormatException", "Bad IL format.");
@@ -1604,7 +1610,7 @@ mono_throw_bad_image ()
 }
 
 void
-mono_throw_not_supported ()
+mono_throw_not_supported (void)
 {
 	ERROR_DECL (error);
 	mono_error_set_generic_error (error, "System", "NotSupportedException", "");

@@ -741,7 +741,7 @@ mono_process_get_data (gpointer pid, MonoProcessData data)
 
 #ifndef HOST_WIN32
 int
-mono_process_current_pid ()
+mono_process_current_pid (void)
 {
 #if defined(HAVE_UNISTD_H)
 	return (int) getpid ();
@@ -889,7 +889,9 @@ mono_cpu_count (void)
 int
 mono_cpu_limit (void)
 {
+#if HAVE_CGROUP_SUPPORT
 	int count = 0;
+#endif
 	static int limit = -1;	/* Value will be cached for future calls */
 
 	/*

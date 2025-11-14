@@ -724,11 +724,8 @@ namespace System.Windows.Forms {
 				hwnd.AddNcInvalidArea (x, y, width, height);
 				if (!hwnd.nc_expose_pending && hwnd.visible) {
 					MSG msg = new MSG ();
-					Region rgn = new Region (hwnd.Invalid);
-					IntPtr hrgn = rgn.GetHrgn (null); // Graphics object isn't needed
 					msg.message = Msg.WM_NCPAINT;
-					msg.wParam = hrgn == IntPtr.Zero ? (IntPtr)1 : hrgn;
-					msg.refobject = rgn;
+					msg.wParam = (IntPtr)1;
 					msg.hwnd = hwnd.Handle;
 					EnqueueMessage (msg);
 					hwnd.nc_expose_pending = true;
@@ -2184,15 +2181,15 @@ namespace System.Windows.Forms {
 		#endregion
 
 		internal override SizeF GetAutoScaleSize(Font font) {
-			Graphics        g;
 			float           width;
 			string          magic_string = "The quick brown fox jumped over the lazy dog.";
 			double          magic_number = 44.549996948242189;
 
-			g = Graphics.FromImage (new Bitmap (1, 1));
-
-			width = (float) (g.MeasureString (magic_string, font).Width / magic_number);
-			return new SizeF(width, font.Height);
+			using (Graphics g = Graphics.FromImage (new Bitmap (1, 1)))
+			{
+				width = (float) (g.MeasureString (magic_string, font).Width / magic_number);
+				return new SizeF(width, font.Height);
+			}
 		}
 
 		internal override Point MousePosition {

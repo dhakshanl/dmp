@@ -2719,6 +2719,7 @@ emit_marshal_array_ilgen (EmitMarshalContext *m, int argnum, MonoType *t,
 		break;
 	}
 
+	case MARSHAL_ACTION_MANAGED_INIT_OUT:
 	case MARSHAL_ACTION_MANAGED_CONV_IN: {
 		guint32 label1, label2, label3;
 		int index_var, src_ptr, esize, param_num, num_elem;
@@ -2768,37 +2769,14 @@ emit_marshal_array_ilgen (EmitMarshalContext *m, int argnum, MonoType *t,
 			param_num = -1;
 
 		if (param_num == -1) {
-			if (num_elem <= 0) {
+			if (num_elem == -1)
+				num_elem = 1;
+			else if (num_elem <= 0) {
 				char *msg = g_strdup ("Either SizeConst or SizeParamIndex should be specified when marshalling arrays to managed code.");
 				mono_mb_emit_exception_marshal_directive (mb, msg);
 				return conv_arg;
 			}
 		}
-
-		/* FIXME: Optimize blittable case */
-
-#ifndef DISABLE_NONBLITTABLE
-		if (eklass == mono_defaults.string_class) {
-			is_string = TRUE;
-			gboolean need_free;
-			conv = mono_marshal_get_ptr_to_string_conv (m->piinfo, spec, &need_free);
-		}
-		else if (eklass == mono_class_try_get_stringbuilder_class ()) {
-			is_string = TRUE;
-			gboolean need_free;
-			conv = mono_marshal_get_ptr_to_stringbuilder_conv (m->piinfo, spec, &need_free);
-		}
-		else
-			conv = MONO_MARSHAL_CONV_INVALID;
-#endif
-
-		mono_marshal_load_type_info (eklass);
-
-		if (is_string)
-			esize = TARGET_SIZEOF_VOID_P;
-		else
-			esize = mono_class_native_size (eklass, NULL);
-		src_ptr = mono_mb_add_local (mb, int_type);
 
 		mono_mb_emit_byte (mb, CEE_LDNULL);
 		mono_mb_emit_stloc (mb, conv_arg);
@@ -2834,9 +2812,6 @@ emit_marshal_array_ilgen (EmitMarshalContext *m, int argnum, MonoType *t,
 		mono_mb_emit_ldarg (mb, argnum);
 		label1 = mono_mb_emit_branch (mb, CEE_BRFALSE);
 
-		mono_mb_emit_ldarg (mb, argnum);
-		mono_mb_emit_stloc (mb, src_ptr);
-
 		/* Create managed array */
 		/* 
 		 * The LPArray marshalling spec says that sometimes param_num starts 
@@ -2857,6 +2832,39 @@ emit_marshal_array_ilgen (EmitMarshalContext *m, int argnum, MonoType *t,
 
 		mono_mb_emit_op (mb, CEE_NEWARR, eklass);
 		mono_mb_emit_stloc (mb, conv_arg);
+
+		if (action == MARSHAL_ACTION_MANAGED_INIT_OUT) {
+			mono_mb_patch_branch (mb, label1);
+			break;
+		}
+
+		/* FIXME: Optimize blittable case */
+
+#ifndef DISABLE_NONBLITTABLE
+		if (eklass == mono_defaults.string_class) {
+			is_string = TRUE;
+			gboolean need_free;
+			conv = mono_marshal_get_ptr_to_string_conv (m->piinfo, spec, &need_free);
+		}
+		else if (eklass == mono_class_try_get_stringbuilder_class ()) {
+			is_string = TRUE;
+			gboolean need_free;
+			conv = mono_marshal_get_ptr_to_stringbuilder_conv (m->piinfo, spec, &need_free);
+		}
+		else
+			conv = MONO_MARSHAL_CONV_INVALID;
+#endif
+
+		mono_marshal_load_type_info (eklass);
+
+		if (is_string)
+			esize = TARGET_SIZEOF_VOID_P;
+		else
+			esize = mono_class_native_size (eklass, NULL);
+		src_ptr = mono_mb_add_local (mb, int_type);
+
+		mono_mb_emit_ldarg (mb, argnum);
+		mono_mb_emit_stloc (mb, src_ptr);
 
 		if (m_class_is_blittable (eklass)) {
 			mono_mb_emit_ldloc (mb, conv_arg);
@@ -2942,7 +2950,9 @@ emit_marshal_array_ilgen (EmitMarshalContext *m, int argnum, MonoType *t,
 			param_num = -1;
 
 		if (param_num == -1) {
-			if (num_elem <= 0) {
+			if (num_elem == -1)
+				num_elem = 1;
+			else if (num_elem <= 0) {
 				g_assert_not_reached ();
 			}
 		}
@@ -4055,7 +4065,7 @@ emit_delegate_end_invoke_ilgen (MonoMethodBuilder *mb, MonoMethodSignature *sig)
 static void
 emit_delegate_invoke_internal_ilgen (MonoMethodBuilder *mb, MonoMethodSignature *sig, MonoMethodSignature *invoke_sig, gboolean static_method_with_first_arg_bound, gboolean callvirt, gboolean closed_over_null, MonoMethod *method, MonoMethod *target_method, MonoClass *target_class, MonoGenericContext *ctx, MonoGenericContainer *container)
 {
-	int local_i, local_len, local_delegates, local_d, local_target, local_res;
+	int local_i, local_len, local_delegates, local_d, local_target, local_res=-1;
 	int pos0, pos1, pos2;
 	int i;
 	gboolean void_ret;
@@ -5376,7 +5386,7 @@ emit_marshal_safehandle_ilgen (EmitMarshalContext *m, int argnum, MonoType *t,
 	case MARSHAL_ACTION_CONV_OUT: {
 		/* The slot for the boolean is the next temporary created after conv_arg, see the CONV_IN code */
 		int dar_release_slot = conv_arg + 1;
-		int label_next;
+		int label_next = -1;
 
 		if (!sh_dangerous_release)
 			init_safe_handle ();
@@ -5434,6 +5444,7 @@ emit_marshal_safehandle_ilgen (EmitMarshalContext *m, int argnum, MonoType *t,
 				mono_mb_emit_byte (mb, CEE_STIND_I);
 
 				if (is_in (t)) {
+					g_assert (label_next != -1);
 					mono_mb_patch_branch (mb, label_next);
 				}
 			}
@@ -6239,16 +6250,20 @@ emit_managed_wrapper_ilgen (MonoMethodBuilder *mb, MonoMethodSignature *invoke_s
 	tmp_locals = g_newa (int, sig->param_count);
 	for (i = 0; i < sig->param_count; i ++) {
 		MonoType *t = sig->params [i];
+		MarshalAction action = MARSHAL_ACTION_MANAGED_CONV_IN;
 
 		switch (t->type) {
+		case MONO_TYPE_ARRAY:
+		case MONO_TYPE_SZARRAY:
+			if ((invoke_sig->params [i]->attrs & PARAM_ATTRIBUTE_OUT) && !(invoke_sig->params [i]->attrs & PARAM_ATTRIBUTE_IN))
+				action = MARSHAL_ACTION_MANAGED_INIT_OUT;
 		case MONO_TYPE_OBJECT:
 		case MONO_TYPE_CLASS:
 		case MONO_TYPE_VALUETYPE:
-		case MONO_TYPE_ARRAY:
-		case MONO_TYPE_SZARRAY:
 		case MONO_TYPE_STRING:
 		case MONO_TYPE_BOOLEAN:
-			tmp_locals [i] = mono_emit_marshal (m, i, sig->params [i], mspecs [i + 1], 0, &csig->params [i], MARSHAL_ACTION_MANAGED_CONV_IN);
+		case MONO_TYPE_PTR:
+			tmp_locals [i] = mono_emit_marshal (m, i, t, mspecs [i + 1], 0, &csig->params [i], action);
 			break;
 		default:
 			tmp_locals [i] = 0;
@@ -6258,7 +6273,7 @@ emit_managed_wrapper_ilgen (MonoMethodBuilder *mb, MonoMethodSignature *invoke_s
 
 	if (sig->hasthis) {
 		if (target_handle) {
-			mono_mb_emit_icon8 (mb, (gint64)target_handle);
+			mono_mb_emit_icon8 (mb, (gsize)target_handle);
 			mono_mb_emit_byte (mb, CEE_CONV_I);
 			mono_mb_emit_icall (mb, mono_gchandle_get_target_internal);
 		} else {
@@ -6266,7 +6281,7 @@ emit_managed_wrapper_ilgen (MonoMethodBuilder *mb, MonoMethodSignature *invoke_s
 			g_assert_not_reached ();
 		}
 	} else if (closed) {
-		mono_mb_emit_icon8 (mb, (gint64)target_handle);
+		mono_mb_emit_icon8 (mb, (gsize)target_handle);
 		mono_mb_emit_byte (mb, CEE_CONV_I);
 		mono_mb_emit_icall (mb, mono_gchandle_get_target_internal);
 	}
@@ -6371,6 +6386,8 @@ emit_managed_wrapper_ilgen (MonoMethodBuilder *mb, MonoMethodSignature *invoke_s
 			case MONO_TYPE_CLASS:
 			case MONO_TYPE_VALUETYPE:
 				mono_emit_marshal (m, i, invoke_sig->params [i], mspecs [i + 1], tmp_locals [i], NULL, MARSHAL_ACTION_MANAGED_CONV_OUT);
+				break;
+			case MONO_TYPE_I:
 				break;
 			default:
 				g_assert_not_reached ();

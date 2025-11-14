@@ -73,19 +73,17 @@ if [ "$test_suite" = "--nunit" ]; then
         *"Mono.Messaging.RabbitMQ"*)
             export MONO_MESSAGING_PROVIDER=Mono.Messaging.RabbitMQ.RabbitMQMessagingProvider,Mono.Messaging.RabbitMQ
             ;;
-        *"System.Windows.Forms"*)
-            sudo apt install -y xvfb xauth
-            XVFBRUN="xvfb-run -a --"
-            ADDITIONAL_TEST_EXCLUDES="NotWithXvfb" # TODO: find out why this works on Jenkins?
-            ;;
     esac
     case "$test_argument_2" in
         "--flaky-test-retries="*)
             export MONO_FLAKY_TEST_RETRIES=$(echo "$test_argument_2" | cut -d "=" -f2)
             ;;
+        *)
+            export ADDITIONAL_TEST_ARGS=$test_argument_2
+            ;;
     esac
     cp -f "$r/$test_argument_1.nunitlite.config" "$r/net_4_x/nunit-lite-console.exe.config"
-    MONO_REGISTRY_PATH="$HOME/.mono/registry" MONO_TESTS_IN_PROGRESS="yes" $XVFBRUN "${MONO_EXECUTABLE}" --config "$r/_tmpinst/etc/mono/config" --debug "$r/net_4_x/nunit-lite-console.exe" "$r/$test_argument_1" -exclude=NotWorking,CAS,$ADDITIONAL_TEST_EXCLUDES -labels -format:xunit -result:"${xunit_results_path}"
+    MONO_REGISTRY_PATH="$HOME/.mono/registry" MONO_TESTS_IN_PROGRESS="yes" $XVFBRUN "${MONO_EXECUTABLE}" --config "$r/_tmpinst/etc/mono/config" --debug "$r/net_4_x/nunit-lite-console.exe" "$r/$test_argument_1" $ADDITIONAL_TEST_ARGS -exclude=NotWorking,CAS,UI,$ADDITIONAL_TEST_EXCLUDES -labels -format:xunit -result:"${xunit_results_path}"
     exit $?
 fi
 
@@ -182,6 +180,11 @@ fi
 if [ "$test_suite" = "--mini" ]; then
     cd tests/mini || exit 1
 
+	case "$test_argument_1" in
+		--aot=*) rm -f *.exe.so *.exe.dylib *.exe.dylib.dSYM *.exe.dll; "${MONO_EXECUTABLE}" --config "$r/_tmpinst/etc/mono/config" "$test_argument_1" ./*.exe || exit 1;;
+		*) true;;
+	esac
+
     "${MONO_EXECUTABLE}" --config "$r/_tmpinst/etc/mono/config" --regression ./*.exe > regressiontests.out 2>&1
     cat regressiontests.out
     if grep -q "100% pass" regressiontests.out; then
@@ -203,6 +206,12 @@ if [ "$test_suite" = "--mini" ]; then
                 </collection>\
             </assembly>\
         </assemblies>" >> "${xunit_results_path}";
+
+	case "$test_argument_1" in
+		--aot=*) rm -f *.exe.so *.exe.dylib *.exe.dylib.dSYM *.exe.dll;;
+		*) true;;
+	esac
+
     exit $failurescount
 fi
 

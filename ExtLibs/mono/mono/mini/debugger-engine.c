@@ -750,7 +750,7 @@ ss_req_acquire (MonoInternalThread *thread)
 }
 
 static int 
-ss_req_count ()
+ss_req_count (void)
 {
 	return the_ss_reqs->len;
 }
@@ -781,7 +781,7 @@ mono_de_cancel_ss (SingleStepReq *req)
 }
 
 void
-mono_de_cancel_all_ss ()
+mono_de_cancel_all_ss (void)
 {
 	int i;
 	for (i = 0; i < the_ss_reqs->len; ++i) {

@@ -726,7 +726,7 @@ struct FoundAttrUD {
 };
 
 static gboolean
-has_wellknown_attribute_func (MonoImage *image, guint32 typeref_scope_token, const char *nspace, const char *name, guint32 method_token, gpointer user_data)
+has_wellknown_attribute_func (MonoImage *image, guint32 typeref_scope_token, const gchar *nspace, const gchar *name, guint32 method_token, guint32 index, guint32 value, gpointer user_data)
 {
 	struct FoundAttrUD *has_attr = (struct FoundAttrUD *)user_data;
 	if (!strcmp (name, has_attr->name) && !strcmp (nspace, has_attr->nspace)) {
@@ -2390,13 +2390,13 @@ initialize_object_slots (MonoClass *klass)
 }
 
 int
-mono_class_get_object_finalize_slot ()
+mono_class_get_object_finalize_slot (void)
 {
 	return finalize_slot;
 }
 
 MonoMethod *
-mono_class_get_default_finalize_method ()
+mono_class_get_default_finalize_method (void)
 {
 	int const i = finalize_slot;
 	return (i < 0) ? NULL : mono_defaults.object_class->vtable [i];
@@ -2987,7 +2987,7 @@ mono_class_setup_parent (MonoClass *klass, MonoClass *parent)
 		klass->instance_size = MONO_ABI_SIZEOF (MonoObject);
 		return;
 	}
-	if (!strcmp (klass->name, "<Module>")) {
+	if (klass->type_token == mono_metadata_make_token (MONO_TABLE_TYPEDEF, 1)) {
 		klass->parent = NULL;
 		klass->instance_size = 0;
 		return;

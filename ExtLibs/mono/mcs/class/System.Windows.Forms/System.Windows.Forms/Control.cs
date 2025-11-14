@@ -3235,7 +3235,8 @@ namespace System.Windows.Forms
 				while (p != null && !p.GetTopLevel()) {
 					p = p.parent;
 				}
-				return p;
+				// If the control is not parented on a Form, this property will return null
+				return p as Form as Control;
 			}
 		}
 
@@ -4112,13 +4113,13 @@ namespace System.Windows.Forms
 			}
 		}
 		[EditorBrowsable (EditorBrowsableState.Never)]
-		[Obsolete ()]
+		[Obsolete("This method has been deprecated. Use the Scale(SizeF ratio) method instead. https://go.microsoft.com/fwlink/?linkid=14202")]
 		public void Scale(float ratio) {
 			ScaleCore(ratio, ratio);
 		}
 		
 		[EditorBrowsable (EditorBrowsableState.Never)]
-		[Obsolete ()]
+		[Obsolete("This method has been deprecated. Use the Scale(SizeF ratio) method instead. https://go.microsoft.com/fwlink/?linkid=14202")]
 		public void Scale(float dx, float dy) {
 			ScaleCore(dx, dy);
 		}
@@ -4739,8 +4740,14 @@ namespace System.Windows.Forms
 			SetBounds (new_bounds.X, new_bounds.Y, new_bounds.Width, new_bounds.Height, BoundsSpecified.All);
 
 			if (ScaleChildrenInternal)
-				foreach (Control c in Controls.GetAllControls ())
-					c.Scale (dx, dy);
+			{
+				foreach (Control c in Controls.GetAllControls())
+				{
+#pragma warning disable CS0618 // Type or member is obsolete - compat
+					c.Scale(dx, dy);
+#pragma warning restore CS0618
+				}
+			}
 
 			ResumeLayout ();
 		}

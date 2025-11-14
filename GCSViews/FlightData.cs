@@ -6646,5 +6646,36 @@ namespace MissionPlanner.GCSViews
             // Pass `this` to keep the pop-out always on top
             form.Show(this);
         }
+        //camera
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+            UcVideoStream newTabContent = new UcVideoStream();
+            ThemeManager.ApplyThemeTo(newTabContent);
+
+            TabPage newTabPage = new TabPage();
+            newTabPage.Text = "Tab " + (tabControl1.TabCount + 1);
+
+            newTabPage.Controls.Add(newTabContent);
+            newTabContent.Dock = DockStyle.Fill;
+
+            tabControl1.TabPages.Add(newTabPage);
+
+            tabControl1.SelectedTab = newTabPage;
+        }
+
+        private void ucVideoStream1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void transparentPanel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+        private void splitContainer2_Panel1_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
     }
 }

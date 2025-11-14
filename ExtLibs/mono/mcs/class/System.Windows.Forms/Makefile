@@ -3,7 +3,7 @@ include ../../build/rules.make
 
 LIBRARY = System.Windows.Forms.dll
 
-LIB_REFS = System System.Xml System.Drawing Accessibility System.Data Mono.Posix Mono.WebBrowser System.Configuration System.Runtime.Serialization.Formatters.Soap
+LIB_REFS = System System.Xml System.Drawing Accessibility System.Data Mono.Posix Mono.WebBrowser System.Configuration System.Runtime.Serialization.Formatters.Soap System.Core
 KEYFILE = ../ecma.pub
 LIB_MCS_FLAGS = /unsafe \
 	@System.Windows.Forms.dll.resources \
@@ -14,8 +14,7 @@ LIB_MCS_FLAGS += /define:GENERATING_RESOURCES
 endif
 
 RESX_RESOURCES = \
-	resources/keyboards.resources \
-        resources/System.Windows.Forms.resources
+    resources/System.Windows.Forms.resources
 
 CLEAN_FILES += $(RESX_RESOURCES)
 

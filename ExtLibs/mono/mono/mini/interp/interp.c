@@ -3144,15 +3144,6 @@ mono_interp_enum_hasflag (stackval *sp1, stackval *sp2, MonoClass* klass)
 	return (a_val & b_val) == b_val;
 }
 
-// varargs in wasm consumes extra linear stack per call-site.
-// These g_warning/g_error wrappers fix that. It is not the
-// small wasm stack, but conserving it is still desirable.
-static void
-g_warning_d (const char *format, int d)
-{
-	g_warning (format, d);
-}
-
 #if !USE_COMPUTED_GOTO
 static void
 interp_error_xsx (const char *format, int x1, const char *s, int x2)
@@ -7388,6 +7379,7 @@ invalidate_transform (gpointer imethod_)
 	imethod->transformed = FALSE;
 }
 
+#ifdef ENABLE_METADATA_UPDATE
 static void
 copy_imethod_for_frame (MonoDomain *domain, InterpFrame *frame)
 {
@@ -7399,6 +7391,7 @@ copy_imethod_for_frame (MonoDomain *domain, InterpFrame *frame)
 	 * would reclaim its memory when the corresponding InterpFrame is popped.
 	 */
 }
+#endif
 
 static void
 interp_metadata_update_init (MonoError *error)

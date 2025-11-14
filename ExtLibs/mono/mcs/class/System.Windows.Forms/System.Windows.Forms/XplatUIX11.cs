@@ -94,8 +94,8 @@ namespace System.Windows.Forms {
 		int                     render_first_error;
 
 		// Clipboard
-		static IntPtr 		ClipMagic;
-		static ClipboardData	Clipboard;		// Our clipboard
+		static X11Clipboard[]	Clipboards;		// Our clipboards
+		static X11Selection[]	Selections;		// clipboards and DND
 
 		// Communication
 		static IntPtr		PostAtom;		// PostMessage atom
@@ -134,6 +134,10 @@ namespace System.Windows.Forms {
 
 		// Last window containing the pointer
 		static IntPtr		LastPointerWindow;	// The last window containing the pointer
+
+		// Fixes extension
+		int? fixesMajorVersion;
+		int HideCursorCount;
 
 		// Shape extension
 		bool? hasShapeExtension;
@@ -200,14 +204,8 @@ namespace System.Windows.Forms {
 		//static IntPtr _NET_WM_WINDOW_TYPE_SPLASH;
 		// static IntPtr _NET_WM_WINDOW_TYPE_DIALOG;
 		static IntPtr _NET_WM_WINDOW_TYPE_NORMAL;
-		static IntPtr CLIPBOARD;
-		static IntPtr PRIMARY;
 		//static IntPtr DIB;
-		static IntPtr OEMTEXT;
 		static IntPtr UTF8_STRING;
-		static IntPtr UTF16_STRING;
-		static IntPtr RICHTEXTFORMAT;
-		static IntPtr TARGETS;
 
 		// mouse hover message generation
 		static HoverStruct	HoverState;		//
@@ -256,7 +254,6 @@ namespace System.Windows.Forms {
 			MessageQueues = Hashtable.Synchronized (new Hashtable(7));
 			unattached_timer_list = ArrayList.Synchronized (new ArrayList (3));
 			messageHold = Hashtable.Synchronized (new Hashtable(3));
-			Clipboard = new ClipboardData ();
 			XInitThreads();
 
 			ErrorExceptions = false;
@@ -431,7 +428,7 @@ namespace System.Windows.Forms {
 				if ((DisplayHandle != IntPtr.Zero) && (FosterParent != IntPtr.Zero)) {
 					hwnd = Hwnd.ObjectFromHandle(FosterParent);
 					XDestroyWindow(DisplayHandle, FosterParent);
-					hwnd.Dispose();
+					hwnd?.Dispose();
 				}
 
 				if (DisplayHandle != IntPtr.Zero) {
@@ -509,7 +506,19 @@ namespace System.Windows.Forms {
 				pollfds [1].events = PollEvents.POLLIN;
 
 				Keyboard = new X11Keyboard(DisplayHandle, FosterParent);
-				Dnd = new X11Dnd (DisplayHandle, Keyboard);
+				Dnd = new X11Dnd ();
+
+				Clipboards = new []{
+					new X11Clipboard (false, UpdateMessageQueue, FosterParent, 10, 120),
+					new X11Clipboard (true, UpdateMessageQueue, FosterParent, 10, 120)
+				};
+
+				Selections = new X11Selection[] {Dnd, Clipboards[0], Clipboards[1]};
+
+				XplatUI.ClipboardGetContent = ClipboardGetContentImp;
+				XplatUI.ClipboardGetFormats = ClipboardGetFormatsImp;
+				XplatUI.ClipboardSetContent = ClipboardSetContentImp;
+				XplatUI.ClipboardClear = ClipboardClearImp;
 
 				DoubleClickInterval = 500;
 
@@ -545,6 +554,21 @@ namespace System.Windows.Forms {
 				throw new ArgumentNullException("Display", "Could not open display (X-Server required. Check your DISPLAY environment variable)");
 			}
 		}
+
+		internal static string XGetAtomName (IntPtr display, IntPtr atom)
+		{
+			IntPtr buf = _XGetAtomName (display, atom);
+
+			if (buf == IntPtr.Zero)
+				return null;
+
+			string name = Marshal.PtrToStringAuto (buf);
+
+			XFree (buf);
+
+			return name;
+		}
+
 		#endregion	// Internal Methods
 
 		#region Methods
@@ -623,13 +647,7 @@ namespace System.Windows.Forms {
 				// "_NET_WM_WINDOW_TYPE_DIALOG",
 				//"_NET_WM_WINDOW_TYPE_SPLASH",
 				"_NET_WM_WINDOW_TYPE_NORMAL",
-				"CLIPBOARD",
-				"PRIMARY",
-				"COMPOUND_TEXT",
 				"UTF8_STRING",
-				"UTF16_STRING",
-				"RICHTEXTFORMAT",
-				"TARGETS",
 				"_SWF_AsyncAtom",
 				"_SWF_PostMessageAtom",
 				"_SWF_HoverAtom" };
@@ -699,13 +717,7 @@ namespace System.Windows.Forms {
 			// _NET_WM_WINDOW_TYPE_DIALOG = atoms [off++];
 			//_NET_WM_WINDOW_TYPE_SPLASH = atoms [off++];
 			_NET_WM_WINDOW_TYPE_NORMAL = atoms [off++];
-			CLIPBOARD = atoms [off++];
-			PRIMARY = atoms [off++];
-			OEMTEXT = atoms [off++];
 			UTF8_STRING = atoms [off++];
-			UTF16_STRING = atoms [off++];
-			RICHTEXTFORMAT = atoms [off++];
-			TARGETS = atoms [off++];
 			AsyncAtom = atoms [off++];
 			PostAtom = atoms [off++];
 			HoverState.Atom = atoms [off++];
@@ -1228,8 +1240,8 @@ namespace System.Windows.Forms {
 		void WakeupMain () {
 			try {
 				wake.Write (new byte [] { 0xFF }, 0, 1);
-			} catch (SocketException ex) {
-				if (ex.SocketErrorCode != SocketError.WouldBlock) {
+			} catch (UnixIOException ex) {
+				if (ex.ErrorCode != Errno.EWOULDBLOCK && ex.ErrorCode != Errno.EAGAIN) {
 					throw;
 				}
 			}
@@ -1245,115 +1257,6 @@ namespace System.Windows.Forms {
 			}
 
 			return queue;
-		}
-
-		void TranslatePropertyToClipboard(IntPtr property) {
-			IntPtr			actual_atom;
-			int			actual_format;
-			IntPtr			nitems;
-			IntPtr			bytes_after;
-			IntPtr			prop = IntPtr.Zero;
-
-			Clipboard.Item = null;
-
-			XGetWindowProperty(DisplayHandle, FosterParent, property, IntPtr.Zero, new IntPtr (0x7fffffff), true, (IntPtr)Atom.AnyPropertyType, out actual_atom, out actual_format, out nitems, out bytes_after, ref prop);
-
-			if ((long)nitems > 0) {
-				if (property == (IntPtr)Atom.XA_STRING) {
-					// Xamarin-5116: PtrToStringAnsi expects to get UTF-8, but we might have
-					// Latin-1 instead, in which case it will return null.
-					var s = Marshal.PtrToStringAnsi (prop);
-					if (string.IsNullOrEmpty (s)) {
-						var sb = new StringBuilder ();
-						for (int i = 0; i < (int)nitems; i++) {
-							var b = Marshal.ReadByte (prop, i);
-							sb.Append ((char)b);
-						}
-						s = sb.ToString ();
-					}
-					// Some X managers/apps pass unicode chars as escaped strings, so
-					// we may need to unescape them.
-					Clipboard.Item = UnescapeUnicodeFromAnsi (s);
-				} else if (property == (IntPtr)Atom.XA_BITMAP) {
-					// FIXME - convert bitmap to image
-				} else if (property == (IntPtr)Atom.XA_PIXMAP) {
-					// FIXME - convert pixmap to image
-				} else if (property == OEMTEXT) {
-					Clipboard.Item = UnescapeUnicodeFromAnsi (Marshal.PtrToStringAnsi(prop));
-				} else if (property == UTF8_STRING) {
-					byte [] buffer = new byte [(int)nitems];
-					for (int i = 0; i < (int)nitems; i++)
-						buffer [i] = Marshal.ReadByte (prop, i);
-					Clipboard.Item = Encoding.UTF8.GetString (buffer);
-				} else if (property == UTF16_STRING) {
-					byte [] buffer = new byte [(int)nitems];
-					for (int i = 0; i < (int)nitems; i++)
-						buffer [i] = Marshal.ReadByte (prop, i);
-					Clipboard.Item = Encoding.Unicode.GetString (buffer);
-				} else if (property == RICHTEXTFORMAT)
-					Clipboard.Item = Marshal.PtrToStringAnsi(prop);
-				else if (DataFormats.ContainsFormat (property.ToInt32 ())) {
-					if (DataFormats.GetFormat (property.ToInt32 ()).is_serializable) {
-						MemoryStream memory_stream = new MemoryStream ((int)nitems);
-						for (int i = 0; i < (int)nitems; i++)
-							memory_stream.WriteByte (Marshal.ReadByte (prop, i));
-
-						memory_stream.Position = 0;
-						BinaryFormatter formatter = new BinaryFormatter ();
-						Clipboard.Item = formatter.Deserialize (memory_stream);
-						memory_stream.Close ();
-					}
-				}
-
-				XFree(prop);
-			}
-		}
-
-		string UnescapeUnicodeFromAnsi (string value)
-		{
-			if (value == null || value.IndexOf ("\\u") == -1)
-				return value;
-
-			StringBuilder sb = new StringBuilder (value.Length);
-			int start, pos;
-
-			start = pos = 0;
-			while (start < value.Length) {
-				pos = value.IndexOf ("\\u", start);
-				if (pos == -1)
-					break;
-
-				sb.Append (value, start, pos - start);
-				pos += 2;
-				start = pos;
-
-				int length = 0;
-				while (pos < value.Length && length < 4) {
-					if (!ValidHexDigit (value [pos]))
-						break;
-					length++;
-					pos++;
-				}
-
-				int res;
-				if (!Int32.TryParse (value.Substring (start, length), System.Globalization.NumberStyles.HexNumber, 
-							null, out res))
-					return value; // Error, return the unescaped original value.
-				
-				sb.Append ((char)res);
-				start = pos;
-			}
-
-			// Append any remaining data.
-			if (start < value.Length)
-				sb.Append (value, start, value.Length - start);
-
-			return sb.ToString ();
-		}
-
-		private static bool ValidHexDigit (char e)
-		{
-			return Char.IsDigit (e) || (e >= 'A' && e <= 'F') || (e >= 'a' && e <= 'f');
 		}
 
 		void AddExpose (Hwnd hwnd, bool client, int x, int y, int width, int height) {
@@ -1560,7 +1463,7 @@ namespace System.Windows.Forms {
 				
 				if (PeekMessage(queue, ref msg, IntPtr.Zero, 0, 0, (uint)PeekMessageFlags.PM_REMOVE)) {
 					if ((Msg)msg.message == Msg.WM_QUIT) {
-						PostQuitMessage (0);
+						PostQuitMessage ((int)(long)(msg.wParam));
 						done = true;
 					}
 					else {
@@ -1771,6 +1674,24 @@ namespace System.Windows.Forms {
 						continue;
 				}
 
+				if (Hwnd.IsBeingDestroyed(xevent.AnyEvent.window))
+				{
+					// XDestroyWindow was called but we didn't get DestroyNotify yet.
+
+#if DriverDebugDestroy
+					Console.WriteLine ( "UpdateMessageQueue destroyed, got event: {0}", xevent.ToString ());
+#endif
+
+					if (xevent.type == XEventName.DestroyNotify &&
+						xevent.DestroyWindowEvent.xevent == xevent.DestroyWindowEvent.window)
+					{
+						Hwnd.FinishAsyncDestroy(xevent.DestroyWindowEvent.window);
+					}
+
+					// Ignore this event in case the hwnd was reassigned by the X11 server.
+					continue;
+				}
+
 				hwnd = Hwnd.GetObjectFromWindow(xevent.AnyEvent.window);
 				if (hwnd == null)
 					continue;
@@ -1783,156 +1704,32 @@ namespace System.Windows.Forms {
 					break;
 
 				case XEventName.SelectionClear: {
-					// Should we do something?
+					foreach (var selection in Selections) {
+						if (selection.Selection == xevent.SelectionClearEvent.selection) {
+							selection.HandleSelectionClearEvent (ref xevent);
+					break;
+				}
+					}
 					break;
 				}
 
 				case XEventName.SelectionRequest: {
-					if (Dnd.HandleSelectionRequestEvent (ref xevent))
+					foreach (var selection in Selections) {
+						if (selection.Selection == xevent.SelectionRequestEvent.selection) {
+							selection.HandleSelectionRequestEvent (ref xevent);
 						break;
-					XEvent sel_event;
-
-					sel_event = new XEvent();
-					sel_event.SelectionEvent.type = XEventName.SelectionNotify;
-					sel_event.SelectionEvent.send_event = true;
-					sel_event.SelectionEvent.display = DisplayHandle;
-					sel_event.SelectionEvent.selection = xevent.SelectionRequestEvent.selection;
-					sel_event.SelectionEvent.target = xevent.SelectionRequestEvent.target;
-					sel_event.SelectionEvent.requestor = xevent.SelectionRequestEvent.requestor;
-					sel_event.SelectionEvent.time = xevent.SelectionRequestEvent.time;
-					sel_event.SelectionEvent.property = IntPtr.Zero;
-
-					IntPtr format_atom = xevent.SelectionRequestEvent.target;
-
-					// Seems that some apps support asking for supported types
-					if (format_atom == TARGETS) {
-						IntPtr[]	atoms;
-						int	atom_count;
-
-						atoms = new IntPtr[5];
-						atom_count = 0;
-
-						if (Clipboard.IsSourceText) {
-							atoms[atom_count++] = (IntPtr)Atom.XA_STRING;
-							atoms[atom_count++] = (IntPtr)OEMTEXT;
-							atoms[atom_count++] = (IntPtr)UTF8_STRING;
-							atoms[atom_count++] = (IntPtr)UTF16_STRING;
-							atoms[atom_count++] = (IntPtr)RICHTEXTFORMAT;
-						} else if (Clipboard.IsSourceImage) {
-							atoms[atom_count++] = (IntPtr)Atom.XA_PIXMAP;
-							atoms[atom_count++] = (IntPtr)Atom.XA_BITMAP;
-						} else {
-							// FIXME - handle other types
 						}
-
-						XChangeProperty(DisplayHandle, xevent.SelectionRequestEvent.requestor, (IntPtr)xevent.SelectionRequestEvent.property, 
-								(IntPtr)Atom.XA_ATOM, 32, PropertyMode.Replace, atoms, atom_count);
-						sel_event.SelectionEvent.property = xevent.SelectionRequestEvent.property;
-					} else if (format_atom == (IntPtr)RICHTEXTFORMAT) {
-						string rtf_text = Clipboard.GetRtfText ();
-						if (rtf_text != null) {
-							// The RTF spec mentions that ascii is enough to contain it
-							Byte [] bytes = Encoding.ASCII.GetBytes (rtf_text);
-							int buflen = bytes.Length;
-							IntPtr buffer = Marshal.AllocHGlobal (buflen);
-
-							for (int i = 0; i < buflen; i++)
-								Marshal.WriteByte (buffer, i, bytes[i]);
-
-							XChangeProperty(DisplayHandle, xevent.SelectionRequestEvent.requestor, (IntPtr)xevent.SelectionRequestEvent.property,
-									(IntPtr)xevent.SelectionRequestEvent.target, 8, PropertyMode.Replace, buffer, buflen);
-							sel_event.SelectionEvent.property = xevent.SelectionRequestEvent.property;
-							Marshal.FreeHGlobal(buffer);
 						}
-					} else if (Clipboard.IsSourceText && 
-					           (format_atom == (IntPtr)Atom.XA_STRING 
-					            || format_atom == OEMTEXT
-					            || format_atom == UTF16_STRING
-					            || format_atom == UTF8_STRING)) {
-						IntPtr	buffer = IntPtr.Zero;
-						int	buflen;
-						Encoding encoding = null;
-
-						buflen = 0;
-
-						// Select an encoding depending on the target
-						IntPtr target_atom = xevent.SelectionRequestEvent.target;
-						if (target_atom == (IntPtr)Atom.XA_STRING || target_atom == OEMTEXT)
-							// FIXME - EOMTEXT should encode into ISO2022
-							encoding = Encoding.ASCII;
-						else if (target_atom == UTF16_STRING)
-							encoding = Encoding.Unicode;
-						else if (target_atom == UTF8_STRING)
-							encoding = Encoding.UTF8;
-
-						Byte [] bytes;
-
-						bytes = encoding.GetBytes (Clipboard.GetPlainText ());
-						buffer = Marshal.AllocHGlobal (bytes.Length);
-						buflen = bytes.Length;
-
-						for (int i = 0; i < buflen; i++)
-							Marshal.WriteByte (buffer, i, bytes [i]);
-
-						if (buffer != IntPtr.Zero) {
-							XChangeProperty(DisplayHandle, xevent.SelectionRequestEvent.requestor, (IntPtr)xevent.SelectionRequestEvent.property, (IntPtr)xevent.SelectionRequestEvent.target, 8, PropertyMode.Replace, buffer, buflen);
-							sel_event.SelectionEvent.property = xevent.SelectionRequestEvent.property;
-							Marshal.FreeHGlobal(buffer);
-						}
-					} else if (Clipboard.GetSource (format_atom.ToInt32 ()) != null) { // check if we have an available value of this format
-						if (DataFormats.GetFormat (format_atom.ToInt32 ()).is_serializable) {
-							object serializable = Clipboard.GetSource (format_atom.ToInt32 ());
-
-							BinaryFormatter formatter = new BinaryFormatter ();
-							MemoryStream memory_stream = new MemoryStream ();
-							formatter.Serialize (memory_stream, serializable);
-
-							int buflen = (int)memory_stream.Length;
-							IntPtr buffer = Marshal.AllocHGlobal (buflen);
-							memory_stream.Position = 0;
-							for (int i = 0; i < buflen; i++)
-								Marshal.WriteByte (buffer, i, (byte)memory_stream.ReadByte ());
-							memory_stream.Close ();
-
-							XChangeProperty (DisplayHandle, xevent.SelectionRequestEvent.requestor, (IntPtr)xevent.SelectionRequestEvent.property, (IntPtr)xevent.SelectionRequestEvent.target,
-									8, PropertyMode.Replace, buffer, buflen);
-							sel_event.SelectionEvent.property = xevent.SelectionRequestEvent.property;
-							Marshal.FreeHGlobal (buffer);
-						}
-
-					} else if (Clipboard.IsSourceImage) {
-						if (xevent.SelectionEvent.target == (IntPtr)Atom.XA_PIXMAP) {
-							// FIXME - convert image and store as property
-						} else if (xevent.SelectionEvent.target == (IntPtr)Atom.XA_PIXMAP) {
-							// FIXME - convert image and store as property
-						}
-					}
-
-					XSendEvent(DisplayHandle, xevent.SelectionRequestEvent.requestor, false, new IntPtr ((int)EventMask.NoEventMask), ref sel_event);
 					break;
 				}
 
 				case XEventName.SelectionNotify: {
-					if (Clipboard.Enumerating) {
-						Clipboard.Enumerating = false;
-						if (xevent.SelectionEvent.property != IntPtr.Zero) {
-							XDeleteProperty(DisplayHandle, FosterParent, (IntPtr)xevent.SelectionEvent.property);
-							if (!Clipboard.Formats.Contains(xevent.SelectionEvent.property)) {
-								Clipboard.Formats.Add(xevent.SelectionEvent.property);
-								DriverDebug("Got supported clipboard atom format: {0}", xevent.SelectionEvent.property);
+					foreach (var selection in Selections) {
+						if (selection.Selection == xevent.SelectionEvent.selection) {
+							selection.HandleSelectionNotifyEvent (ref xevent);
+							break;
 							}
 						}
-					} else if (Clipboard.Retrieving) {
-						Clipboard.Retrieving = false;
-						if (xevent.SelectionEvent.property != IntPtr.Zero) {
-							TranslatePropertyToClipboard(xevent.SelectionEvent.property);
-						} else {
-							Clipboard.ClearSources ();
-							Clipboard.Item = null;
-						}
-					} else {
-						Dnd.HandleSelectionNotifyEvent (ref xevent);
-					}
 					break;
 				}
 
@@ -2139,8 +1936,11 @@ namespace System.Windows.Forms {
 					DriverDebug (" + adding {0} to the list of zombie windows", XplatUI.Window (hwnd.Handle));
 					DriverDebug (" + parent X window is {0:X}", XGetParent (hwnd.whole_window).ToInt32());
 
-					list.Add (hwnd);
-					CleanupCachedWindows (hwnd);
+					if (hwnd != null)
+					{
+						list.Add (hwnd);
+						CleanupCachedWindows (hwnd);
+					}
 				}
 
 				for (int  i = 0; i < controls.Length; i ++) {
@@ -2709,146 +2509,75 @@ namespace System.Windows.Forms {
 
 		internal override void ClientToScreen(IntPtr handle, ref int x, ref int y)
 		{
-			int	dest_x_return;
-			int	dest_y_return;
+			int dest_x_return = 0;
+			int dest_y_return = 0;
 			IntPtr	child;
 			Hwnd	hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
 
-			lock (XlibLock) {
-				XTranslateCoordinates(DisplayHandle, hwnd.client_window, RootWindow, x, y, out dest_x_return, out dest_y_return, out child);
+			lock (XlibLock)
+			{
+				if (hwnd != null)
+					XTranslateCoordinates(DisplayHandle, hwnd.client_window, RootWindow, x, y, out dest_x_return,
+						out dest_y_return, out child);
 			}
 
 			x = dest_x_return;
 			y = dest_y_return;
 		}
 
+
+		[Obsolete("ClipboardAvailableFormats is obsolete for X11, use System.Windows.Forms.Clipboard instead", true)]
 		internal override int[] ClipboardAvailableFormats(IntPtr handle)
 		{
-			DataFormats.Format	f;
-			int[]			result;
-
-			f = DataFormats.Format.List;
-
-			if (XGetSelectionOwner(DisplayHandle, CLIPBOARD) == IntPtr.Zero) {
-				return null;
+			throw new NotImplementedException ("ClipboardAvailableFormats is deprecated for X11, use System.Windows.Forms.Clipboard instead");
 			}
 
-			Clipboard.Formats = new ArrayList();
-
-			while (f != null) {
-				XConvertSelection(DisplayHandle, CLIPBOARD, (IntPtr)f.Id, (IntPtr)f.Id, FosterParent, IntPtr.Zero);
-
-				var timeToWaitForSelectionFormats = TimeSpan.FromSeconds(4);
-				var startTime = DateTime.Now;
-				Clipboard.Enumerating = true;
-				while (Clipboard.Enumerating) {
-					UpdateMessageQueue(null, false);
-
-					if (DateTime.Now - startTime > timeToWaitForSelectionFormats)
-						break;
-				}
-				f = f.Next;
-			}
-
-			result = new int[Clipboard.Formats.Count];
-
-			for (int i = 0; i < Clipboard.Formats.Count; i++) {
-				result[i] = ((IntPtr)Clipboard.Formats[i]).ToInt32 ();
-			}
-
-			Clipboard.Formats = null;
-			return result;
-		}
-
+		[Obsolete("ClipboardClose is obsolete for X11, use System.Windows.Forms.Clipboard instead", true)]
 		internal override void ClipboardClose(IntPtr handle)
 		{
-			if (handle != ClipMagic) {
-				throw new ArgumentException("handle is not a valid clipboard handle");
+			// NOP
 			}
-			return;
-		}
 
+		[Obsolete("ClipboardGetID is obsolete for X11, use System.Windows.Forms.Clipboard instead", true)]
 		internal override int ClipboardGetID(IntPtr handle, string format)
 		{
-			if (handle != ClipMagic) {
-				throw new ArgumentException("handle is not a valid clipboard handle");
-			}
-
-			if (format == "Text" ) return (int)Atom.XA_STRING;
-			else if (format == "Bitmap" ) return (int)Atom.XA_BITMAP;
-			//else if (format == "MetaFilePict" ) return 3;
-			//else if (format == "SymbolicLink" ) return 4;
-			//else if (format == "DataInterchangeFormat" ) return 5;
-			//else if (format == "Tiff" ) return 6;
-			else if (format == "OEMText" ) return OEMTEXT.ToInt32();
-			else if (format == "DeviceIndependentBitmap" ) return (int)Atom.XA_PIXMAP;
-			else if (format == "Palette" ) return (int)Atom.XA_COLORMAP;	// Useless
-			//else if (format == "PenData" ) return 10;
-			//else if (format == "RiffAudio" ) return 11;
-			//else if (format == "WaveAudio" ) return 12;
-			else if (format == "UnicodeText" ) return UTF8_STRING.ToInt32();
-			//else if (format == "EnhancedMetafile" ) return 14;
-			//else if (format == "FileDrop" ) return 15;
-			//else if (format == "Locale" ) return 16;
-			else if (format == "Rich Text Format") return RICHTEXTFORMAT.ToInt32 ();
-
-			return XInternAtom(DisplayHandle, format, false).ToInt32();
+			return  XplatUIX11.XInternAtom (DisplayHandle, format, false).ToInt32 ();
 		}
 
+		[Obsolete("ClipboardOpen is obsolete for X11, use System.Windows.Forms.Clipboard instead", true)]
 		internal override IntPtr ClipboardOpen(bool primary_selection)
 		{
-			if (!primary_selection)
-				ClipMagic = CLIPBOARD;
-			else
-				ClipMagic = PRIMARY;
-			return ClipMagic;
+			return Clipboards[primary_selection ? 1 : 0].Selection;
 		}
 
+		[Obsolete("ClipboardRetrieve is obsolete for X11, use System.Windows.Forms.Clipboard instead", true)]
 		internal override object ClipboardRetrieve(IntPtr handle, int type, XplatUI.ClipboardToObject converter)
 		{
-			XConvertSelection(DisplayHandle, handle, (IntPtr)type, (IntPtr)type, FosterParent, IntPtr.Zero);
-
-			Clipboard.Retrieving = true;
-			while (Clipboard.Retrieving) {
-				UpdateMessageQueue(null, false);
-			}
-
-			return Clipboard.Item;
+			throw new NotImplementedException ("ClipboardRetrieveis obsolete for X11, use System.Windows.Forms.Clipboard instead");
 		}
 
+		[Obsolete("ClipboardStore is obsolete for X11, use System.Windows.Forms.Clipboard instead", true)]
 		internal override void ClipboardStore (IntPtr handle, object obj, int type, XplatUI.ObjectToClipboard converter, bool copy)
 		{
-			Clipboard.Converter = converter;
+			throw new NotImplementedException ("ClipboardStore obsolete for X11, use System.Windows.Forms.Clipboard instead");
+		}
 
-			if (obj != null) {
-				Clipboard.AddSource (type, obj);
-				XSetSelectionOwner (DisplayHandle, CLIPBOARD, FosterParent, IntPtr.Zero);
+		string[] ClipboardGetFormatsImp (bool primary_selection) {
+			return Clipboards[primary_selection ? 1 : 0].GetFormats ();
+		}
 
-				if (copy) {
-					try {
-						var clipboardAtom = gdk_atom_intern ("CLIPBOARD", true);
-						var clipboard = gtk_clipboard_get (clipboardAtom);
-						if (clipboard != IntPtr.Zero) {
-							// for now we only store text
-							var text = Clipboard.GetRtfText ();
-							if (string.IsNullOrEmpty (text))
-								text = Clipboard.GetPlainText ();
-							if (!string.IsNullOrEmpty (text)) {
-								gtk_clipboard_set_text (clipboard, text, text.Length);
-								gtk_clipboard_store (clipboard);
-							}
-						}
-					} catch {
-						// ignore any errors - most likely because gtk isn't installed?
-					}
-				}
-			} else {
-				// Clearing the selection
-				Clipboard.ClearSources ();
-				XSetSelectionOwner (DisplayHandle, CLIPBOARD, IntPtr.Zero, IntPtr.Zero);
-			}
+		IDataObject ClipboardGetContentImp (bool primary_selection) {
+			return Clipboards[primary_selection ? 1 : 0].GetContent ();
+		}
+
+		void ClipboardSetContentImp (bool primary_selection, object data, bool copy) {
+			Clipboards[primary_selection ? 1 : 0].SetContent (data, copy);
+		}
+
+		void ClipboardClearImp (bool primary_selection) {
+			Clipboards[primary_selection ? 1 : 0].Clear ();
 		}
 
 		internal override void CreateCaret (IntPtr handle, int width, int height)
@@ -2894,7 +2623,6 @@ namespace System.Windows.Forms {
 			IntPtr			WholeWindow;
 			IntPtr			ClientWindow;
 			SetWindowValuemask	ValueMask;
-			int[]			atoms;
 
 			hwnd = new Hwnd();
 
@@ -3030,7 +2758,7 @@ namespace System.Windows.Forms {
 			}
 
 			// for now make all windows dnd enabled
-			Dnd.SetAllowDrop (hwnd, true);
+			Dnd.SetAllowDrop (hwnd);
 
 			// Set caption/window title
 			Text(hwnd.Handle, cp.Caption);
@@ -3090,7 +2818,7 @@ namespace System.Windows.Forms {
 			}
 
 			// Win32 only allows creation cursors of a certain size
-			if ((bitmap.Width != width) || (bitmap.Width != height)) {
+			if (width != 0 && height != 0 && (bitmap.Width != width || bitmap.Width != height)) {
 				cursor_bitmap = new Bitmap(bitmap, new Size(width, height));
 				cursor_mask = new Bitmap(mask, new Size(width, height));
 			} else {
@@ -3577,13 +3305,12 @@ namespace System.Windows.Forms {
 
 			foreach (Hwnd h in windows) {
 				SendMessage (h.Handle, Msg.WM_DESTROY, IntPtr.Zero, IntPtr.Zero);
-				h.zombie = true;				
 			}
 
 			lock (XlibLock) {
 				if (hwnd.whole_window != IntPtr.Zero) {
 					DriverDebug ("XDestroyWindow (whole_window = {0:X})", hwnd.whole_window.ToInt32());
-					Keyboard.DestroyICForWindow (hwnd.whole_window);
+					Keyboard.DestroyICForWindow (hwnd.client_window);
 					XDestroyWindow(DisplayHandle, hwnd.whole_window);
 				}
 				else if (hwnd.client_window != IntPtr.Zero) {
@@ -3592,6 +3319,14 @@ namespace System.Windows.Forms {
 					XDestroyWindow(DisplayHandle, hwnd.client_window);
 				}
 
+			}
+
+			foreach (Hwnd h in windows)
+			{
+				h.BeginAsyncDestroy();
+
+				h.expose_pending = h.nc_expose_pending = false;
+				h.Queue.Paint.Remove (h);
 			}
 		}
 
@@ -3880,15 +3615,15 @@ namespace System.Windows.Forms {
 
 		internal override SizeF GetAutoScaleSize(Font font)
 		{
-			Graphics	g;
 			float		width;
 			string		magic_string = "The quick brown fox jumped over the lazy dog.";
 			double		magic_number = 44.549996948242189;
 
-			g = Graphics.FromHwnd(FosterParent);
-
-			width = (float) (g.MeasureString (magic_string, font).Width / magic_number);
-			return new SizeF(width, font.Height);
+			using (Graphics g = Graphics.FromHwnd(FosterParent))
+			{
+				width = (float) (g.MeasureString (magic_string, font).Width / magic_number);
+				return new SizeF(width, font.Height);
+			}
 		}
 
 		internal override IntPtr GetParent(IntPtr handle, bool with_owner)
@@ -3985,6 +3720,12 @@ namespace System.Windows.Forms {
 
 				if (((XEventQueue)queue_id).Count > 0) {
 					xevent = (XEvent) ((XEventQueue)queue_id).Dequeue ();
+				} else if (((XEventQueue)queue_id).GetQuitMessage (true, out int exit_code)) {
+					msg.message = Msg.WM_QUIT;
+					msg.hwnd = IntPtr.Zero;
+					msg.wParam = (IntPtr)exit_code;
+					msg.lParam = IntPtr.Zero;
+					return false;
 				} else if (((XEventQueue)queue_id).Paint.Count > 0) {
 					xevent = ((XEventQueue)queue_id).Paint.Dequeue();
 				} else {
@@ -4003,33 +3744,9 @@ namespace System.Windows.Forms {
 				else	
 					Console.WriteLine ( "GetMessage, got Event: " + xevent.ToString () + " for 0x{0:x}", hwnd.Handle.ToInt32());
 #endif
-			// Handle messages for windows that are already or are about to be destroyed.
-
-			// we need a special block for this because unless we remove the hwnd from the paint
-			// queue it will always stay there (since we don't handle the expose), and we'll
-			// effectively loop infinitely trying to repaint a non-existant window.
-			if (hwnd != null && hwnd.zombie && xevent.type == XEventName.Expose) {
-				hwnd.expose_pending = hwnd.nc_expose_pending = false;
-				hwnd.Queue.Paint.Remove (hwnd);
-				goto ProcessNextMessage;
-			}
-
-			// We need to make sure we only allow DestroyNotify events through for zombie
-			// hwnds, since much of the event handling code makes requests using the hwnd's
-			// client_window, and that'll result in BadWindow errors if there's some lag
-			// between the XDestroyWindow call and the DestroyNotify event.
-			if (hwnd == null || hwnd.zombie && xevent.AnyEvent.type != XEventName.ClientMessage) {
+			if (hwnd == null) {
 				DriverDebug("GetMessage(): Got message {0} for non-existent or already destroyed window {1:X}", xevent.type, xevent.AnyEvent.window.ToInt32());
 				goto ProcessNextMessage;
-			}
-
-
-			// If we get here, that means the window is no more but there are Client Messages
-			// to be processed, probably a Posted message (for instance, an WM_ACTIVATE message) 
-			// We don't want anything else to run but the ClientMessage block, so reset all hwnd
-			// properties that might cause other processing to occur.
-			if (hwnd.zombie) {
-				hwnd.resizing_or_moving = false;
 			}
 
 			if (hwnd.client_window == xevent.AnyEvent.window) {
@@ -4169,7 +3886,7 @@ namespace System.Windows.Forms {
 						msg.hwnd = Grab.Hwnd;
 					}
 
-					if (ClickPending.Pending && ((((long)xevent.ButtonEvent.time - ClickPending.Time) < DoubleClickInterval) && (msg.wParam == ClickPending.wParam) && (msg.lParam == ClickPending.lParam) && (msg.message == ClickPending.Message))) {
+					if (ClickPending.Pending && (( unchecked((uint)xevent.ButtonEvent.time - ClickPending.Time) < DoubleClickInterval) && (msg.wParam == ClickPending.wParam) && (msg.lParam == ClickPending.lParam) && (msg.message == ClickPending.Message))) {
 						// Looks like a genuine double click, clicked twice on the same spot with the same keys
 						switch(xevent.ButtonEvent.button) {
 							case 1: {
@@ -4194,7 +3911,7 @@ namespace System.Windows.Forms {
 						ClickPending.Message = msg.message;
 						ClickPending.wParam = msg.wParam;
 						ClickPending.lParam = msg.lParam;
-						ClickPending.Time = (long)xevent.ButtonEvent.time;
+						ClickPending.Time = (uint)xevent.ButtonEvent.time;
 					}
 					
 					if (msg.message == Msg.WM_LBUTTONDOWN || msg.message == Msg.WM_MBUTTONDOWN || msg.message == Msg.WM_RBUTTONDOWN) {
@@ -4399,7 +4116,8 @@ namespace System.Windows.Forms {
 							leaveEvent.CrossingEvent.y = y;
 							leaveEvent.CrossingEvent.mode = NotifyMode.NotifyNormal;
 							Hwnd last_pointer_hwnd = Hwnd.ObjectFromHandle (LastPointerWindow);
-							last_pointer_hwnd.Queue.EnqueueLocked (leaveEvent);
+							if (last_pointer_hwnd != null) 
+								last_pointer_hwnd.Queue.EnqueueLocked (leaveEvent);
 						}
 					}
 
@@ -4635,12 +4353,8 @@ namespace System.Windows.Forms {
 							    hwnd.client_window.ToInt32(), xevent.ExposeEvent.x, xevent.ExposeEvent.y,
 							    xevent.ExposeEvent.width, xevent.ExposeEvent.height);
 
-						Rectangle rect = new Rectangle (xevent.ExposeEvent.x, xevent.ExposeEvent.y, xevent.ExposeEvent.width, xevent.ExposeEvent.height);
-						Region region = new Region (rect);
-						IntPtr hrgn = region.GetHrgn (null); // Graphics object isn't needed
 						msg.message = Msg.WM_NCPAINT;
-						msg.wParam = hrgn == IntPtr.Zero ? (IntPtr)1 : hrgn;
-						msg.refobject = region;
+						msg.wParam = (IntPtr)1;
 						break;
 					}
 					DriverDebug("GetMessage(): Window {0:X} Exposed area {1},{2} {3}x{4}",
@@ -4664,8 +4378,9 @@ namespace System.Windows.Forms {
 					// This is a bit tricky, we don't receive our own DestroyNotify, we only get those for our children
 					hwnd = Hwnd.ObjectFromHandle(xevent.DestroyWindowEvent.window);
 
-					// We may get multiple for the same window, act only one the first (when Hwnd still knows about it)
-					if ((hwnd != null) && (hwnd.client_window == xevent.DestroyWindowEvent.window)) {
+					// We may get multiple for the same window, act only on client_window's notification from StructureNotifyMask
+					if ((hwnd != null) && (hwnd.client_window == xevent.DestroyWindowEvent.window) &&
+						(hwnd.client_window == xevent.DestroyWindowEvent.xevent)) {
 						CleanupCachedWindows (hwnd);
 
 						DriverDebug("Received X11 Destroy Notification for {0}", XplatUI.Window(hwnd.client_window));
@@ -4705,10 +4420,7 @@ namespace System.Windows.Forms {
 						msg.message = (Msg) xevent.ClientMessageEvent.ptr2.ToInt32 ();
 						msg.wParam = xevent.ClientMessageEvent.ptr3;
 						msg.lParam = xevent.ClientMessageEvent.ptr4;
-						if (msg.message == (Msg)Msg.WM_QUIT)
-							return false;
-						else
-							return true;
+						return true;
 					}
 
 					if  (xevent.ClientMessageEvent.message_type == _XEMBED) {
@@ -4773,6 +4485,7 @@ namespace System.Windows.Forms {
 			GetCursorPos (IntPtr.Zero, out x_root, out y_root);
 
 			Hwnd hwnd = Hwnd.ObjectFromHandle (handle);
+			if (hwnd == null) return;
 			SendNetWMMessage (hwnd.whole_window, _NET_WM_MOVERESIZE, (IntPtr) x_root, (IntPtr) y_root,
 					(IntPtr) NetWmMoveResize._NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT, 
 					(IntPtr) 1); // left button
@@ -4853,6 +4566,9 @@ namespace System.Windows.Forms {
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
 
+			if (hwnd == null)
+				return (FormWindowState)(-1);
+
 			if (hwnd.cached_window_state == (FormWindowState)(-1))
 				hwnd.cached_window_state = UpdateWindowState (handle);
 
@@ -4872,6 +4588,9 @@ namespace System.Windows.Forms {
 			Hwnd			hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
+
+			if (hwnd == null)
+				return (FormWindowState)(-1);
 
 			maximized = 0;
 			minimized = false;
@@ -5039,6 +4758,8 @@ namespace System.Windows.Forms {
 			Hwnd	hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return;
 
 			lock (XlibLock) {
 				XTranslateCoordinates(DisplayHandle, hwnd.whole_window, RootWindow, x, y, out dest_x_return, out dest_y_return, out child);
@@ -5155,7 +4876,7 @@ namespace System.Windows.Forms {
 			}
 
 			pending = false;
-			if (queue.Count > 0) {
+			if (queue.Count > 0 || queue.GetQuitMessage(false, out int _exitcode)) {
 				pending = true;
 			} else {
 				// Only call UpdateMessageQueue if real events are pending 
@@ -5207,13 +4928,8 @@ namespace System.Windows.Forms {
 
 		internal override void PostQuitMessage(int exitCode)
 		{
-			ApplicationContext ctx = Application.MWFThread.Current.Context;
-			Form f = ctx != null ? ctx.MainForm : null;
-			if (f != null)
-				PostMessage (Application.MWFThread.Current.Context.MainForm.window.Handle, Msg.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
-			else
-				PostMessage (FosterParent, Msg.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
-			XFlush(DisplayHandle);
+			var queue = ThreadQueue(Thread.CurrentThread);
+			queue.PostQuitMessage(exitCode);
 		}
 
 		internal override void RequestAdditionalWM_NCMessages(IntPtr hwnd, bool hover, bool leave)
@@ -5254,15 +4970,18 @@ namespace System.Windows.Forms {
 
 		internal override void ScreenToClient(IntPtr handle, ref int x, ref int y)
 		{
-			int	dest_x_return;
-			int	dest_y_return;
+			int dest_x_return = 0;
+			int	dest_y_return = 0;
 			IntPtr	child;
 			Hwnd	hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
 
-			lock (XlibLock) {
-				XTranslateCoordinates (DisplayHandle, RootWindow, hwnd.client_window, x, y, out dest_x_return, out dest_y_return, out child);
+			lock (XlibLock)
+			{
+				if (hwnd != null)
+					XTranslateCoordinates(DisplayHandle, RootWindow, hwnd.client_window, x, y, out dest_x_return,
+						out dest_y_return, out child);
 			}
 
 			x = dest_x_return;
@@ -5271,15 +4990,18 @@ namespace System.Windows.Forms {
 
 		internal override void ScreenToMenu(IntPtr handle, ref int x, ref int y)
 		{
-			int	dest_x_return;
-			int	dest_y_return;
+			int	dest_x_return = 0;
+			int	dest_y_return = 0;
 			IntPtr	child;
 			Hwnd	hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
 
-			lock (XlibLock) {
-				XTranslateCoordinates (DisplayHandle, RootWindow, hwnd.whole_window, x, y, out dest_x_return, out dest_y_return, out child);
+			lock (XlibLock)
+			{
+				if (hwnd != null)
+					XTranslateCoordinates(DisplayHandle, RootWindow, hwnd.whole_window, x, y, out dest_x_return,
+						out dest_y_return, out child);
 			}
 
 			Form form = Control.FromHandle (handle) as Form;
@@ -5325,6 +5047,8 @@ namespace System.Windows.Forms {
 			XGCValues	gc_values;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return;
 
 			Rectangle r = Rectangle.Intersect (hwnd.Invalid, area);
 			if (!r.IsEmpty) {
@@ -5438,6 +5162,8 @@ namespace System.Windows.Forms {
 			XEvent	xevent = new XEvent ();
 
 			hwnd = Hwnd.ObjectFromHandle(method.Handle);
+			if (hwnd == null)
+				return;
 
 			xevent.type = XEventName.ClientMessage;
 			xevent.ClientMessageEvent.display = DisplayHandle;
@@ -5498,15 +5224,12 @@ namespace System.Windows.Forms {
 				xevent.type = (msg.message == Msg.WM_KEYUP ? XEventName.KeyRelease : XEventName.KeyPress);
 				xevent.KeyEvent.display = DisplayHandle;
 
-				if (hwnd != null) {
+				if (hwnd != null)
+				{
 					xevent.KeyEvent.window = hwnd.whole_window;
-				} else {
-					xevent.KeyEvent.window = IntPtr.Zero;
+					xevent.KeyEvent.keycode = Keyboard.ToKeycode((int)msg.wParam);
+					hwnd.Queue.EnqueueLocked (xevent);
 				}
-
-				xevent.KeyEvent.keycode = Keyboard.ToKeycode((int)msg.wParam);
-
-				hwnd.Queue.EnqueueLocked (xevent);
 			}
 			return count;
 		}
@@ -5557,6 +5280,31 @@ namespace System.Windows.Forms {
 					ShowCaret();
 					Caret.Timer.Start();
 				}
+			}
+		}
+
+		internal int FixesMajorVersion {
+			get {
+				if (!fixesMajorVersion.HasValue) {
+					try {
+						bool hasFixes = XFixesQueryExtension(DisplayHandle, out _, out _);
+
+						if (hasFixes) {
+							int major = 6, minor = 0;
+
+							XFixesQueryVersion(DisplayHandle, ref major, ref minor);
+
+							fixesMajorVersion = major;
+						} else {
+							fixesMajorVersion = 0;
+						}
+
+					} catch {
+						fixesMajorVersion = 0;
+					}
+				}
+
+				return fixesMajorVersion.Value;
 			}
 		}
 
@@ -5632,9 +5380,9 @@ namespace System.Windows.Forms {
 
 				hwnd = Hwnd.ObjectFromHandle(handle);
 				lock (XlibLock) {
-					if (cursor != IntPtr.Zero) {
+					if (cursor != IntPtr.Zero && hwnd != null) {
 						XDefineCursor(DisplayHandle, hwnd.whole_window, cursor);
-					} else {
+					} else if (hwnd != null) {
 						XUndefineCursor(DisplayHandle, hwnd.whole_window);
 					}
 					XFlush(DisplayHandle);
@@ -5643,6 +5391,8 @@ namespace System.Windows.Forms {
 			}
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return;
 			lock (XlibLock) {
 				XDefineCursor(DisplayHandle, hwnd.whole_window, OverrideCursorHandle);
 			}
@@ -5744,6 +5494,8 @@ namespace System.Windows.Forms {
 				Hwnd	hwnd;
 
 				hwnd = Hwnd.ObjectFromHandle(handle);
+				if (hwnd == null)
+					return;
 				lock (XlibLock) {
 					XWarpPointer(DisplayHandle, IntPtr.Zero, hwnd.client_window, 0, 0, 0, 0, x, y);
 				}
@@ -5757,7 +5509,7 @@ namespace System.Windows.Forms {
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
 
-			if (hwnd.client_window == FocusWindow) {
+			if (hwnd == null || hwnd.client_window == FocusWindow) {
 				return;
 			}
 
@@ -5792,7 +5544,8 @@ namespace System.Windows.Forms {
 			Hwnd	hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
-			hwnd.menu = menu;
+			if (hwnd != null)
+				hwnd.menu = menu;
 
 			RequestNCRecalc(handle);
 		}
@@ -5811,6 +5564,8 @@ namespace System.Windows.Forms {
 			}
 
 			Hwnd hwnd = Hwnd.ObjectFromHandle (handle);
+			if (hwnd == null)
+				return;
 			Control ctrl = Control.FromHandle (handle);
 			SetWMStyles (hwnd, ctrl.GetCreateParams ());
 		}
@@ -5820,6 +5575,8 @@ namespace System.Windows.Forms {
 			Hwnd	hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return IntPtr.Zero;
 			hwnd.parent = Hwnd.ObjectFromHandle(parent);
 
 			lock (XlibLock) {
@@ -5849,6 +5606,8 @@ namespace System.Windows.Forms {
 		{
 
 			Hwnd hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return true;
 			hwnd.topmost = enabled;
 
 			if (enabled) {
@@ -5877,6 +5636,8 @@ namespace System.Windows.Forms {
 			Hwnd hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return true;
 
 			if (handle_owner != IntPtr.Zero) {
 				hwnd.owner = Hwnd.ObjectFromHandle(handle_owner);
@@ -5908,6 +5669,8 @@ namespace System.Windows.Forms {
 			Hwnd	hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return true;
 			hwnd.visible = visible;
 
 			lock (XlibLock) {
@@ -6042,8 +5805,11 @@ namespace System.Windows.Forms {
 
 				lock (XlibLock) {
 					Control ctrl = Control.FromHandle (handle);
-					Size TranslatedSize = TranslateWindowSizeToXWindowSize (ctrl.GetCreateParams (), new Size (width, height));
-					MoveResizeWindow (DisplayHandle, hwnd.whole_window, x, y, TranslatedSize.Width, TranslatedSize.Height);
+					if (ctrl != null)
+					{
+						Size TranslatedSize = TranslateWindowSizeToXWindowSize (ctrl.GetCreateParams (), new Size (width, height));
+						MoveResizeWindow (DisplayHandle, hwnd.whole_window, x, y, TranslatedSize.Width, TranslatedSize.Height);
+					}
 					PerformNCCalc(hwnd);
 				}
 			}
@@ -6057,6 +5823,8 @@ namespace System.Windows.Forms {
 			Hwnd		hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return;
 
 			current_state = GetWindowState(handle);
 
@@ -6106,6 +5874,8 @@ namespace System.Windows.Forms {
 			Hwnd	hwnd;
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return;
 			SetHwndStyles(hwnd, cp);
 			SetWMStyles(hwnd, cp);
 		}
@@ -6140,7 +5910,7 @@ namespace System.Windows.Forms {
 		{
 			Hwnd	hwnd = Hwnd.ObjectFromHandle(handle);
 
-			if (!hwnd.mapped) {
+			if (hwnd == null || !hwnd.mapped) {
 				return false;
 			}
 
@@ -6190,7 +5960,18 @@ namespace System.Windows.Forms {
 
 		internal override void ShowCursor(bool show)
 		{
-			;	// FIXME - X11 doesn't 'hide' the cursor. we could create an empty cursor
+			if (FixesMajorVersion >= 4) {
+				if (show) {
+					if (--HideCursorCount == 0) {
+						XFixesShowCursor (DisplayHandle, RootWindow);
+					}
+				}
+				else {
+					if (++HideCursorCount == 1) {
+						XFixesHideCursor (DisplayHandle, RootWindow);
+					}
+				}
+			}
 		}
 
 		internal override object StartLoop(Thread thread)
@@ -6214,6 +5995,11 @@ namespace System.Windows.Forms {
 				Hwnd		hwnd;
 
 				hwnd = Hwnd.ObjectFromHandle(handle);
+				if (hwnd == null)
+				{
+					tt = null;
+					return false;
+				}
 				DriverDebug("Adding Systray Whole:{0:X}, Client:{1:X}", hwnd.whole_window.ToInt32(), hwnd.client_window.ToInt32());
 
 				// Oh boy.
@@ -6317,6 +6103,8 @@ namespace System.Windows.Forms {
 		internal override bool Text(IntPtr handle, string text)
 {
 			Hwnd hwnd = Hwnd.ObjectFromHandle(handle);
+			if (hwnd == null)
+				return true;
             var classHints = new XClassHint
             {
                 res_name = text,
@@ -6332,7 +6120,7 @@ namespace System.Windows.Forms {
 				// text if it's latin-1, or convert it
 				// to compound text if it's in a
 				// different charset.
-				XStoreName(DisplayHandle, Hwnd.ObjectFromHandle(handle).whole_window, text);
+				XStoreName(DisplayHandle, hwnd.whole_window, text);
 
 				XSetClassHint(DisplayHandle, hwnd.whole_window, ref classHints);
 			}
@@ -6351,7 +6139,7 @@ namespace System.Windows.Forms {
 
 			hwnd = Hwnd.ObjectFromHandle(handle);
 
-			if (!hwnd.visible || !hwnd.expose_pending || !hwnd.Mapped) {
+			if (hwnd == null || !hwnd.visible || !hwnd.expose_pending || !hwnd.Mapped) {
 				return;
 			}
 
@@ -6686,6 +6474,14 @@ namespace System.Windows.Forms {
 		{
 			DebugHelper.TraceWriteLine ("XSetWMProtocols");
 			return _XSetWMProtocols(display, window, protocols, count);
+		}
+
+		[DllImport ("libX11", EntryPoint="XGetAtomName")]
+		extern static IntPtr __XGetAtomName(IntPtr display, IntPtr atom);
+		static IntPtr _XGetAtomName(IntPtr display, IntPtr atom)
+		{
+			DebugHelper.TraceWriteLine ("XGetAtomName");
+			return __XGetAtomName(display, atom);
 		}
 
 		[DllImport ("libX11", EntryPoint="XGrabPointer")]
@@ -7291,6 +7087,36 @@ namespace System.Windows.Forms {
 		}
 #endregion
 
+#region Fixes extension imports
+		[DllImport("libXfixes", EntryPoint="XFixesQueryExtension")]
+		internal extern static bool _XFixesQueryExtension(IntPtr display, out int event_base, out int error_base);
+		internal static bool XFixesQueryExtension(IntPtr display, out int event_base, out int error_base) {
+			DebugHelper.TraceWriteLine (nameof(XFixesQueryExtension));
+			return _XFixesQueryExtension(display, out event_base, out error_base);
+		}
+
+		[DllImport("libXfixes", EntryPoint="XFixesQueryVersion")]
+		internal extern static int _XFixesQueryVersion(IntPtr display, ref int major_version, ref int minor_version);
+		internal static int XFixesQueryVersion(IntPtr display, ref int major_version, ref int minor_version) {
+			DebugHelper.TraceWriteLine (nameof(XFixesQueryVersion));
+			return _XFixesQueryVersion(display, ref major_version, ref minor_version);
+		}
+
+		[DllImport("libXfixes", EntryPoint="XFixesHideCursor")]
+		internal extern static void _XFixesHideCursor(IntPtr display, IntPtr window);
+		internal static void XFixesHideCursor(IntPtr display, IntPtr window) {
+			DebugHelper.TraceWriteLine (nameof(XFixesHideCursor));
+			_XFixesHideCursor(display, window);
+		}
+
+		[DllImport("libXfixes", EntryPoint="XFixesShowCursor")]
+		internal extern static void _XFixesShowCursor(IntPtr display, IntPtr window);
+		internal static void XFixesShowCursor(IntPtr display, IntPtr window) {
+			DebugHelper.TraceWriteLine (nameof(XFixesShowCursor));
+			_XFixesShowCursor(display, window);
+		}
+#endregion
+
 #region Shape extension imports
 		[DllImport("libXext", EntryPoint="XShapeQueryExtension")]
 		internal extern static bool _XShapeQueryExtension(IntPtr display, out int event_base, out int error_base);
@@ -7460,6 +7286,9 @@ namespace System.Windows.Forms {
 
 		[DllImport ("libX11", EntryPoint="XInternAtoms")]
 		internal extern static int XInternAtoms(IntPtr display, string[] atom_names, int atom_count, bool only_if_exists, IntPtr[] atoms);
+
+		[DllImport ("libX11", EntryPoint="XGetAtomName")]
+		extern static IntPtr _XGetAtomName(IntPtr display, IntPtr atom);
 
 		[DllImport ("libX11", EntryPoint="XSetWMProtocols")]
 		internal extern static int XSetWMProtocols(IntPtr display, IntPtr window, IntPtr[] protocols, int count);
@@ -7662,7 +7491,7 @@ namespace System.Windows.Forms {
 		internal extern static IntPtr XGetSelectionOwner(IntPtr display, IntPtr selection);
 
 		[DllImport ("libX11", EntryPoint="XSetSelectionOwner")]
-		internal extern static int XSetSelectionOwner(IntPtr display, IntPtr selection, IntPtr owner, IntPtr time);
+		internal extern static int XSetSelectionOwner(IntPtr display, IntPtr selection, IntPtr owner, UIntPtr time);
 
 		[DllImport ("libX11", EntryPoint="XSetPlaneMask")]
 		internal extern static int XSetPlaneMask(IntPtr display, IntPtr gc, IntPtr mask);
@@ -7694,18 +7523,19 @@ namespace System.Windows.Forms {
 		[DllImport ("libX11", EntryPoint="XGetInputFocus")]
 		internal extern static void XGetInputFocus (IntPtr display, out IntPtr focus, out IntPtr revert_to);
 		#endregion
-#region Gtk/Gdk imports
-		[DllImport("libgdk-x11-2.0")]
-		internal extern static IntPtr gdk_atom_intern (string atomName, bool onlyIfExists);
 
-		[DllImport("libgtk-x11-2.0")]
-		internal extern static IntPtr gtk_clipboard_get (IntPtr atom);
+#region Fixes extension imports
+		[DllImport("libXfixes")]
+		internal extern static bool XFixesQueryExtension(IntPtr display, out int event_base, out int error_base);
 
-		[DllImport("libgtk-x11-2.0")]
-		internal extern static void gtk_clipboard_store (IntPtr clipboard);
+		[DllImport("libXfixes")]
+		internal extern static int XFixesQueryVersion(IntPtr display, ref int major_version, ref int minor_version);
 
-		[DllImport("libgtk-x11-2.0")]
-		internal extern static void gtk_clipboard_set_text (IntPtr clipboard, string text, int len);
+		[DllImport("libXfixes")]
+		internal extern static void XFixesHideCursor(IntPtr display, IntPtr window);
+
+		[DllImport("libXfixes")]
+		internal extern static void XFixesShowCursor(IntPtr display, IntPtr window);
 #endregion
 
 #region Shape extension imports
