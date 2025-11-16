@@ -49,8 +49,7 @@
             // 
             // Loading
             // 
-            
-            this.ClientSize = new System.Drawing.Size(259, 135);
+            this.ClientSize = new System.Drawing.Size(244, 148);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "Loading";

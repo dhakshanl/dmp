@@ -4803,5 +4803,10 @@ namespace MissionPlanner
         {
 
         }
+
+        private void MainV2_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
