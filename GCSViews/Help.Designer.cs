@@ -32,46 +32,38 @@
             BrightIdeasSoftware.CellStyle cellStyle1 = new BrightIdeasSoftware.CellStyle();
             BrightIdeasSoftware.CellStyle cellStyle2 = new BrightIdeasSoftware.CellStyle();
             BrightIdeasSoftware.CellStyle cellStyle3 = new BrightIdeasSoftware.CellStyle();
-            this.button1 = new System.Windows.Forms.Button();
-            this.Tab1 = new System.Windows.Forms.TabPage();
+            this.add_camera_button = new System.Windows.Forms.Button();
+           
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.hyperlinkStyle1 = new BrightIdeasSoftware.HyperlinkStyle();
+            this.splitContainer_help = new System.Windows.Forms.SplitContainer();
+            this.red_close_button = new System.Windows.Forms.Button();
             this.ucVideoStream1 = new MissionPlanner.UcVideoStream();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.Tab1.SuspendLayout();
+           
             this.tabControl1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_help)).BeginInit();
+            this.splitContainer_help.Panel1.SuspendLayout();
+            this.splitContainer_help.SuspendLayout();
             this.SuspendLayout();
             // 
-            // button1
+            // add_camera_button
             // 
-            this.button1.BackColor = System.Drawing.Color.White;
-            this.button1.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("button1.BackgroundImage")));
-            this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.button1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button1.Location = new System.Drawing.Point(0, 0);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(40, 40);
-            this.button1.TabIndex = 9;
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.add_camera_button.BackColor = System.Drawing.Color.White;
+            this.add_camera_button.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("add_camera_button.BackgroundImage")));
+            this.add_camera_button.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.add_camera_button.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.add_camera_button.Location = new System.Drawing.Point(0, 0);
+            this.add_camera_button.Name = "add_camera_button";
+            this.add_camera_button.Size = new System.Drawing.Size(40, 40);
+            this.add_camera_button.TabIndex = 9;
+            this.add_camera_button.UseVisualStyleBackColor = false;
+            this.add_camera_button.Click += new System.EventHandler(this.button1_Click);
             // 
-            // Tab1
-            // 
-            this.Tab1.Controls.Add(this.ucVideoStream1);
-            this.Tab1.Location = new System.Drawing.Point(4, 22);
-            this.Tab1.Name = "Tab1";
-            this.Tab1.Padding = new System.Windows.Forms.Padding(3);
-            this.Tab1.Size = new System.Drawing.Size(417, 358);
-            this.Tab1.TabIndex = 0;
-            this.Tab1.Text = "Tab1";
-            this.Tab1.UseVisualStyleBackColor = true;
+          
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.Tab1);
+           
             this.tabControl1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.tabControl1.Location = new System.Drawing.Point(39, 3);
             this.tabControl1.Multiline = true;
@@ -94,6 +86,35 @@
             cellStyle3.ForeColor = System.Drawing.Color.Purple;
             this.hyperlinkStyle1.Visited = cellStyle3;
             // 
+            // splitContainer_help
+            // 
+            this.splitContainer_help.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.splitContainer_help.Dock = System.Windows.Forms.DockStyle.Right;
+            this.splitContainer_help.Location = new System.Drawing.Point(571, 0);
+            this.splitContainer_help.Name = "splitContainer_help";
+            this.splitContainer_help.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer_help.Panel1
+            // 
+            this.splitContainer_help.Panel1.Controls.Add(this.red_close_button);
+            this.splitContainer_help.Panel1.Controls.Add(this.add_camera_button);
+            this.splitContainer_help.Panel1.Controls.Add(this.tabControl1);
+            this.splitContainer_help.Size = new System.Drawing.Size(467, 709);
+            this.splitContainer_help.SplitterDistance = 390;
+            this.splitContainer_help.TabIndex = 15;
+            //
+            // red_close_button
+            // 
+            this.red_close_button.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("red_close_button.BackgroundImage")));
+            this.red_close_button.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
+            this.red_close_button.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.red_close_button.Location = new System.Drawing.Point(7, 46);
+            this.red_close_button.Name = "red_close_button";
+            this.red_close_button.Size = new System.Drawing.Size(26, 26);
+            this.red_close_button.TabIndex = 1;
+            this.red_close_button.UseVisualStyleBackColor = true;
+            this.red_close_button.Click += new System.EventHandler(this.red_close_button_Click);
+            // 
             // ucVideoStream1
             // 
             this.ucVideoStream1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -102,46 +123,28 @@
             this.ucVideoStream1.Name = "ucVideoStream1";
             this.ucVideoStream1.Size = new System.Drawing.Size(411, 352);
             this.ucVideoStream1.TabIndex = 0;
-            this.ucVideoStream1.Load += new System.EventHandler(this.ucVideoStream1_Load);
-            // 
-            // splitContainer1
-            // 
-            this.splitContainer1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitContainer1.Location = new System.Drawing.Point(571, 0);
-            this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.tabControl1);
-            this.splitContainer1.Panel1.Controls.Add(this.button1);
-            this.splitContainer1.Panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.splitContainer1_Panel1_Paint);
-            this.splitContainer1.Size = new System.Drawing.Size(467, 709);
-            this.splitContainer1.SplitterDistance = 390;
-            this.splitContainer1.TabIndex = 15;
             // 
             // Help
             // 
-            this.Controls.Add(this.splitContainer1);
+            this.Controls.Add(this.splitContainer_help);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "Help";
             this.Size = new System.Drawing.Size(1038, 709);
-            this.Tab1.ResumeLayout(false);
+          
             this.tabControl1.ResumeLayout(false);
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
+            this.splitContainer_help.Panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer_help)).EndInit();
+            this.splitContainer_help.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.TabPage Tab1;
-        private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.Button add_camera_button;
         private UcVideoStream ucVideoStream1;
         private BrightIdeasSoftware.HyperlinkStyle hyperlinkStyle1;
-        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.SplitContainer splitContainer_help;
+        public System.Windows.Forms.Button red_close_button;
+        public System.Windows.Forms.TabControl tabControl1;
     }
 }

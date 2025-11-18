@@ -521,9 +521,7 @@
     <Compile Update="GCSViews\FlightPlanner.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="GCSViews\Help.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="GCSViews\Help.cs" />
     <Compile Update="GCSViews\InitialSetup.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -1194,6 +1192,9 @@
     <EmbeddedResource Include="plugins\example23-switch.resx" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Update="GCSViews\FlightData.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

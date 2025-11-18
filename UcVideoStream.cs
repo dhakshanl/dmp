@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using MissionPlanner.Controls;
 using OpenCvSharp.Extensions;
+using SharpDX;
 
 namespace MissionPlanner
 {
@@ -18,88 +19,95 @@ namespace MissionPlanner
         public UcVideoStream()
         {
             InitializeComponent();
+            StartButton.Enabled = true;
+            StopButton.Enabled = false;
         }
 
         VideoCapture cap;
         Timer timer;
 
-        private void StartRTSP(String url)
+        void SetStartButtonEnabled(bool enabled)
         {
-            /*cap = new VideoCapture(url);
-             timer = new Timer { Interval = 33 }; // ~30 FPS
-             timer.Tick += (s, e) =>
-             {
-                 using (Mat frame = new Mat())
-                 {
-                     if (cap.Read(frame))
-                     {
-                         VideoBox.Image?.Dispose();
-                         VideoBox.Image = BitmapConverter.ToBitmap(frame);
-                     }
-                 }
-             };
-             timer.Start();
-            */
-            try
-            {
-                cap = new VideoCapture(url);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception (ex.ToString())
-                MessageBox.Show($"Failed to initialize VideoCapture: {ex.Message}", "Init Error");
-                return;
-            }
+            if (StartButton.InvokeRequired)
+                StartButton.Invoke(new Action(() => StartButton.Enabled = enabled));
+            else
+                StartButton.Enabled = enabled;
+        }
 
-            // !!! IMPORTANT CHECK !!!
-            // Check if cap is null OR if the stream isn't opened
-            if (cap == null || !cap.IsOpened())
-            {
-                MessageBox.Show("Error: Could not open video stream. \nCheck URL, network connection, and dependencies (FFmpeg).", "Stream Error");
-                cap?.Dispose(); // Clean up if it was created but not opened
-                return;
-            }
+        void SetStopButtonEnabled(bool enabled)
+        {
+            if (StopButton.InvokeRequired)
+                StopButton.Invoke(new Action(() => StopButton.Enabled = enabled));
+            else
+                StopButton.Enabled = enabled;
+        }
 
-            // Only set up and start the timer if the capture is valid
-            timer = new Timer { Interval = 33 }; // ~30 FPS
-            timer.Tick += (s, e) =>
+        public async Task StartRTSP(string url)
+        {
+            StopStream(); // Clean up previous state
+            SetStartButtonEnabled(false); // Disable start
+            SetStopButtonEnabled(false);  // Initially disabled while connecting
+
+            //Show loading image
+            VideoBox.Image = Properties.Resources.LoadingImage;
+
+            // Try to create VideoCapture with a timeout
+            var openTask = Task.Run(() =>
             {
-                try
+                try { return new VideoCapture(url); }
+                catch { return null; }
+            });
+
+            if (await Task.WhenAny(openTask, Task.Delay(15000)) == openTask) // 15 sec timeout
+            {
+                cap = openTask.Result;
+                if (cap == null || !cap.IsOpened())
                 {
-                    using (Mat frame = new Mat())
+                    MessageBox.Show("Error: Could not open video stream. \nCheck URL, network connection, and dependencies (FFmpeg).", "Stream Error");
+                    cap?.Dispose();
+                    cap = null;
+                    SetStartButtonEnabled(true);
+                    SetStopButtonEnabled(false);
+                    VideoBox.Image = Properties.Resources.no_video;
+                    return;
+                }
+
+                timer = new Timer { Interval = 33 };
+                timer.Tick += (s, e) =>
+                {
+                    try
                     {
-                        // The Read() method returns false if no frame is grabbed.
-                        // This is the only check you need inside the loop.
-                        if (cap != null && cap.IsOpened() && cap.Read(frame))
+                        using (Mat frame = new Mat())
                         {
-                            // If Read() returned true, the frame is valid.
-                            VideoBox.Image = frame.ToBitmap();
+                            if (cap != null && cap.IsOpened() && cap.Read(frame))
+                            {
+                                VideoBox.Image?.Dispose();
+                                VideoBox.Image = frame.ToBitmap();
+                            }
                         }
                     }
-                }
-                catch (Exception tickEx)
-                {
-                    timer.Stop();
-                    MessageBox.Show($"Error during video processing: {tickEx.Message}", "Runtime Error");
-                }
-            };
-            timer.Start();
-        }
-        private void VideoBox_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void start_camera_Click(object sender, EventArgs e)
-        {
-            string url = "rtsp://192.168.144.25:8554/main.264";
-            InputBox.Show("rtsp url", "Enter the url to the rtsp source url", ref url);
-
-            if (!string.IsNullOrWhiteSpace(url))
-                StartRTSP(url);
+                    catch
+                    {
+                        SetStartButtonEnabled(true);
+                        SetStopButtonEnabled(false);
+                        timer.Stop();
+                    }
+                };
+                timer.Start();
+                SetStopButtonEnabled(true);  // Enable stop only after stream starts
+            }
+            else
+            {
+                VideoBox.Image = Properties.Resources.no_video;
+                MessageBox.Show("Stream connection timed out after 15 seconds.", "Timeout");
+                cap?.Dispose();
+                cap = null;
+                SetStartButtonEnabled(true);
+                SetStopButtonEnabled(false);
+            }
         }
 
-        private void stop_camera_Click(object sender, EventArgs e)
+        public void StopStream()
         {
             timer?.Stop();
             timer = null;
@@ -112,7 +120,39 @@ namespace MissionPlanner
             }
 
             VideoBox.Image?.Dispose();
-            VideoBox.Image = null;
+            VideoBox.Image = Properties.Resources.no_video;
+            SetStartButtonEnabled(true);    // Allow restart
+            SetStopButtonEnabled(false);    // Prevent multiple stops
         }
+
+        public async void start_camera_Click(object sender, EventArgs e)
+        {
+            string url = "rtsp://192.168.144.25:8554/main.264";
+            var result = InputBox.Show("RTSP URL", "Enter camera URL", ref url);
+
+            if (result == DialogResult.Cancel)
+            {
+                cap = null;
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                MessageBox.Show("Please enter a valid URL to start.", "URL Invalid");
+                SetStopButtonEnabled(false);
+                return;
+            }
+
+            await StartRTSP(url);
+        }
+
+        public void stop_camera_Click(object sender, EventArgs e)
+        {
+            StopStream();
+        }
+
+        public Button StartButton => start_camera;
+        public Button StopButton => stop_camera;
     }
+
 }
