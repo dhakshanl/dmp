@@ -6677,8 +6677,8 @@ namespace MissionPlanner.GCSViews
             cameras.Add(camInfo);
 
             // Wire stream buttons if exposed
-            if (newTabContent.StartButton != null)
-                newTabContent.StartButton.Click += new System.EventHandler(newTabContent.start_camera_Click);
+            //if (newTabContent.StartButton != null)
+              //  newTabContent.StartButton.Click += new System.EventHandler(newTabContent.start_camera_Click);
             if (newTabContent.StopButton != null)
                 newTabContent.StopButton.Click += (s, ev) => newTabContent.StopStream();
 
