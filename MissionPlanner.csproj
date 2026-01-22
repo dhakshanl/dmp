@@ -90,6 +90,9 @@
       <HintPath>.\extlibs\BitMiracle.LibTiff.NetStandard.dll</HintPath>
       <Private>true</Private>
     </Reference>
+    <Reference Include="Bulb">
+      <HintPath>ExtLibs\LEDBulb\Bulb\obj\Debug\net472\Bulb.dll</HintPath>
+    </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.IO.Compression">
