@@ -13,4 +13,7 @@
     <Compile Remove="GeoSystem\MapService\Images.cs" />
     <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.7" />
+  </ItemGroup>
 </Project>

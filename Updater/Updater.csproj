@@ -85,6 +85,9 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.7" />
+  </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>"C:\Program Files (x86)\Windows Kits\10\App Certification Kit\signtool.exe" sign /fd SHA256 /n "Michael Oborne" /t http://timestamp.sectigo.com/ "$(TargetPath)"</PostBuildEvent>
   </PropertyGroup>

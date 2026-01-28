@@ -16,19 +16,7 @@ namespace MissionPlanner.GCSViews
 
         public void Activate()
         {
-            try
-            {
-                CHK_showconsole.Checked = Settings.Instance.GetBoolean("showconsole");
-            }
-            catch
-            {
-            }
-
-            if (Program.WindowsStoreApp)
-            {
-                BUT_betaupdate.Visible = false;
-                BUT_updatecheck.Visible = false;
-            }
+           
         }
 
         public void BUT_updatecheck_Click(object sender, EventArgs e)
@@ -47,11 +35,6 @@ namespace MissionPlanner.GCSViews
             }
         }
 
-        private void CHK_showconsole_CheckedChanged(object sender, EventArgs e)
-        {
-            Settings.Instance["showconsole"] = CHK_showconsole.Checked.ToString();
-        }
-
         private void Help_Load(object sender, EventArgs e)
         {
             //richTextBox1.Rtf = Resources.help_text;
@@ -63,23 +46,21 @@ namespace MissionPlanner.GCSViews
             Process.Start("https://firmware.ardupilot.org/Tools/MissionPlanner/upgrade/ChangeLog.txt");
         }
 
-        private void BUT_betaupdate_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                Utilities.Update.dobeta = true;
-                if (Control.ModifierKeys == Keys.Control)
-                {
-                    Utilities.Update.domaster = true;
-                    CustomMessageBox.Show("This will update to MASTER release");
-                }
+        
 
-                Utilities.Update.DoUpdate();
-            }
-            catch (Exception ex)
-            {
-                CustomMessageBox.Show(ex.ToString(), Strings.ERROR);
-            }
+        private void guna2CircleProgressBar1_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void guna2HtmlLabel1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void guna2HtmlLabel2_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -138,6 +138,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.7" />
     <PackageReference Include="log4net">
       <Version>2.0.13</Version>
     </PackageReference>

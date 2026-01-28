@@ -424,12 +424,13 @@
   <data name="no-video" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\no-video.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-<<<<<<< HEAD
+<!--<<<<<<< HEAD
 =======
+checkpoint written by dhakshan-->
   <data name="0d92fed790a3a70170e61a86db103f399a595c70" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\navxdrone logo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
->>>>>>> 7b726d7b0373e5fe353590c988099525540adcea
+<!-->>>>>>> 7b726d7b0373e5fe353590c988099525540adcea-->
   <data name="Hframe" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Hframe.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

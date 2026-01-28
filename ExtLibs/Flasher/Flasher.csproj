@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.7" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ArduPilot\MissionPlanner.ArduPilot.csproj" />
     <ProjectReference Include="..\Comms\MissionPlanner.Comms.csproj" />
     <ProjectReference Include="..\Controls\MissionPlanner.Controls.csproj" />

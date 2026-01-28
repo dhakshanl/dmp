@@ -13,6 +13,7 @@
     <ProjectReference Include="..\MissionPlanner.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.7" />
     <PackageReference Include="Microsoft.TestPlatform">
       <Version>17.3.2</Version>
     </PackageReference>
