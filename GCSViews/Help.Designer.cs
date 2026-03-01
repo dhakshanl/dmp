@@ -29,419 +29,474 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Help));
-            this.guna2CircleProgressBar1 = new Guna.UI2.WinForms.Guna2CircleProgressBar();
-            this.guna2HtmlLabel1 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2VProgressBar2 = new Guna.UI2.WinForms.Guna2VProgressBar();
-            this.guna2VProgressBar3 = new Guna.UI2.WinForms.Guna2VProgressBar();
-            this.guna2VProgressBar1 = new Guna.UI2.WinForms.Guna2VProgressBar();
-            this.guna2VProgressBar4 = new Guna.UI2.WinForms.Guna2VProgressBar();
-            this.guna2VProgressBar5 = new Guna.UI2.WinForms.Guna2VProgressBar();
-            this.guna2VProgressBar6 = new Guna.UI2.WinForms.Guna2VProgressBar();
-            this.guna2VProgressBar7 = new Guna.UI2.WinForms.Guna2VProgressBar();
-            this.guna2VProgressBar8 = new Guna.UI2.WinForms.Guna2VProgressBar();
-            this.guna2HtmlLabel2 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel3 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel4 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel5 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel6 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel7 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel8 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel9 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel11 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel10 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel12 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel13 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel14 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel15 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2HtmlLabel16 = new Guna.UI2.WinForms.Guna2HtmlLabel();
-            this.guna2TextBox1 = new Guna.UI2.WinForms.Guna2TextBox();
-            this.guna2TextBox2 = new Guna.UI2.WinForms.Guna2TextBox();
-            this.guna2TextBox3 = new Guna.UI2.WinForms.Guna2TextBox();
-            this.guna2TextBox4 = new Guna.UI2.WinForms.Guna2TextBox();
-            this.guna2TextBox5 = new Guna.UI2.WinForms.Guna2TextBox();
-            this.guna2TextBox6 = new Guna.UI2.WinForms.Guna2TextBox();
-            this.guna2TextBox7 = new Guna.UI2.WinForms.Guna2TextBox();
+            this.guna2CircleProgressBarCHARGE = new Guna.UI2.WinForms.Guna2CircleProgressBar();
+            this.guna2VProgressBarCell1 = new Guna.UI2.WinForms.Guna2VProgressBar();
+            this.guna2VProgressBarCell2 = new Guna.UI2.WinForms.Guna2VProgressBar();
+            this.guna2VProgressBarCell4 = new Guna.UI2.WinForms.Guna2VProgressBar();
+            this.guna2VProgressBarCell3 = new Guna.UI2.WinForms.Guna2VProgressBar();
+            this.guna2VProgressBarCell8 = new Guna.UI2.WinForms.Guna2VProgressBar();
+            this.guna2VProgressBarCell7 = new Guna.UI2.WinForms.Guna2VProgressBar();
+            this.guna2VProgressBarCell6 = new Guna.UI2.WinForms.Guna2VProgressBar();
+            this.guna2VProgressBarCell5 = new Guna.UI2.WinForms.Guna2VProgressBar();
+            this.guna2HtmlLabelAltitude = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelPitch = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelRoll = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelBatteryTemperature = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelLandedState = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelTimeInAir = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelTimeSinceArm = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2TextBoxAltitude = new Guna.UI2.WinForms.Guna2TextBox();
+            this.guna2ProgressBar1 = new Guna.UI2.WinForms.Guna2ProgressBar();
+            this.guna2HtmlLabelDataTransfered = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2TextBoxPitch = new Guna.UI2.WinForms.Guna2TextBox();
+            this.guna2TextBoxBatteryTemperature = new Guna.UI2.WinForms.Guna2TextBox();
+            this.guna2TextBoxRoll = new Guna.UI2.WinForms.Guna2TextBox();
+            this.guna2TextBoxTimeSinceArm = new Guna.UI2.WinForms.Guna2TextBox();
+            this.guna2TextBoxTimeInAir = new Guna.UI2.WinForms.Guna2TextBox();
+            this.guna2TextBoxLandedState = new Guna.UI2.WinForms.Guna2TextBox();
+            this.guna2HtmlLabelCell1 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelCell2 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelCell3 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelCell6 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelCell5 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelCell4 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelCell7 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelCell8 = new Guna.UI2.WinForms.Guna2HtmlLabel();
+            this.guna2HtmlLabelBatteryRemaining = new Guna.UI2.WinForms.Guna2HtmlLabel();
             this.SuspendLayout();
             // 
-            // guna2CircleProgressBar1
+            // guna2CircleProgressBarCHARGE
             // 
-            this.guna2CircleProgressBar1.BackColor = System.Drawing.Color.Transparent;
-            this.guna2CircleProgressBar1.FillColor = System.Drawing.Color.White;
-            this.guna2CircleProgressBar1.FillOffset = 5;
-            this.guna2CircleProgressBar1.FillThickness = 25;
-            resources.ApplyResources(this.guna2CircleProgressBar1, "guna2CircleProgressBar1");
-            this.guna2CircleProgressBar1.ForeColor = System.Drawing.SystemColors.Window;
-            this.guna2CircleProgressBar1.InnerColor = System.Drawing.Color.Transparent;
-            this.guna2CircleProgressBar1.Minimum = 0;
-            this.guna2CircleProgressBar1.Name = "guna2CircleProgressBar1";
-            this.guna2CircleProgressBar1.ProgressColor = System.Drawing.Color.Cyan;
-            this.guna2CircleProgressBar1.ProgressColor2 = System.Drawing.Color.BlueViolet;
-            this.guna2CircleProgressBar1.ProgressEndCap = System.Drawing.Drawing2D.LineCap.Round;
-            this.guna2CircleProgressBar1.ProgressOffset = 8;
-            this.guna2CircleProgressBar1.ProgressStartCap = System.Drawing.Drawing2D.LineCap.Round;
-            this.guna2CircleProgressBar1.ProgressThickness = 22;
-            this.guna2CircleProgressBar1.ShadowDecoration.BorderRadius = 5;
-            this.guna2CircleProgressBar1.ShadowDecoration.Depth = 10;
-            this.guna2CircleProgressBar1.ShadowDecoration.Enabled = true;
-            this.guna2CircleProgressBar1.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
-            this.guna2CircleProgressBar1.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(10);
-            this.guna2CircleProgressBar1.ShowText = true;
-            this.guna2CircleProgressBar1.UseTransparentBackground = true;
-            this.guna2CircleProgressBar1.Value = 65;
-            this.guna2CircleProgressBar1.ValueChanged += new System.EventHandler(this.guna2CircleProgressBar1_ValueChanged);
+            this.guna2CircleProgressBarCHARGE.BackColor = System.Drawing.Color.Transparent;
+            this.guna2CircleProgressBarCHARGE.FillColor = System.Drawing.Color.White;
+            this.guna2CircleProgressBarCHARGE.FillOffset = 5;
+            this.guna2CircleProgressBarCHARGE.FillThickness = 25;
+            resources.ApplyResources(this.guna2CircleProgressBarCHARGE, "guna2CircleProgressBarCHARGE");
+            this.guna2CircleProgressBarCHARGE.ForeColor = System.Drawing.SystemColors.Window;
+            this.guna2CircleProgressBarCHARGE.InnerColor = System.Drawing.Color.Transparent;
+            this.guna2CircleProgressBarCHARGE.Minimum = 0;
+            this.guna2CircleProgressBarCHARGE.Name = "guna2CircleProgressBarCHARGE";
+            this.guna2CircleProgressBarCHARGE.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2CircleProgressBarCHARGE.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2CircleProgressBarCHARGE.ProgressEndCap = System.Drawing.Drawing2D.LineCap.Round;
+            this.guna2CircleProgressBarCHARGE.ProgressOffset = 8;
+            this.guna2CircleProgressBarCHARGE.ProgressStartCap = System.Drawing.Drawing2D.LineCap.Round;
+            this.guna2CircleProgressBarCHARGE.ProgressThickness = 22;
+            this.guna2CircleProgressBarCHARGE.ShadowDecoration.BorderRadius = 5;
+            this.guna2CircleProgressBarCHARGE.ShadowDecoration.Depth = 10;
+            this.guna2CircleProgressBarCHARGE.ShadowDecoration.Enabled = true;
+            this.guna2CircleProgressBarCHARGE.ShadowDecoration.Mode = Guna.UI2.WinForms.Enums.ShadowMode.Circle;
+            this.guna2CircleProgressBarCHARGE.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(10);
+            this.guna2CircleProgressBarCHARGE.ShowText = true;
+            this.guna2CircleProgressBarCHARGE.UseTransparentBackground = true;
+            this.guna2CircleProgressBarCHARGE.Value = 19;
+            this.guna2CircleProgressBarCHARGE.ValueChanged += new System.EventHandler(this.guna2CircleProgressBarCHARGE_ValueChanged);
             // 
-            // guna2HtmlLabel1
+            // guna2VProgressBarCell1
             // 
-            this.guna2HtmlLabel1.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel1, "guna2HtmlLabel1");
-            this.guna2HtmlLabel1.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel1.Name = "guna2HtmlLabel1";
-            this.guna2HtmlLabel1.Click += new System.EventHandler(this.guna2HtmlLabel1_Click);
+            resources.ApplyResources(this.guna2VProgressBarCell1, "guna2VProgressBarCell1");
+            this.guna2VProgressBarCell1.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.guna2VProgressBarCell1.Name = "guna2VProgressBarCell1";
+            this.guna2VProgressBarCell1.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2VProgressBarCell1.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2VProgressBarCell1.ShadowDecoration.Enabled = true;
+            this.guna2VProgressBarCell1.ShowText = true;
+            this.guna2VProgressBarCell1.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            this.guna2VProgressBarCell1.Value = 70;
+            this.guna2VProgressBarCell1.ValueChanged += new System.EventHandler(this.guna2VProgressBarCell1_ValueChanged);
             // 
-            // guna2VProgressBar2
+            // guna2VProgressBarCell2
             // 
-            resources.ApplyResources(this.guna2VProgressBar2, "guna2VProgressBar2");
-            this.guna2VProgressBar2.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.guna2VProgressBar2.Name = "guna2VProgressBar2";
-            this.guna2VProgressBar2.ProgressColor = System.Drawing.Color.Cyan;
-            this.guna2VProgressBar2.ProgressColor2 = System.Drawing.Color.BlueViolet;
-            this.guna2VProgressBar2.ShadowDecoration.Enabled = true;
-            this.guna2VProgressBar2.ShowText = true;
-            this.guna2VProgressBar2.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-            this.guna2VProgressBar2.Value = 70;
+            resources.ApplyResources(this.guna2VProgressBarCell2, "guna2VProgressBarCell2");
+            this.guna2VProgressBarCell2.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.guna2VProgressBarCell2.Name = "guna2VProgressBarCell2";
+            this.guna2VProgressBarCell2.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2VProgressBarCell2.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2VProgressBarCell2.ShadowDecoration.Enabled = true;
+            this.guna2VProgressBarCell2.ShowText = true;
+            this.guna2VProgressBarCell2.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            this.guna2VProgressBarCell2.Value = 70;
+            this.guna2VProgressBarCell2.ValueChanged += new System.EventHandler(this.guna2VProgressBarCell2_ValueChanged);
             // 
-            // guna2VProgressBar3
+            // guna2VProgressBarCell4
             // 
-            resources.ApplyResources(this.guna2VProgressBar3, "guna2VProgressBar3");
-            this.guna2VProgressBar3.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.guna2VProgressBar3.Name = "guna2VProgressBar3";
-            this.guna2VProgressBar3.ProgressColor = System.Drawing.Color.Cyan;
-            this.guna2VProgressBar3.ProgressColor2 = System.Drawing.Color.BlueViolet;
-            this.guna2VProgressBar3.ShadowDecoration.Enabled = true;
-            this.guna2VProgressBar3.ShowText = true;
-            this.guna2VProgressBar3.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-            this.guna2VProgressBar3.Value = 70;
+            resources.ApplyResources(this.guna2VProgressBarCell4, "guna2VProgressBarCell4");
+            this.guna2VProgressBarCell4.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.guna2VProgressBarCell4.Name = "guna2VProgressBarCell4";
+            this.guna2VProgressBarCell4.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2VProgressBarCell4.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2VProgressBarCell4.ShadowDecoration.Enabled = true;
+            this.guna2VProgressBarCell4.ShowText = true;
+            this.guna2VProgressBarCell4.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            this.guna2VProgressBarCell4.Value = 70;
+            this.guna2VProgressBarCell4.ValueChanged += new System.EventHandler(this.guna2VProgressBarCell4_ValueChanged);
             // 
-            // guna2VProgressBar1
+            // guna2VProgressBarCell3
             // 
-            resources.ApplyResources(this.guna2VProgressBar1, "guna2VProgressBar1");
-            this.guna2VProgressBar1.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.guna2VProgressBar1.Name = "guna2VProgressBar1";
-            this.guna2VProgressBar1.ProgressColor = System.Drawing.Color.Cyan;
-            this.guna2VProgressBar1.ProgressColor2 = System.Drawing.Color.BlueViolet;
-            this.guna2VProgressBar1.ShadowDecoration.Enabled = true;
-            this.guna2VProgressBar1.ShowText = true;
-            this.guna2VProgressBar1.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-            this.guna2VProgressBar1.Value = 70;
+            resources.ApplyResources(this.guna2VProgressBarCell3, "guna2VProgressBarCell3");
+            this.guna2VProgressBarCell3.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.guna2VProgressBarCell3.Name = "guna2VProgressBarCell3";
+            this.guna2VProgressBarCell3.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2VProgressBarCell3.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2VProgressBarCell3.ShadowDecoration.Enabled = true;
+            this.guna2VProgressBarCell3.ShowText = true;
+            this.guna2VProgressBarCell3.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            this.guna2VProgressBarCell3.Value = 70;
+            this.guna2VProgressBarCell3.ValueChanged += new System.EventHandler(this.guna2VProgressBarCell3_ValueChanged);
             // 
-            // guna2VProgressBar4
+            // guna2VProgressBarCell8
             // 
-            resources.ApplyResources(this.guna2VProgressBar4, "guna2VProgressBar4");
-            this.guna2VProgressBar4.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.guna2VProgressBar4.Name = "guna2VProgressBar4";
-            this.guna2VProgressBar4.ProgressColor = System.Drawing.Color.Cyan;
-            this.guna2VProgressBar4.ProgressColor2 = System.Drawing.Color.BlueViolet;
-            this.guna2VProgressBar4.ShadowDecoration.Enabled = true;
-            this.guna2VProgressBar4.ShowText = true;
-            this.guna2VProgressBar4.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-            this.guna2VProgressBar4.Value = 70;
+            resources.ApplyResources(this.guna2VProgressBarCell8, "guna2VProgressBarCell8");
+            this.guna2VProgressBarCell8.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.guna2VProgressBarCell8.Name = "guna2VProgressBarCell8";
+            this.guna2VProgressBarCell8.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2VProgressBarCell8.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2VProgressBarCell8.ShadowDecoration.Enabled = true;
+            this.guna2VProgressBarCell8.ShowText = true;
+            this.guna2VProgressBarCell8.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            this.guna2VProgressBarCell8.Value = 70;
+            this.guna2VProgressBarCell8.ValueChanged += new System.EventHandler(this.guna2VProgressBarCell8_ValueChanged);
             // 
-            // guna2VProgressBar5
+            // guna2VProgressBarCell7
             // 
-            resources.ApplyResources(this.guna2VProgressBar5, "guna2VProgressBar5");
-            this.guna2VProgressBar5.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.guna2VProgressBar5.Name = "guna2VProgressBar5";
-            this.guna2VProgressBar5.ProgressColor = System.Drawing.Color.Cyan;
-            this.guna2VProgressBar5.ProgressColor2 = System.Drawing.Color.BlueViolet;
-            this.guna2VProgressBar5.ShadowDecoration.Enabled = true;
-            this.guna2VProgressBar5.ShowText = true;
-            this.guna2VProgressBar5.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-            this.guna2VProgressBar5.Value = 70;
+            resources.ApplyResources(this.guna2VProgressBarCell7, "guna2VProgressBarCell7");
+            this.guna2VProgressBarCell7.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.guna2VProgressBarCell7.Name = "guna2VProgressBarCell7";
+            this.guna2VProgressBarCell7.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2VProgressBarCell7.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2VProgressBarCell7.ShadowDecoration.Enabled = true;
+            this.guna2VProgressBarCell7.ShowText = true;
+            this.guna2VProgressBarCell7.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            this.guna2VProgressBarCell7.Value = 70;
+            this.guna2VProgressBarCell7.ValueChanged += new System.EventHandler(this.guna2VProgressBarCell7_ValueChanged);
             // 
-            // guna2VProgressBar6
+            // guna2VProgressBarCell6
             // 
-            resources.ApplyResources(this.guna2VProgressBar6, "guna2VProgressBar6");
-            this.guna2VProgressBar6.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.guna2VProgressBar6.Name = "guna2VProgressBar6";
-            this.guna2VProgressBar6.ProgressColor = System.Drawing.Color.Cyan;
-            this.guna2VProgressBar6.ProgressColor2 = System.Drawing.Color.BlueViolet;
-            this.guna2VProgressBar6.ShadowDecoration.Enabled = true;
-            this.guna2VProgressBar6.ShowText = true;
-            this.guna2VProgressBar6.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-            this.guna2VProgressBar6.Value = 70;
+            resources.ApplyResources(this.guna2VProgressBarCell6, "guna2VProgressBarCell6");
+            this.guna2VProgressBarCell6.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.guna2VProgressBarCell6.Name = "guna2VProgressBarCell6";
+            this.guna2VProgressBarCell6.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2VProgressBarCell6.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2VProgressBarCell6.ShadowDecoration.Enabled = true;
+            this.guna2VProgressBarCell6.ShowText = true;
+            this.guna2VProgressBarCell6.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            this.guna2VProgressBarCell6.Value = 70;
+            this.guna2VProgressBarCell6.ValueChanged += new System.EventHandler(this.guna2VProgressBarCell6_ValueChanged);
             // 
-            // guna2VProgressBar7
+            // guna2VProgressBarCell5
             // 
-            resources.ApplyResources(this.guna2VProgressBar7, "guna2VProgressBar7");
-            this.guna2VProgressBar7.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.guna2VProgressBar7.Name = "guna2VProgressBar7";
-            this.guna2VProgressBar7.ProgressColor = System.Drawing.Color.Cyan;
-            this.guna2VProgressBar7.ProgressColor2 = System.Drawing.Color.BlueViolet;
-            this.guna2VProgressBar7.ShadowDecoration.Enabled = true;
-            this.guna2VProgressBar7.ShowText = true;
-            this.guna2VProgressBar7.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-            this.guna2VProgressBar7.Value = 70;
+            resources.ApplyResources(this.guna2VProgressBarCell5, "guna2VProgressBarCell5");
+            this.guna2VProgressBarCell5.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.guna2VProgressBarCell5.Name = "guna2VProgressBarCell5";
+            this.guna2VProgressBarCell5.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2VProgressBarCell5.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2VProgressBarCell5.ShadowDecoration.Enabled = true;
+            this.guna2VProgressBarCell5.ShowText = true;
+            this.guna2VProgressBarCell5.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            this.guna2VProgressBarCell5.Value = 70;
+            this.guna2VProgressBarCell5.ValueChanged += new System.EventHandler(this.guna2VProgressBarCell5_ValueChanged);
             // 
-            // guna2VProgressBar8
+            // guna2HtmlLabelAltitude
             // 
-            resources.ApplyResources(this.guna2VProgressBar8, "guna2VProgressBar8");
-            this.guna2VProgressBar8.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.guna2VProgressBar8.Name = "guna2VProgressBar8";
-            this.guna2VProgressBar8.ProgressColor = System.Drawing.Color.Cyan;
-            this.guna2VProgressBar8.ProgressColor2 = System.Drawing.Color.BlueViolet;
-            this.guna2VProgressBar8.ShadowDecoration.Enabled = true;
-            this.guna2VProgressBar8.ShowText = true;
-            this.guna2VProgressBar8.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
-            this.guna2VProgressBar8.Value = 70;
+            this.guna2HtmlLabelAltitude.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelAltitude, "guna2HtmlLabelAltitude");
+            this.guna2HtmlLabelAltitude.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelAltitude.Name = "guna2HtmlLabelAltitude";
+            this.guna2HtmlLabelAltitude.Click += new System.EventHandler(this.guna2HtmlLabelAltitude_Click);
             // 
-            // guna2HtmlLabel2
+            // guna2HtmlLabelPitch
             // 
-            this.guna2HtmlLabel2.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel2, "guna2HtmlLabel2");
-            this.guna2HtmlLabel2.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel2.Name = "guna2HtmlLabel2";
-            this.guna2HtmlLabel2.Click += new System.EventHandler(this.guna2HtmlLabel2_Click);
+            this.guna2HtmlLabelPitch.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelPitch, "guna2HtmlLabelPitch");
+            this.guna2HtmlLabelPitch.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelPitch.Name = "guna2HtmlLabelPitch";
+            this.guna2HtmlLabelPitch.Click += new System.EventHandler(this.guna2HtmlLabelPitch_Click);
             // 
-            // guna2HtmlLabel3
+            // guna2HtmlLabelRoll
             // 
-            this.guna2HtmlLabel3.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel3, "guna2HtmlLabel3");
-            this.guna2HtmlLabel3.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel3.Name = "guna2HtmlLabel3";
+            this.guna2HtmlLabelRoll.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelRoll, "guna2HtmlLabelRoll");
+            this.guna2HtmlLabelRoll.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelRoll.Name = "guna2HtmlLabelRoll";
+            this.guna2HtmlLabelRoll.Click += new System.EventHandler(this.guna2HtmlLabelRoll_Click);
             // 
-            // guna2HtmlLabel4
+            // guna2HtmlLabelBatteryTemperature
             // 
-            this.guna2HtmlLabel4.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel4, "guna2HtmlLabel4");
-            this.guna2HtmlLabel4.ForeColor = System.Drawing.Color.Transparent;
-            this.guna2HtmlLabel4.Name = "guna2HtmlLabel4";
+            this.guna2HtmlLabelBatteryTemperature.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelBatteryTemperature, "guna2HtmlLabelBatteryTemperature");
+            this.guna2HtmlLabelBatteryTemperature.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelBatteryTemperature.Name = "guna2HtmlLabelBatteryTemperature";
+            this.guna2HtmlLabelBatteryTemperature.Click += new System.EventHandler(this.guna2HtmlLabelBatteryTemperature_Click);
             // 
-            // guna2HtmlLabel5
+            // guna2HtmlLabelLandedState
             // 
-            this.guna2HtmlLabel5.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel5, "guna2HtmlLabel5");
-            this.guna2HtmlLabel5.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel5.Name = "guna2HtmlLabel5";
+            this.guna2HtmlLabelLandedState.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelLandedState, "guna2HtmlLabelLandedState");
+            this.guna2HtmlLabelLandedState.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelLandedState.Name = "guna2HtmlLabelLandedState";
+            this.guna2HtmlLabelLandedState.Click += new System.EventHandler(this.guna2HtmlLabelLandedState_Click);
             // 
-            // guna2HtmlLabel6
+            // guna2HtmlLabelTimeInAir
             // 
-            this.guna2HtmlLabel6.BackColor = System.Drawing.Color.Transparent;
-            this.guna2HtmlLabel6.CausesValidation = false;
-            resources.ApplyResources(this.guna2HtmlLabel6, "guna2HtmlLabel6");
-            this.guna2HtmlLabel6.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel6.Name = "guna2HtmlLabel6";
+            this.guna2HtmlLabelTimeInAir.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelTimeInAir, "guna2HtmlLabelTimeInAir");
+            this.guna2HtmlLabelTimeInAir.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelTimeInAir.Name = "guna2HtmlLabelTimeInAir";
+            this.guna2HtmlLabelTimeInAir.Click += new System.EventHandler(this.guna2HtmlLabelTimeInAir_Click);
             // 
-            // guna2HtmlLabel7
+            // guna2HtmlLabelTimeSinceArm
             // 
-            this.guna2HtmlLabel7.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel7, "guna2HtmlLabel7");
-            this.guna2HtmlLabel7.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel7.Name = "guna2HtmlLabel7";
+            this.guna2HtmlLabelTimeSinceArm.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelTimeSinceArm, "guna2HtmlLabelTimeSinceArm");
+            this.guna2HtmlLabelTimeSinceArm.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelTimeSinceArm.Name = "guna2HtmlLabelTimeSinceArm";
+            this.guna2HtmlLabelTimeSinceArm.Click += new System.EventHandler(this.guna2HtmlLabelTimeSinceArm_Click);
             // 
-            // guna2HtmlLabel8
+            // guna2TextBoxAltitude
             // 
-            this.guna2HtmlLabel8.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel8, "guna2HtmlLabel8");
-            this.guna2HtmlLabel8.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel8.Name = "guna2HtmlLabel8";
+            this.guna2TextBoxAltitude.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.guna2TextBoxAltitude.DefaultText = "";
+            this.guna2TextBoxAltitude.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.guna2TextBoxAltitude.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.guna2TextBoxAltitude.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxAltitude.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxAltitude.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            resources.ApplyResources(this.guna2TextBoxAltitude, "guna2TextBoxAltitude");
+            this.guna2TextBoxAltitude.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2TextBoxAltitude.Name = "guna2TextBoxAltitude";
+            this.guna2TextBoxAltitude.PlaceholderText = "";
+            this.guna2TextBoxAltitude.SelectedText = "";
+            this.guna2TextBoxAltitude.TextChanged += new System.EventHandler(this.guna2TextBox2_TextChanged);
             // 
-            // guna2HtmlLabel9
+            // guna2ProgressBar1
             // 
-            this.guna2HtmlLabel9.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel9, "guna2HtmlLabel9");
-            this.guna2HtmlLabel9.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel9.Name = "guna2HtmlLabel9";
+            resources.ApplyResources(this.guna2ProgressBar1, "guna2ProgressBar1");
+            this.guna2ProgressBar1.ForeColor = System.Drawing.Color.Black;
+            this.guna2ProgressBar1.Name = "guna2ProgressBar1";
+            this.guna2ProgressBar1.ProgressColor = System.Drawing.Color.Cyan;
+            this.guna2ProgressBar1.ProgressColor2 = System.Drawing.Color.BlueViolet;
+            this.guna2ProgressBar1.ShadowDecoration.BorderRadius = 10;
+            this.guna2ProgressBar1.ShadowDecoration.Depth = 20;
+            this.guna2ProgressBar1.ShadowDecoration.Enabled = true;
+            this.guna2ProgressBar1.ShadowDecoration.Shadow = new System.Windows.Forms.Padding(10);
+            this.guna2ProgressBar1.ShowText = true;
+            this.guna2ProgressBar1.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SystemDefault;
+            this.guna2ProgressBar1.Value = 50;
             // 
-            // guna2HtmlLabel11
+            // guna2HtmlLabelDataTransfered
             // 
-            this.guna2HtmlLabel11.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel11, "guna2HtmlLabel11");
-            this.guna2HtmlLabel11.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel11.Name = "guna2HtmlLabel11";
+            this.guna2HtmlLabelDataTransfered.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelDataTransfered, "guna2HtmlLabelDataTransfered");
+            this.guna2HtmlLabelDataTransfered.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelDataTransfered.Name = "guna2HtmlLabelDataTransfered";
+            this.guna2HtmlLabelDataTransfered.Click += new System.EventHandler(this.guna2HtmlLabelDataTransferred_Click);
             // 
-            // guna2HtmlLabel10
+            // guna2TextBoxPitch
             // 
-            this.guna2HtmlLabel10.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel10, "guna2HtmlLabel10");
-            this.guna2HtmlLabel10.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel10.Name = "guna2HtmlLabel10";
+            this.guna2TextBoxPitch.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.guna2TextBoxPitch.DefaultText = "";
+            this.guna2TextBoxPitch.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.guna2TextBoxPitch.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.guna2TextBoxPitch.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxPitch.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxPitch.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            resources.ApplyResources(this.guna2TextBoxPitch, "guna2TextBoxPitch");
+            this.guna2TextBoxPitch.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2TextBoxPitch.Name = "guna2TextBoxPitch";
+            this.guna2TextBoxPitch.PlaceholderText = "";
+            this.guna2TextBoxPitch.SelectedText = "";
+            this.guna2TextBoxPitch.TextChanged += new System.EventHandler(this.guna2TextBoxPitch_TextChanged_1);
             // 
-            // guna2HtmlLabel12
+            // guna2TextBoxBatteryTemperature
             // 
-            this.guna2HtmlLabel12.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel12, "guna2HtmlLabel12");
-            this.guna2HtmlLabel12.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel12.Name = "guna2HtmlLabel12";
+            this.guna2TextBoxBatteryTemperature.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.guna2TextBoxBatteryTemperature.DefaultText = "";
+            this.guna2TextBoxBatteryTemperature.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.guna2TextBoxBatteryTemperature.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.guna2TextBoxBatteryTemperature.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxBatteryTemperature.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxBatteryTemperature.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            resources.ApplyResources(this.guna2TextBoxBatteryTemperature, "guna2TextBoxBatteryTemperature");
+            this.guna2TextBoxBatteryTemperature.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2TextBoxBatteryTemperature.Name = "guna2TextBoxBatteryTemperature";
+            this.guna2TextBoxBatteryTemperature.PlaceholderText = "";
+            this.guna2TextBoxBatteryTemperature.SelectedText = "";
+            this.guna2TextBoxBatteryTemperature.TextChanged += new System.EventHandler(this.guna2TextBoxBatteryTemperature_TextChanged);
             // 
-            // guna2HtmlLabel13
+            // guna2TextBoxRoll
             // 
-            this.guna2HtmlLabel13.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel13, "guna2HtmlLabel13");
-            this.guna2HtmlLabel13.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel13.Name = "guna2HtmlLabel13";
+            this.guna2TextBoxRoll.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.guna2TextBoxRoll.DefaultText = "";
+            this.guna2TextBoxRoll.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.guna2TextBoxRoll.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.guna2TextBoxRoll.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxRoll.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxRoll.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            resources.ApplyResources(this.guna2TextBoxRoll, "guna2TextBoxRoll");
+            this.guna2TextBoxRoll.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2TextBoxRoll.Name = "guna2TextBoxRoll";
+            this.guna2TextBoxRoll.PlaceholderText = "";
+            this.guna2TextBoxRoll.SelectedText = "";
+            this.guna2TextBoxRoll.TextChanged += new System.EventHandler(this.guna2TextBoxRoll_TextChanged);
             // 
-            // guna2HtmlLabel14
+            // guna2TextBoxTimeSinceArm
             // 
-            this.guna2HtmlLabel14.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel14, "guna2HtmlLabel14");
-            this.guna2HtmlLabel14.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel14.Name = "guna2HtmlLabel14";
+            this.guna2TextBoxTimeSinceArm.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.guna2TextBoxTimeSinceArm.DefaultText = "";
+            this.guna2TextBoxTimeSinceArm.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.guna2TextBoxTimeSinceArm.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.guna2TextBoxTimeSinceArm.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxTimeSinceArm.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxTimeSinceArm.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            resources.ApplyResources(this.guna2TextBoxTimeSinceArm, "guna2TextBoxTimeSinceArm");
+            this.guna2TextBoxTimeSinceArm.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2TextBoxTimeSinceArm.Name = "guna2TextBoxTimeSinceArm";
+            this.guna2TextBoxTimeSinceArm.PlaceholderText = "";
+            this.guna2TextBoxTimeSinceArm.SelectedText = "";
+            this.guna2TextBoxTimeSinceArm.TextChanged += new System.EventHandler(this.guna2TextBoxTimeSinceArm_TextChanged);
             // 
-            // guna2HtmlLabel15
+            // guna2TextBoxTimeInAir
             // 
-            this.guna2HtmlLabel15.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel15, "guna2HtmlLabel15");
-            this.guna2HtmlLabel15.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel15.Name = "guna2HtmlLabel15";
+            this.guna2TextBoxTimeInAir.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.guna2TextBoxTimeInAir.DefaultText = "";
+            this.guna2TextBoxTimeInAir.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.guna2TextBoxTimeInAir.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.guna2TextBoxTimeInAir.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxTimeInAir.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxTimeInAir.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            resources.ApplyResources(this.guna2TextBoxTimeInAir, "guna2TextBoxTimeInAir");
+            this.guna2TextBoxTimeInAir.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2TextBoxTimeInAir.Name = "guna2TextBoxTimeInAir";
+            this.guna2TextBoxTimeInAir.PlaceholderText = "";
+            this.guna2TextBoxTimeInAir.SelectedText = "";
+            this.guna2TextBoxTimeInAir.TextChanged += new System.EventHandler(this.guna2TextBoxTimeInAir_TextChanged);
             // 
-            // guna2HtmlLabel16
+            // guna2TextBoxLandedState
             // 
-            this.guna2HtmlLabel16.BackColor = System.Drawing.Color.Transparent;
-            resources.ApplyResources(this.guna2HtmlLabel16, "guna2HtmlLabel16");
-            this.guna2HtmlLabel16.ForeColor = System.Drawing.Color.White;
-            this.guna2HtmlLabel16.Name = "guna2HtmlLabel16";
+            this.guna2TextBoxLandedState.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.guna2TextBoxLandedState.DefaultText = "";
+            this.guna2TextBoxLandedState.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
+            this.guna2TextBoxLandedState.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.guna2TextBoxLandedState.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxLandedState.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
+            this.guna2TextBoxLandedState.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            resources.ApplyResources(this.guna2TextBoxLandedState, "guna2TextBoxLandedState");
+            this.guna2TextBoxLandedState.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
+            this.guna2TextBoxLandedState.Name = "guna2TextBoxLandedState";
+            this.guna2TextBoxLandedState.PlaceholderText = "";
+            this.guna2TextBoxLandedState.SelectedText = "";
+            this.guna2TextBoxLandedState.TextChanged += new System.EventHandler(this.guna2TextBoxLandedState_TextChanged);
             // 
-            // guna2TextBox1
+            // guna2HtmlLabelCell1
             // 
-            this.guna2TextBox1.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.guna2TextBox1.DefaultText = "";
-            this.guna2TextBox1.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.guna2TextBox1.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.guna2TextBox1.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox1.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox1.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            resources.ApplyResources(this.guna2TextBox1, "guna2TextBox1");
-            this.guna2TextBox1.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.guna2TextBox1.Name = "guna2TextBox1";
-            this.guna2TextBox1.PlaceholderText = "";
-            this.guna2TextBox1.SelectedText = "";
+            this.guna2HtmlLabelCell1.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelCell1, "guna2HtmlLabelCell1");
+            this.guna2HtmlLabelCell1.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelCell1.Name = "guna2HtmlLabelCell1";
+            this.guna2HtmlLabelCell1.Click += new System.EventHandler(this.guna2HtmlLabelCell1_Click);
             // 
-            // guna2TextBox2
+            // guna2HtmlLabelCell2
             // 
-            this.guna2TextBox2.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.guna2TextBox2.DefaultText = "";
-            this.guna2TextBox2.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.guna2TextBox2.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.guna2TextBox2.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox2.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox2.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            resources.ApplyResources(this.guna2TextBox2, "guna2TextBox2");
-            this.guna2TextBox2.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.guna2TextBox2.Name = "guna2TextBox2";
-            this.guna2TextBox2.PlaceholderText = "";
-            this.guna2TextBox2.SelectedText = "";
+            this.guna2HtmlLabelCell2.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelCell2, "guna2HtmlLabelCell2");
+            this.guna2HtmlLabelCell2.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelCell2.Name = "guna2HtmlLabelCell2";
+            this.guna2HtmlLabelCell2.Click += new System.EventHandler(this.guna2HtmlLabelCell2_Click);
             // 
-            // guna2TextBox3
+            // guna2HtmlLabelCell3
             // 
-            this.guna2TextBox3.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.guna2TextBox3.DefaultText = "";
-            this.guna2TextBox3.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.guna2TextBox3.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.guna2TextBox3.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox3.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox3.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            resources.ApplyResources(this.guna2TextBox3, "guna2TextBox3");
-            this.guna2TextBox3.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.guna2TextBox3.Name = "guna2TextBox3";
-            this.guna2TextBox3.PlaceholderText = "";
-            this.guna2TextBox3.SelectedText = "";
+            this.guna2HtmlLabelCell3.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelCell3, "guna2HtmlLabelCell3");
+            this.guna2HtmlLabelCell3.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelCell3.Name = "guna2HtmlLabelCell3";
+            this.guna2HtmlLabelCell3.Click += new System.EventHandler(this.guna2HtmlLabelCell3_Click);
             // 
-            // guna2TextBox4
+            // guna2HtmlLabelCell6
             // 
-            this.guna2TextBox4.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.guna2TextBox4.DefaultText = "";
-            this.guna2TextBox4.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.guna2TextBox4.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.guna2TextBox4.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox4.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox4.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            resources.ApplyResources(this.guna2TextBox4, "guna2TextBox4");
-            this.guna2TextBox4.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.guna2TextBox4.Name = "guna2TextBox4";
-            this.guna2TextBox4.PlaceholderText = "";
-            this.guna2TextBox4.SelectedText = "";
+            this.guna2HtmlLabelCell6.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelCell6, "guna2HtmlLabelCell6");
+            this.guna2HtmlLabelCell6.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelCell6.Name = "guna2HtmlLabelCell6";
+            this.guna2HtmlLabelCell6.Click += new System.EventHandler(this.guna2HtmlLabelCell6_Click);
             // 
-            // guna2TextBox5
+            // guna2HtmlLabelCell5
             // 
-            this.guna2TextBox5.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.guna2TextBox5.DefaultText = "";
-            this.guna2TextBox5.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.guna2TextBox5.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.guna2TextBox5.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox5.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox5.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            resources.ApplyResources(this.guna2TextBox5, "guna2TextBox5");
-            this.guna2TextBox5.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.guna2TextBox5.Name = "guna2TextBox5";
-            this.guna2TextBox5.PlaceholderText = "";
-            this.guna2TextBox5.SelectedText = "";
+            this.guna2HtmlLabelCell5.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelCell5, "guna2HtmlLabelCell5");
+            this.guna2HtmlLabelCell5.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelCell5.Name = "guna2HtmlLabelCell5";
+            this.guna2HtmlLabelCell5.Click += new System.EventHandler(this.guna2HtmlLabelCell5_Click);
             // 
-            // guna2TextBox6
+            // guna2HtmlLabelCell4
             // 
-            this.guna2TextBox6.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.guna2TextBox6.DefaultText = "";
-            this.guna2TextBox6.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.guna2TextBox6.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.guna2TextBox6.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox6.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox6.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            resources.ApplyResources(this.guna2TextBox6, "guna2TextBox6");
-            this.guna2TextBox6.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.guna2TextBox6.Name = "guna2TextBox6";
-            this.guna2TextBox6.PlaceholderText = "";
-            this.guna2TextBox6.SelectedText = "";
+            this.guna2HtmlLabelCell4.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelCell4, "guna2HtmlLabelCell4");
+            this.guna2HtmlLabelCell4.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelCell4.Name = "guna2HtmlLabelCell4";
+            this.guna2HtmlLabelCell4.Click += new System.EventHandler(this.guna2HtmlLabelCell4_Click);
             // 
-            // guna2TextBox7
+            // guna2HtmlLabelCell7
             // 
-            this.guna2TextBox7.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.guna2TextBox7.DefaultText = "";
-            this.guna2TextBox7.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
-            this.guna2TextBox7.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
-            this.guna2TextBox7.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox7.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
-            this.guna2TextBox7.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            resources.ApplyResources(this.guna2TextBox7, "guna2TextBox7");
-            this.guna2TextBox7.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
-            this.guna2TextBox7.Name = "guna2TextBox7";
-            this.guna2TextBox7.PlaceholderText = "";
-            this.guna2TextBox7.SelectedText = "";
+            this.guna2HtmlLabelCell7.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelCell7, "guna2HtmlLabelCell7");
+            this.guna2HtmlLabelCell7.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelCell7.Name = "guna2HtmlLabelCell7";
+            this.guna2HtmlLabelCell7.Click += new System.EventHandler(this.guna2HtmlLabelCell7_Click);
+            // 
+            // guna2HtmlLabelCell8
+            // 
+            this.guna2HtmlLabelCell8.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelCell8, "guna2HtmlLabelCell8");
+            this.guna2HtmlLabelCell8.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelCell8.Name = "guna2HtmlLabelCell8";
+            this.guna2HtmlLabelCell8.Click += new System.EventHandler(this.guna2HtmlLabelCell8_Click);
+            // 
+            // guna2HtmlLabelBatteryRemaining
+            // 
+            this.guna2HtmlLabelBatteryRemaining.BackColor = System.Drawing.Color.Transparent;
+            resources.ApplyResources(this.guna2HtmlLabelBatteryRemaining, "guna2HtmlLabelBatteryRemaining");
+            this.guna2HtmlLabelBatteryRemaining.ForeColor = System.Drawing.Color.White;
+            this.guna2HtmlLabelBatteryRemaining.Name = "guna2HtmlLabelBatteryRemaining";
+            this.guna2HtmlLabelBatteryRemaining.Click += new System.EventHandler(this.guna2HtmlLabelBatteryRemaining_Click);
             // 
             // Help
             // 
-            this.BackColor = System.Drawing.Color.Transparent;
+            this.BackColor = System.Drawing.Color.DarkSlateBlue;
             this.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.Controls.Add(this.guna2TextBox7);
-            this.Controls.Add(this.guna2TextBox6);
-            this.Controls.Add(this.guna2TextBox5);
-            this.Controls.Add(this.guna2TextBox4);
-            this.Controls.Add(this.guna2TextBox3);
-            this.Controls.Add(this.guna2TextBox2);
-            this.Controls.Add(this.guna2TextBox1);
-            this.Controls.Add(this.guna2HtmlLabel16);
-            this.Controls.Add(this.guna2HtmlLabel15);
-            this.Controls.Add(this.guna2HtmlLabel14);
-            this.Controls.Add(this.guna2HtmlLabel13);
-            this.Controls.Add(this.guna2HtmlLabel12);
-            this.Controls.Add(this.guna2HtmlLabel10);
-            this.Controls.Add(this.guna2HtmlLabel11);
-            this.Controls.Add(this.guna2HtmlLabel9);
-            this.Controls.Add(this.guna2HtmlLabel8);
-            this.Controls.Add(this.guna2HtmlLabel7);
-            this.Controls.Add(this.guna2HtmlLabel6);
-            this.Controls.Add(this.guna2HtmlLabel5);
-            this.Controls.Add(this.guna2HtmlLabel4);
-            this.Controls.Add(this.guna2HtmlLabel3);
-            this.Controls.Add(this.guna2HtmlLabel2);
-            this.Controls.Add(this.guna2VProgressBar5);
-            this.Controls.Add(this.guna2VProgressBar6);
-            this.Controls.Add(this.guna2VProgressBar7);
-            this.Controls.Add(this.guna2VProgressBar8);
-            this.Controls.Add(this.guna2VProgressBar1);
-            this.Controls.Add(this.guna2VProgressBar4);
-            this.Controls.Add(this.guna2VProgressBar3);
-            this.Controls.Add(this.guna2VProgressBar2);
-            this.Controls.Add(this.guna2HtmlLabel1);
-            this.Controls.Add(this.guna2CircleProgressBar1);
+            this.Controls.Add(this.guna2HtmlLabelBatteryRemaining);
+            this.Controls.Add(this.guna2HtmlLabelCell8);
+            this.Controls.Add(this.guna2HtmlLabelCell7);
+            this.Controls.Add(this.guna2HtmlLabelCell6);
+            this.Controls.Add(this.guna2HtmlLabelCell5);
+            this.Controls.Add(this.guna2HtmlLabelCell4);
+            this.Controls.Add(this.guna2HtmlLabelCell3);
+            this.Controls.Add(this.guna2HtmlLabelCell2);
+            this.Controls.Add(this.guna2HtmlLabelCell1);
+            this.Controls.Add(this.guna2TextBoxTimeSinceArm);
+            this.Controls.Add(this.guna2TextBoxTimeInAir);
+            this.Controls.Add(this.guna2TextBoxLandedState);
+            this.Controls.Add(this.guna2TextBoxBatteryTemperature);
+            this.Controls.Add(this.guna2TextBoxRoll);
+            this.Controls.Add(this.guna2TextBoxPitch);
+            this.Controls.Add(this.guna2HtmlLabelDataTransfered);
+            this.Controls.Add(this.guna2ProgressBar1);
+            this.Controls.Add(this.guna2TextBoxAltitude);
+            this.Controls.Add(this.guna2HtmlLabelTimeSinceArm);
+            this.Controls.Add(this.guna2HtmlLabelTimeInAir);
+            this.Controls.Add(this.guna2HtmlLabelLandedState);
+            this.Controls.Add(this.guna2HtmlLabelBatteryTemperature);
+            this.Controls.Add(this.guna2HtmlLabelRoll);
+            this.Controls.Add(this.guna2HtmlLabelPitch);
+            this.Controls.Add(this.guna2HtmlLabelAltitude);
+            this.Controls.Add(this.guna2VProgressBarCell8);
+            this.Controls.Add(this.guna2VProgressBarCell7);
+            this.Controls.Add(this.guna2VProgressBarCell6);
+            this.Controls.Add(this.guna2VProgressBarCell5);
+            this.Controls.Add(this.guna2VProgressBarCell4);
+            this.Controls.Add(this.guna2VProgressBarCell3);
+            this.Controls.Add(this.guna2VProgressBarCell2);
+            this.Controls.Add(this.guna2VProgressBarCell1);
+            this.Controls.Add(this.guna2CircleProgressBarCHARGE);
             this.ForeColor = System.Drawing.SystemColors.ControlText;
             resources.ApplyResources(this, "$this");
             this.Name = "Help";
@@ -452,37 +507,39 @@
         }
 
         #endregion
-        private Guna.UI2.WinForms.Guna2CircleProgressBar guna2CircleProgressBar1;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel1;
-        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBar2;
-        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBar3;
-        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBar1;
-        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBar4;
-        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBar5;
-        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBar6;
-        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBar7;
-        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBar8;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel2;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel3;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel4;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel5;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel6;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel7;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel8;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel9;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel11;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel10;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel12;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel13;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel14;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel15;
-        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabel16;
-        private Guna.UI2.WinForms.Guna2TextBox guna2TextBox1;
-        private Guna.UI2.WinForms.Guna2TextBox guna2TextBox2;
-        private Guna.UI2.WinForms.Guna2TextBox guna2TextBox3;
-        private Guna.UI2.WinForms.Guna2TextBox guna2TextBox4;
-        private Guna.UI2.WinForms.Guna2TextBox guna2TextBox5;
-        private Guna.UI2.WinForms.Guna2TextBox guna2TextBox6;
-        private Guna.UI2.WinForms.Guna2TextBox guna2TextBox7;
+        private Guna.UI2.WinForms.Guna2CircleProgressBar guna2CircleProgressBarCHARGE;
+        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBarCell1;
+        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBarCell2;
+        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBarCell4;
+        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBarCell3;
+        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBarCell8;
+        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBarCell7;
+        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBarCell6;
+        private Guna.UI2.WinForms.Guna2VProgressBar guna2VProgressBarCell5;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelAltitude;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelPitch;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelRoll;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelBatteryTemperature;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelLandedState;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelTimeInAir;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelTimeSinceArm;
+        private Guna.UI2.WinForms.Guna2TextBox guna2TextBoxAltitude;
+        private Guna.UI2.WinForms.Guna2ProgressBar guna2ProgressBar1;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelDataTransfered;
+        private Guna.UI2.WinForms.Guna2TextBox guna2TextBoxPitch;
+        private Guna.UI2.WinForms.Guna2TextBox guna2TextBoxBatteryTemperature;
+        private Guna.UI2.WinForms.Guna2TextBox guna2TextBoxRoll;
+        private Guna.UI2.WinForms.Guna2TextBox guna2TextBoxTimeSinceArm;
+        private Guna.UI2.WinForms.Guna2TextBox guna2TextBoxTimeInAir;
+        private Guna.UI2.WinForms.Guna2TextBox guna2TextBoxLandedState;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelCell1;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelCell2;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelCell3;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelCell6;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelCell5;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelCell4;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelCell7;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelCell8;
+        private Guna.UI2.WinForms.Guna2HtmlLabel guna2HtmlLabelBatteryRemaining;
     }
 }
