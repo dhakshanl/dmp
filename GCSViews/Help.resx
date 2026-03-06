@@ -577,7 +577,7 @@
     <value>18</value>
   </data>
   <data name="guna2TextBoxAltitude.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9pt</value>
+    <value>Segoe UI, 9pt, style=Bold</value>
   </data>
   <data name="guna2TextBoxAltitude.Location" type="System.Drawing.Point, System.Drawing">
     <value>294, 369</value>
@@ -1105,7 +1105,7 @@
     <value>0, 0, 0, 0</value>
   </data>
   <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1025, 583</value>
+    <value>1017, 575</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>Help</value>

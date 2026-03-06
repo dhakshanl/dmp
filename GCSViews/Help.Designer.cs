@@ -255,13 +255,14 @@
             // guna2TextBoxAltitude
             // 
             this.guna2TextBoxAltitude.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.guna2TextBoxAltitude.DefaultText = "";
+            this.guna2TextBoxAltitude.DefaultText = "0000";
             this.guna2TextBoxAltitude.DisabledState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(208)))), ((int)(((byte)(208)))), ((int)(((byte)(208)))));
             this.guna2TextBoxAltitude.DisabledState.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
             this.guna2TextBoxAltitude.DisabledState.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
             this.guna2TextBoxAltitude.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(138)))), ((int)(((byte)(138)))), ((int)(((byte)(138)))));
             this.guna2TextBoxAltitude.FocusedState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             resources.ApplyResources(this.guna2TextBoxAltitude, "guna2TextBoxAltitude");
+            this.guna2TextBoxAltitude.ForeColor = System.Drawing.Color.Black;
             this.guna2TextBoxAltitude.HoverState.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(94)))), ((int)(((byte)(148)))), ((int)(((byte)(255)))));
             this.guna2TextBoxAltitude.Name = "guna2TextBoxAltitude";
             this.guna2TextBoxAltitude.PlaceholderText = "";
