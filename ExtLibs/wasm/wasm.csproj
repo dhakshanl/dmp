@@ -2,8 +2,7 @@
 
   <PropertyGroup>
    <TargetFramework>net8.0</TargetFramework>
-
-		
+	
     <RazorLangVersion>3.0</RazorLangVersion>
     <BlazorLinkOnBuild>false</BlazorLinkOnBuild>
     <BlazorCacheBootResources>true</BlazorCacheBootResources>
@@ -39,7 +38,6 @@
     <PackageReference Include="Blazor.Extensions.WebUSB" Version="1.1.0-preview1" />
     <PackageReference Include="DotNetZip" Version="1.16.0" />
     <PackageReference Include="Excubo.Blazor.Canvas" Version="3.2.40" />
-    <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.7" />
     <PackageReference Include="log4net" Version="2.0.15" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
     <PackageReference Include="System.Net.Http.Json" Version="9.0.9" />

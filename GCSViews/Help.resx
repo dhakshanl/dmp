@@ -126,7 +126,7 @@
     <value>NoControl</value>
   </data>
   <data name="guna2CircleProgressBarCHARGE.Location" type="System.Drawing.Point, System.Drawing">
-    <value>79, 40</value>
+    <value>92, 92</value>
   </data>
   <data name="guna2CircleProgressBarCHARGE.Size" type="System.Drawing.Size, System.Drawing">
     <value>162, 162</value>
@@ -148,16 +148,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2CircleProgressBarCHARGE.ZOrder" xml:space="preserve">
-    <value>33</value>
+    <value>25</value>
   </data>
   <data name="guna2VProgressBarCell1.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 8.25pt, style=Bold</value>
   </data>
   <data name="guna2VProgressBarCell1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>386, 14</value>
+    <value>368, 14</value>
   </data>
   <data name="guna2VProgressBarCell1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 300</value>
+    <value>124, 300</value>
   </data>
   <data name="guna2VProgressBarCell1.TabIndex" type="System.Int32, mscorlib">
     <value>9</value>
@@ -175,16 +175,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2VProgressBarCell1.ZOrder" xml:space="preserve">
-    <value>32</value>
+    <value>24</value>
   </data>
   <data name="guna2VProgressBarCell2.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 8.25pt, style=Bold</value>
   </data>
   <data name="guna2VProgressBarCell2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>442, 14</value>
+    <value>517, 14</value>
   </data>
   <data name="guna2VProgressBarCell2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 300</value>
+    <value>123, 300</value>
   </data>
   <data name="guna2VProgressBarCell2.TabIndex" type="System.Int32, mscorlib">
     <value>10</value>
@@ -202,43 +202,16 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2VProgressBarCell2.ZOrder" xml:space="preserve">
-    <value>31</value>
-  </data>
-  <data name="guna2VProgressBarCell4.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 8.25pt, style=Bold</value>
-  </data>
-  <data name="guna2VProgressBarCell4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>554, 14</value>
-  </data>
-  <data name="guna2VProgressBarCell4.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 300</value>
-  </data>
-  <data name="guna2VProgressBarCell4.TabIndex" type="System.Int32, mscorlib">
-    <value>12</value>
-  </data>
-  <data name="guna2VProgressBarCell4.Text" xml:space="preserve">
-    <value>guna2VProgressBar1</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell4.Name" xml:space="preserve">
-    <value>guna2VProgressBarCell4</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell4.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2VProgressBar, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell4.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell4.ZOrder" xml:space="preserve">
-    <value>29</value>
+    <value>23</value>
   </data>
   <data name="guna2VProgressBarCell3.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 8.25pt, style=Bold</value>
   </data>
   <data name="guna2VProgressBarCell3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>498, 14</value>
+    <value>665, 14</value>
   </data>
   <data name="guna2VProgressBarCell3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 300</value>
+    <value>117, 300</value>
   </data>
   <data name="guna2VProgressBarCell3.TabIndex" type="System.Int32, mscorlib">
     <value>11</value>
@@ -256,115 +229,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2VProgressBarCell3.ZOrder" xml:space="preserve">
-    <value>30</value>
-  </data>
-  <data name="guna2VProgressBarCell8.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 8.25pt, style=Bold</value>
-  </data>
-  <data name="guna2VProgressBarCell8.Location" type="System.Drawing.Point, System.Drawing">
-    <value>778, 14</value>
-  </data>
-  <data name="guna2VProgressBarCell8.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 300</value>
-  </data>
-  <data name="guna2VProgressBarCell8.TabIndex" type="System.Int32, mscorlib">
-    <value>16</value>
-  </data>
-  <data name="guna2VProgressBarCell8.Text" xml:space="preserve">
-    <value>guna2VProgressBar5</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell8.Name" xml:space="preserve">
-    <value>guna2VProgressBarCell8</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell8.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2VProgressBar, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell8.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell8.ZOrder" xml:space="preserve">
-    <value>25</value>
-  </data>
-  <data name="guna2VProgressBarCell7.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 8.25pt, style=Bold</value>
-  </data>
-  <data name="guna2VProgressBarCell7.Location" type="System.Drawing.Point, System.Drawing">
-    <value>722, 14</value>
-  </data>
-  <data name="guna2VProgressBarCell7.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 300</value>
-  </data>
-  <data name="guna2VProgressBarCell7.TabIndex" type="System.Int32, mscorlib">
-    <value>15</value>
-  </data>
-  <data name="guna2VProgressBarCell7.Text" xml:space="preserve">
-    <value>guna2VProgressBar6</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell7.Name" xml:space="preserve">
-    <value>guna2VProgressBarCell7</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell7.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2VProgressBar, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell7.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell7.ZOrder" xml:space="preserve">
-    <value>26</value>
-  </data>
-  <data name="guna2VProgressBarCell6.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 8.25pt, style=Bold</value>
-  </data>
-  <data name="guna2VProgressBarCell6.Location" type="System.Drawing.Point, System.Drawing">
-    <value>666, 14</value>
-  </data>
-  <data name="guna2VProgressBarCell6.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 300</value>
-  </data>
-  <data name="guna2VProgressBarCell6.TabIndex" type="System.Int32, mscorlib">
-    <value>14</value>
-  </data>
-  <data name="guna2VProgressBarCell6.Text" xml:space="preserve">
-    <value>guna2VProgressBar7</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell6.Name" xml:space="preserve">
-    <value>guna2VProgressBarCell6</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell6.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2VProgressBar, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell6.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell6.ZOrder" xml:space="preserve">
-    <value>27</value>
-  </data>
-  <data name="guna2VProgressBarCell5.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 8.25pt, style=Bold</value>
-  </data>
-  <data name="guna2VProgressBarCell5.Location" type="System.Drawing.Point, System.Drawing">
-    <value>610, 14</value>
-  </data>
-  <data name="guna2VProgressBarCell5.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 300</value>
-  </data>
-  <data name="guna2VProgressBarCell5.TabIndex" type="System.Int32, mscorlib">
-    <value>13</value>
-  </data>
-  <data name="guna2VProgressBarCell5.Text" xml:space="preserve">
-    <value>guna2VProgressBar8</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell5.Name" xml:space="preserve">
-    <value>guna2VProgressBarCell5</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell5.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2VProgressBar, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell5.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2VProgressBarCell5.ZOrder" xml:space="preserve">
-    <value>28</value>
+    <value>22</value>
   </data>
   <data name="guna2HtmlLabelAltitude.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
@@ -394,7 +259,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelAltitude.ZOrder" xml:space="preserve">
-    <value>24</value>
+    <value>21</value>
   </data>
   <data name="guna2HtmlLabelPitch.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
@@ -424,7 +289,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelPitch.ZOrder" xml:space="preserve">
-    <value>23</value>
+    <value>20</value>
   </data>
   <data name="guna2HtmlLabelRoll.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
@@ -454,7 +319,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelRoll.ZOrder" xml:space="preserve">
-    <value>22</value>
+    <value>19</value>
   </data>
   <data name="guna2HtmlLabelBatteryTemperature.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
@@ -484,7 +349,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelBatteryTemperature.ZOrder" xml:space="preserve">
-    <value>21</value>
+    <value>18</value>
   </data>
   <data name="guna2HtmlLabelLandedState.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
@@ -514,7 +379,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelLandedState.ZOrder" xml:space="preserve">
-    <value>20</value>
+    <value>17</value>
   </data>
   <data name="guna2HtmlLabelTimeInAir.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
@@ -544,7 +409,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelTimeInAir.ZOrder" xml:space="preserve">
-    <value>19</value>
+    <value>16</value>
   </data>
   <data name="guna2HtmlLabelTimeSinceArm.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
@@ -574,7 +439,7 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelTimeSinceArm.ZOrder" xml:space="preserve">
-    <value>18</value>
+    <value>15</value>
   </data>
   <data name="guna2TextBoxAltitude.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9pt, style=Bold</value>
@@ -601,13 +466,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2TextBoxAltitude.ZOrder" xml:space="preserve">
-    <value>17</value>
+    <value>14</value>
   </data>
   <data name="guna2ProgressBar1.Font" type="System.Drawing.Font, System.Drawing">
     <value>Microsoft Sans Serif, 8pt, style=Bold</value>
   </data>
   <data name="guna2ProgressBar1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>674, 456</value>
+    <value>665, 427</value>
   </data>
   <data name="guna2ProgressBar1.RightToLeft" type="System.Windows.Forms.RightToLeft, System.Windows.Forms">
     <value>No</value>
@@ -631,13 +496,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2ProgressBar1.ZOrder" xml:space="preserve">
-    <value>16</value>
+    <value>13</value>
   </data>
   <data name="guna2HtmlLabelDataTransfered.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
   </data>
   <data name="guna2HtmlLabelDataTransfered.Location" type="System.Drawing.Point, System.Drawing">
-    <value>728, 418</value>
+    <value>719, 389</value>
   </data>
   <data name="guna2HtmlLabelDataTransfered.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>5, 5, 5, 5</value>
@@ -661,10 +526,10 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelDataTransfered.ZOrder" xml:space="preserve">
-    <value>15</value>
+    <value>12</value>
   </data>
   <data name="guna2TextBoxPitch.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9pt</value>
+    <value>Segoe UI, 9pt, style=Bold</value>
   </data>
   <data name="guna2TextBoxPitch.Location" type="System.Drawing.Point, System.Drawing">
     <value>294, 398</value>
@@ -688,10 +553,10 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2TextBoxPitch.ZOrder" xml:space="preserve">
-    <value>14</value>
+    <value>11</value>
   </data>
   <data name="guna2TextBoxBatteryTemperature.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9pt</value>
+    <value>Segoe UI, 9pt, style=Bold</value>
   </data>
   <data name="guna2TextBoxBatteryTemperature.Location" type="System.Drawing.Point, System.Drawing">
     <value>294, 456</value>
@@ -715,10 +580,10 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2TextBoxBatteryTemperature.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>9</value>
   </data>
   <data name="guna2TextBoxRoll.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9pt</value>
+    <value>Segoe UI, 9pt, style=Bold</value>
   </data>
   <data name="guna2TextBoxRoll.Location" type="System.Drawing.Point, System.Drawing">
     <value>294, 427</value>
@@ -742,10 +607,10 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2TextBoxRoll.ZOrder" xml:space="preserve">
-    <value>13</value>
+    <value>10</value>
   </data>
   <data name="guna2TextBoxTimeSinceArm.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9pt</value>
+    <value>Segoe UI, 9pt, style=Bold</value>
   </data>
   <data name="guna2TextBoxTimeSinceArm.Location" type="System.Drawing.Point, System.Drawing">
     <value>294, 543</value>
@@ -769,10 +634,10 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2TextBoxTimeSinceArm.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>6</value>
   </data>
   <data name="guna2TextBoxTimeInAir.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9pt</value>
+    <value>Segoe UI, 9pt, style=Bold</value>
   </data>
   <data name="guna2TextBoxTimeInAir.Location" type="System.Drawing.Point, System.Drawing">
     <value>294, 514</value>
@@ -796,10 +661,10 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2TextBoxTimeInAir.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>7</value>
   </data>
   <data name="guna2TextBoxLandedState.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9pt</value>
+    <value>Segoe UI, 9pt, style=Bold</value>
   </data>
   <data name="guna2TextBoxLandedState.Location" type="System.Drawing.Point, System.Drawing">
     <value>294, 485</value>
@@ -823,13 +688,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2TextBoxLandedState.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>8</value>
   </data>
   <data name="guna2HtmlLabelCell1.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.3pt, style=Bold</value>
   </data>
   <data name="guna2HtmlLabelCell1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>386, 322</value>
+    <value>412, 322</value>
   </data>
   <data name="guna2HtmlLabelCell1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>5, 5, 5, 5</value>
@@ -853,13 +718,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelCell1.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>5</value>
   </data>
   <data name="guna2HtmlLabelCell2.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.3pt, style=Bold</value>
   </data>
   <data name="guna2HtmlLabelCell2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>442, 322</value>
+    <value>556, 322</value>
   </data>
   <data name="guna2HtmlLabelCell2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>5, 5, 5, 5</value>
@@ -883,13 +748,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelCell2.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>4</value>
   </data>
   <data name="guna2HtmlLabelCell3.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.3pt, style=Bold</value>
   </data>
   <data name="guna2HtmlLabelCell3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>498, 322</value>
+    <value>695, 322</value>
   </data>
   <data name="guna2HtmlLabelCell3.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>5, 5, 5, 5</value>
@@ -913,163 +778,13 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelCell3.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="guna2HtmlLabelCell6.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9.3pt, style=Bold</value>
-  </data>
-  <data name="guna2HtmlLabelCell6.Location" type="System.Drawing.Point, System.Drawing">
-    <value>666, 322</value>
-  </data>
-  <data name="guna2HtmlLabelCell6.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>5, 5, 5, 5</value>
-  </data>
-  <data name="guna2HtmlLabelCell6.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 27</value>
-  </data>
-  <data name="guna2HtmlLabelCell6.TabIndex" type="System.Int32, mscorlib">
-    <value>56</value>
-  </data>
-  <data name="guna2HtmlLabelCell6.Text" xml:space="preserve">
-    <value>cell6</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell6.Name" xml:space="preserve">
-    <value>guna2HtmlLabelCell6</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell6.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2HtmlLabel, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell6.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell6.ZOrder" xml:space="preserve">
     <value>3</value>
-  </data>
-  <data name="guna2HtmlLabelCell5.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9.3pt, style=Bold</value>
-  </data>
-  <data name="guna2HtmlLabelCell5.Location" type="System.Drawing.Point, System.Drawing">
-    <value>610, 322</value>
-  </data>
-  <data name="guna2HtmlLabelCell5.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>5, 5, 5, 5</value>
-  </data>
-  <data name="guna2HtmlLabelCell5.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 27</value>
-  </data>
-  <data name="guna2HtmlLabelCell5.TabIndex" type="System.Int32, mscorlib">
-    <value>55</value>
-  </data>
-  <data name="guna2HtmlLabelCell5.Text" xml:space="preserve">
-    <value>cell5</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell5.Name" xml:space="preserve">
-    <value>guna2HtmlLabelCell5</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell5.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2HtmlLabel, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell5.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell5.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="guna2HtmlLabelCell4.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9.3pt, style=Bold</value>
-  </data>
-  <data name="guna2HtmlLabelCell4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>554, 322</value>
-  </data>
-  <data name="guna2HtmlLabelCell4.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>5, 5, 5, 5</value>
-  </data>
-  <data name="guna2HtmlLabelCell4.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 27</value>
-  </data>
-  <data name="guna2HtmlLabelCell4.TabIndex" type="System.Int32, mscorlib">
-    <value>54</value>
-  </data>
-  <data name="guna2HtmlLabelCell4.Text" xml:space="preserve">
-    <value>cell4</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell4.Name" xml:space="preserve">
-    <value>guna2HtmlLabelCell4</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell4.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2HtmlLabel, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell4.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell4.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="guna2HtmlLabelCell7.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9.3pt, style=Bold</value>
-  </data>
-  <data name="guna2HtmlLabelCell7.Location" type="System.Drawing.Point, System.Drawing">
-    <value>722, 322</value>
-  </data>
-  <data name="guna2HtmlLabelCell7.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>5, 5, 5, 5</value>
-  </data>
-  <data name="guna2HtmlLabelCell7.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 27</value>
-  </data>
-  <data name="guna2HtmlLabelCell7.TabIndex" type="System.Int32, mscorlib">
-    <value>57</value>
-  </data>
-  <data name="guna2HtmlLabelCell7.Text" xml:space="preserve">
-    <value>cell7</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell7.Name" xml:space="preserve">
-    <value>guna2HtmlLabelCell7</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell7.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2HtmlLabel, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell7.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell7.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="guna2HtmlLabelCell8.Font" type="System.Drawing.Font, System.Drawing">
-    <value>Segoe UI, 9.3pt, style=Bold</value>
-  </data>
-  <data name="guna2HtmlLabelCell8.Location" type="System.Drawing.Point, System.Drawing">
-    <value>778, 322</value>
-  </data>
-  <data name="guna2HtmlLabelCell8.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>5, 5, 5, 5</value>
-  </data>
-  <data name="guna2HtmlLabelCell8.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 27</value>
-  </data>
-  <data name="guna2HtmlLabelCell8.TabIndex" type="System.Int32, mscorlib">
-    <value>58</value>
-  </data>
-  <data name="guna2HtmlLabelCell8.Text" xml:space="preserve">
-    <value>cell8</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell8.Name" xml:space="preserve">
-    <value>guna2HtmlLabelCell8</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell8.Type" xml:space="preserve">
-    <value>Guna.UI2.WinForms.Guna2HtmlLabel, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell8.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;guna2HtmlLabelCell8.ZOrder" xml:space="preserve">
-    <value>1</value>
   </data>
   <data name="guna2HtmlLabelBatteryRemaining.Font" type="System.Drawing.Font, System.Drawing">
     <value>Segoe UI, 9.75pt, style=Bold</value>
   </data>
   <data name="guna2HtmlLabelBatteryRemaining.Location" type="System.Drawing.Point, System.Drawing">
-    <value>74, 210</value>
+    <value>89, 54</value>
   </data>
   <data name="guna2HtmlLabelBatteryRemaining.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>5, 5, 5, 5</value>
@@ -1093,6 +808,66 @@
     <value>$this</value>
   </data>
   <data name="&gt;&gt;guna2HtmlLabelBatteryRemaining.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="guna2HtmlLabel1.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI, 11pt, style=Bold</value>
+  </data>
+  <data name="guna2HtmlLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>89, 262</value>
+  </data>
+  <data name="guna2HtmlLabel1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>5, 5, 5, 5</value>
+  </data>
+  <data name="guna2HtmlLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>172, 32</value>
+  </data>
+  <data name="guna2HtmlLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>61</value>
+  </data>
+  <data name="guna2HtmlLabel1.Text" xml:space="preserve">
+    <value>NOT CHARGING</value>
+  </data>
+  <data name="&gt;&gt;guna2HtmlLabel1.Name" xml:space="preserve">
+    <value>guna2HtmlLabel1</value>
+  </data>
+  <data name="&gt;&gt;guna2HtmlLabel1.Type" xml:space="preserve">
+    <value>Guna.UI2.WinForms.Guna2HtmlLabel, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
+  </data>
+  <data name="&gt;&gt;guna2HtmlLabel1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;guna2HtmlLabel1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="guna2HtmlLabel2.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Segoe UI Semilight, 8pt</value>
+  </data>
+  <data name="guna2HtmlLabel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>735, 525</value>
+  </data>
+  <data name="guna2HtmlLabel2.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>5, 5, 5, 5</value>
+  </data>
+  <data name="guna2HtmlLabel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>115, 23</value>
+  </data>
+  <data name="guna2HtmlLabel2.TabIndex" type="System.Int32, mscorlib">
+    <value>62</value>
+  </data>
+  <data name="guna2HtmlLabel2.Text" xml:space="preserve">
+    <value>file info: .............</value>
+  </data>
+  <data name="&gt;&gt;guna2HtmlLabel2.Name" xml:space="preserve">
+    <value>guna2HtmlLabel2</value>
+  </data>
+  <data name="&gt;&gt;guna2HtmlLabel2.Type" xml:space="preserve">
+    <value>Guna.UI2.WinForms.Guna2HtmlLabel, Guna.UI2, Version=2.0.4.7, Culture=neutral, PublicKeyToken=8b9d14aa5142e261</value>
+  </data>
+  <data name="&gt;&gt;guna2HtmlLabel2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;guna2HtmlLabel2.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
   <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
@@ -1105,7 +880,7 @@
     <value>0, 0, 0, 0</value>
   </data>
   <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
-    <value>1017, 575</value>
+    <value>1005, 615</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
     <value>Help</value>

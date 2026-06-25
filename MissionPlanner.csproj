@@ -284,6 +284,9 @@
     <Compile Update="Controls\Status.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Controls\GpsDeniedGridControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="Controls\DroneCANFileUI.cs">
       <SubType>UserControl</SubType>
     </Compile>

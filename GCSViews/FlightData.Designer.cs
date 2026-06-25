@@ -230,6 +230,8 @@ namespace MissionPlanner.GCSViews
             this.lbl_hdop = new MissionPlanner.Controls.MyLabel();
             this.lbl_sats = new MissionPlanner.Controls.MyLabel();
             this.gMapControl1 = new MissionPlanner.Controls.myGMAP();
+            this.gpsDeniedGridControl1 = new MissionPlanner.Controls.GpsDeniedGridControl();
+            this.but_nogpsgrid = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.coords1 = new MissionPlanner.Controls.Coords();
             this.CHK_autopan = new System.Windows.Forms.CheckBox();
@@ -2497,6 +2499,8 @@ namespace MissionPlanner.GCSViews
             this.splitContainer1.Panel2.Controls.Add(this.lbl_hdop);
             this.splitContainer1.Panel2.Controls.Add(this.lbl_sats);
             this.splitContainer1.Panel2.Controls.Add(this.gMapControl1);
+            this.splitContainer1.Panel2.Controls.Add(this.gpsDeniedGridControl1);
+            this.splitContainer1.Panel2.Controls.Add(this.but_nogpsgrid);
             this.splitContainer1.Panel2.Resize += new System.EventHandler(this.splitContainer1_Panel2_Resize);
             // 
             // zg1
@@ -2829,7 +2833,22 @@ namespace MissionPlanner.GCSViews
             this.gMapControl1.MouseLeave += new System.EventHandler(this.gMapControl1_MouseLeave);
             this.gMapControl1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.gMapControl1_MouseMove);
             this.gMapControl1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.gMapControl1_MouseUp);
-            // 
+            //
+            // gpsDeniedGridControl1
+            //
+            this.gpsDeniedGridControl1.Name = "gpsDeniedGridControl1";
+            this.gpsDeniedGridControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gpsDeniedGridControl1.Visible = false;
+            //
+            // but_nogpsgrid
+            //
+            this.but_nogpsgrid.Name = "but_nogpsgrid";
+            this.but_nogpsgrid.Text = "No-GPS Grid";
+            this.but_nogpsgrid.Size = new System.Drawing.Size(90, 23);
+            this.but_nogpsgrid.Location = new System.Drawing.Point(10, 10);
+            this.but_nogpsgrid.UseVisualStyleBackColor = true;
+            this.but_nogpsgrid.Click += new System.EventHandler(this.but_nogpsgrid_Click);
+            //
             // panel1
             // 
             resources.ApplyResources(this.panel1, "panel1");
@@ -3004,6 +3023,8 @@ namespace MissionPlanner.GCSViews
         private Label label1;
         private System.Windows.Forms.CheckBox CHK_autopan;
         public Controls.myGMAP gMapControl1;
+        public Controls.GpsDeniedGridControl gpsDeniedGridControl1;
+        private System.Windows.Forms.Button but_nogpsgrid;
         private ZedGraph.ZedGraphControl zg1;
         public System.Windows.Forms.TabControl tabControlactions;
         public System.Windows.Forms.TabPage tabGauges;

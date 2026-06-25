@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net6.0-windows;netstandard2.0</TargetFrameworks>
+    <UseWindowsForms>true</UseWindowsForms>
     <ApplicationIcon />
     <OutputTypeEx>library</OutputTypeEx>
     <StartupObject />
@@ -35,5 +36,9 @@
     </None>
   </ItemGroup>
 
+  <!-- Ensure net6 target gets System.CodeDom v6 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
+    <PackageReference Include="System.CodeDom" Version="6.0.0" />
+  </ItemGroup>
 
 </Project>
