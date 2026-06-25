@@ -26,6 +26,14 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Build DriverCleanup (solution-level build-order dependency, not a real ProjectReference)
+        # MissionPlanner.csproj copies Drivers\DriverCleanup.exe in a post-build
+        # step, but only depends on it via the .sln's build order, not an actual
+        # ProjectReference - building MissionPlanner.csproj alone skips it.
+        # DriverCleanup.csproj outputs directly to ..\..\Drivers\, so building
+        # it first puts the exe where MissionPlanner.csproj expects to find it.
+        run: msbuild ExtLibs\DriverCleanup\DriverCleanup.csproj /p:Configuration=Debug /restore /p:RestoreSources=https://api.nuget.org/v3/index.json /m /v:minimal
+
       - name: Build (Debug)
         # Building MissionPlanner.csproj directly (NOT via MissionPlanner.sln)
         # on purpose: targeting the .sln pulls a couple of legacy mono class
