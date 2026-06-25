@@ -24,21 +24,19 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Setup NuGet
-        uses: NuGet/setup-nuget@v2
-
-      - name: Restore NuGet packages
-        # explicit "nuget restore" (not msbuild /restore) - the implicit restore
-        # ignores this repo's nuget.config for the legacy packages.config-style
-        # projects mixed into this solution and queries the SDK's bundled local
-        # feeds instead, which don't have packages like Guna.UI2.WinForms.
-        run: nuget restore MissionPlanner.sln
-
       - name: Build (Debug)
         # Release config currently fails to build due to a pre-existing
         # ZedGraph.csproj issue (duplicate TargetFrameworkAttribute),
         # unrelated to this workflow - using Debug until that's fixed.
-        run: msbuild MissionPlanner.sln /t:MissionPlanner /p:Configuration=Debug /m /v:minimal
+        #
+        # Restoring the whole .sln (e.g. via "nuget restore") pulls in
+        # ExtLibs/wasm/wasm.csproj, which needs a wasm-tools-net8 workload
+        # not installed on the runner - irrelevant to the main exe, so we
+        # only restore what /t:MissionPlanner actually needs via /restore.
+        # RestoreSources is forced explicitly because the implicit restore
+        # otherwise queries the SDK's bundled local feeds instead of this
+        # repo's nuget.config, missing packages like Guna.UI2.WinForms.
+        run: msbuild MissionPlanner.sln /t:MissionPlanner /p:Configuration=Debug /restore /p:RestoreSources=https://api.nuget.org/v3/index.json /m /v:minimal
 
       - name: Generate version.txt
         shell: pwsh
