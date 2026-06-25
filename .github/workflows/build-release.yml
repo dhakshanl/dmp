@@ -1,0 +1,65 @@
+name: Build and Release
+
+# Builds on every push to dev/isro and republishes a "latest" GitHub Release
+# with the new exe + the version.txt/checksums.txt files that Mission
+# Planner's own built-in updater (Utilities/Update.cs) already checks on
+# every startup (see App.config UpdateLocationVersion/MD5/Zip - pointed at
+# this same "latest" release). Anyone running a build that already has
+# that App.config baked in gets prompted to update automatically.
+
+on:
+  push:
+    branches: [ dev/isro ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build (Debug)
+        # Release config currently fails to build due to a pre-existing
+        # ZedGraph.csproj issue (duplicate TargetFrameworkAttribute),
+        # unrelated to this workflow - using Debug until that's fixed.
+        run: msbuild MissionPlanner.sln /t:MissionPlanner /p:Configuration=Debug /restore /m /v:minimal
+
+      - name: Generate version.txt
+        shell: pwsh
+        run: |
+          $version = "1.0.0.${{ github.run_number }}"
+          Set-Content -Path "bin\Debug\net461\version.txt" -Value $version -NoNewline -Encoding ascii
+
+      - name: Generate checksums.txt
+        shell: pwsh
+        run: |
+          $root = Resolve-Path "bin\Debug\net461"
+          $files = Get-ChildItem -Path $root -Recurse -File
+          $lines = foreach ($f in $files) {
+            $hash = (Get-FileHash -Path $f.FullName -Algorithm MD5).Hash.ToLower()
+            $rel = $f.FullName.Substring($root.Path.Length + 1).Replace('\','/')
+            "$hash  ./$rel"
+          }
+          Set-Content -Path "checksums.txt" -Value $lines -Encoding ascii
+
+      - name: Zip build output
+        shell: pwsh
+        run: Compress-Archive -Path "bin\Debug\net461\*" -DestinationPath "MissionPlanner-latest.zip" -Force
+
+      - name: Publish "latest" release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Latest build (${{ github.sha }})"
+          body: "Automatic build from commit ${{ github.sha }} on ${{ github.ref_name }}."
+          make_latest: true
+          files: |
+            MissionPlanner-latest.zip
+            checksums.txt
+            bin/Debug/net461/version.txt
