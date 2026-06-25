@@ -27,18 +27,21 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Build (Debug)
+        # Building MissionPlanner.csproj directly (NOT via MissionPlanner.sln)
+        # on purpose: targeting the .sln pulls a couple of legacy mono class
+        # library projects (Accessibility-net_4_x.csproj, SOAP formatters)
+        # into the graph that need a generated Consts.cs that doesn't exist
+        # anywhere in this repo's history - they aren't actual dependencies
+        # of MissionPlanner.csproj, just other unrelated entries in the .sln.
+        #
         # Release config currently fails to build due to a pre-existing
         # ZedGraph.csproj issue (duplicate TargetFrameworkAttribute),
         # unrelated to this workflow - using Debug until that's fixed.
         #
-        # Restoring the whole .sln (e.g. via "nuget restore") pulls in
-        # ExtLibs/wasm/wasm.csproj, which needs a wasm-tools-net8 workload
-        # not installed on the runner - irrelevant to the main exe, so we
-        # only restore what /t:MissionPlanner actually needs via /restore.
         # RestoreSources is forced explicitly because the implicit restore
         # otherwise queries the SDK's bundled local feeds instead of this
         # repo's nuget.config, missing packages like Guna.UI2.WinForms.
-        run: msbuild MissionPlanner.sln /t:MissionPlanner /p:Configuration=Debug /restore /p:RestoreSources=https://api.nuget.org/v3/index.json /m /v:minimal
+        run: msbuild MissionPlanner.csproj /p:Configuration=Debug /restore /p:RestoreSources=https://api.nuget.org/v3/index.json /m /v:minimal
 
       - name: Generate version.txt
         shell: pwsh
