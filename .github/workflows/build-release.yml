@@ -24,11 +24,21 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        # explicit "nuget restore" (not msbuild /restore) - the implicit restore
+        # ignores this repo's nuget.config for the legacy packages.config-style
+        # projects mixed into this solution and queries the SDK's bundled local
+        # feeds instead, which don't have packages like Guna.UI2.WinForms.
+        run: nuget restore MissionPlanner.sln
+
       - name: Build (Debug)
         # Release config currently fails to build due to a pre-existing
         # ZedGraph.csproj issue (duplicate TargetFrameworkAttribute),
         # unrelated to this workflow - using Debug until that's fixed.
-        run: msbuild MissionPlanner.sln /t:MissionPlanner /p:Configuration=Debug /restore /m /v:minimal
+        run: msbuild MissionPlanner.sln /t:MissionPlanner /p:Configuration=Debug /m /v:minimal
 
       - name: Generate version.txt
         shell: pwsh
