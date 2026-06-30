@@ -278,8 +278,7 @@ namespace MissionPlanner
             string strVersion = File.Exists("version.txt")
                 ? File.ReadAllText("version.txt")
                 : System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
-            //Splash.Text = name + " " + Application.ProductVersion + " build " + strVersion;
-            Splash.Text = "DMP Build Version: 0.1.0";
+            Splash.Text = name + " " + Application.ProductVersion + " build " + strVersion;
             Console.WriteLine("Splash.Show()");
             Splash.Show();
 
