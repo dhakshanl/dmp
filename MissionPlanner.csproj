@@ -93,11 +93,14 @@
     <Reference Include="Bulb">
       <HintPath>ExtLibs\LEDBulb\Bulb\obj\Debug\net472\Bulb.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.IO.Compression">
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Xaml" />
     <Reference Update="System.IO.Compression.FileSystem">
       <Private>True</Private>
     </Reference>
@@ -196,6 +199,7 @@
       <Version>1.0.1</Version>
     </PackageReference>
     <PackageReference Include="GeoJSON.Net" version="1.1.64" targetFramework="net462" />
+    <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.7" />
     <PackageReference Include="IronPython" version="3.4.1" targetFramework="net462" />
     <PackageReference Include="IronPython.StdLib" version="3.4.1" targetFramework="net462" />
     <PackageReference Include="JetBrains.Profiler.SelfApi">
@@ -284,6 +288,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Controls\Status.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Controls\GpsDeniedGridControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="Controls\DroneCANFileUI.cs">

@@ -18,6 +18,8 @@ namespace MissionPlanner.Utilities
         private List<message_add_logged_s> id_to_format = new List<message_add_logged_s>();
         private List<message_data_s> data = new List<message_data_s>();
 
+        public IReadOnlyList<message_data_s> Data => data;
+
         public void read(Stream stream)
         {
             var header = new byte[] { 0x55, 0x4c, 0x6f, 0x67, 0x01, 0x12, 0x35 };
@@ -57,63 +59,61 @@ namespace MissionPlanner.Utilities
                                 {
                                     appendidx = msg.appended_offsets[0] - 16;
                                 }
-                                Console.WriteLine(msg.ToJSONWithType());
                                 break;
                             }
                         case 'F':
                             {
                                 var msg = new message_format_s(message);
-                                Console.WriteLine(msg.ToJSONWithType());
                                 format.Add(msg);
                                 break;
                             }
                         case 'I':
                             {
-                                var msg = new message_info_s(message); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new message_info_s(message); break;
                             }
                         case 'M':
                             {
-                                var msg = new ulog_message_info_multiple_header_s(message); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new ulog_message_info_multiple_header_s(message); break;
                             }
                         case 'P': // param
                             {
-                                var msg = new message_info_s(message); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new message_info_s(message); break;
                             }
                         case 'Q':
                             {
-                                var msg = new ulog_message_parameter_default_header_s(message); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new ulog_message_parameter_default_header_s(message); break;
                             }
                         case 'A':
                             {
-                                var msg = new message_add_logged_s(message); id_to_format.Add(msg); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new message_add_logged_s(message); id_to_format.Add(msg); break;
                             }
                         case 'R':
                             {
-                                var msg = new message_remove_logged_s(message); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new message_remove_logged_s(message); break;
                             }
                         case 'D':
                             {
-                                var msg = new message_data_s(message, id_to_format, format); Console.WriteLine(msg.ToJSONWithType());
-                                
+                                var msg = new message_data_s(message, id_to_format, format);
+
                                 data.Add(msg);
 
                                 break;
                             }
                         case 'L':
                             {
-                                var msg = new message_logging_s(message); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new message_logging_s(message); break;
                             }
                         case 'C':
                             {
-                                var msg = new message_logging_tagged_s(message); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new message_logging_tagged_s(message); break;
                             }
                         case 'S':
                             {
-                                var msg = new message_sync_s(message); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new message_sync_s(message); break;
                             }
                         case 'O':
                             {
-                                var msg = new message_dropout_s(message); Console.WriteLine(msg.ToJSONWithType()); break;
+                                var msg = new message_dropout_s(message); break;
                             }
                         default:
                             {
@@ -121,14 +121,6 @@ namespace MissionPlanner.Utilities
                             }
                     }
                 }
-                var groups = messages.GroupBy(a => a.msg_type);
-
-                groups.ForEach(a => Console.WriteLine((char)a.Key + " " + a.Count()));
-
-
-                var groups2 = data.GroupBy(a => a.Type+"["+a.MultiID+"]");
-
-                groups2.ForEach(a => Console.WriteLine(a.Key + " " + a.Count()));
             }
         }
 

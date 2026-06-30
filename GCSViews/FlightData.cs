@@ -1208,6 +1208,16 @@ namespace MissionPlanner.GCSViews
             }
         }
 
+        private void but_nogpsgrid_Click(object sender, EventArgs e)
+        {
+            bool showingGrid = gpsDeniedGridControl1.Visible;
+            gpsDeniedGridControl1.Visible = !showingGrid;
+            gMapControl1.Visible = showingGrid;
+            but_nogpsgrid.Text = showingGrid ? "No-GPS Grid" : "Show Map";
+            if (!showingGrid)
+                gpsDeniedGridControl1.BringToFront();
+        }
+
         private void BUT_edit_selected_Click(object sender, EventArgs e)
         {
             try
@@ -3731,6 +3741,12 @@ namespace MissionPlanner.GCSViews
                         {
                             route.Points.Add(currentloc);
                         }
+
+                        // GPS-denied grid view - posn/pose come from LOCAL_POSITION_NED, which is
+                        // available even without GPS as long as the EKF has a relative position
+                        // estimate (e.g. from optical flow), unlike cs.lat/cs.lng above.
+                        gpsDeniedGridControl1.AddPoint(MainV2.comPort.MAV.cs.posn, MainV2.comPort.MAV.cs.pose,
+                            (float)MainV2.comPort.MAV.cs.yaw);
 
                         if (!this.IsHandleCreated)
                             continue;
@@ -6526,6 +6542,9 @@ namespace MissionPlanner.GCSViews
         // Resize the mini video or mini map when the container is resized
         private void splitContainer1_Panel2_Resize(object sender, EventArgs e)
         {
+            but_nogpsgrid.Location = new Point(splitContainer1.Panel2.Width - but_nogpsgrid.Width - 10, 10);
+            but_nogpsgrid.BringToFront();
+
             bool miniVideo = splitContainer1.Panel2.Contains(_gimbalVideoControl)
                 && _gimbalVideoControl?.Dock == DockStyle.None
                 && _gimbalVideoControl.Visible;

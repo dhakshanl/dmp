@@ -68,6 +68,7 @@
 
   <ItemGroup>
     <PackageReference Include="GeoAPI.CoordinateSystems" Version="1.7.5" />
+    <PackageReference Include="Guna.UI2.WinForms" Version="2.0.4.7" />
   </ItemGroup>
 
   <ItemGroup>

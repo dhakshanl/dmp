@@ -266,6 +266,7 @@ namespace MissionPlanner.Controls
             catch
             {
 
+
             }
 
             objBitmap.MakeTransparent();
@@ -984,10 +985,10 @@ namespace MissionPlanner.Controls
             set { _groundColor2 = value; }
         }
 
-        private Color _skyColor1 = Color.Blue;
-        private Color _skyColor2 = Color.LightBlue;
-        private Color _groundColor1 = Color.FromArgb(0x9b, 0xb8, 0x24);
-        private Color _groundColor2 = Color.FromArgb(0x41, 0x4f, 0x07);
+        private Color _skyColor1 = Color.FromArgb(0x0D, 0x47, 0xA1);
+        private Color _skyColor2 = Color.FromArgb(0x64, 0xB5, 0xF6);
+        private Color _groundColor1 = Color.FromArgb(0x8C, 0x6A, 0x4A);
+        private Color _groundColor2 = Color.FromArgb(0x4A, 0x38, 0x26);
 
         private Color _hudcolor = Color.White;
         private Pen _whitePen = new Pen(Color.White, 2);

@@ -92,8 +92,8 @@
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(600, 375);
             this.Name = "Splash";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "DMP";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "NavXDrone";
             this.TopMost = true;
             this.Load += new System.EventHandler(this.Splash_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
