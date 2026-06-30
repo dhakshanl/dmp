@@ -1,6 +1,18 @@
-# MissionPlanner
+# MissionPlanner (ISRO ASCEND fork)
 
-![Dot Net](https://github.com/ardupilot/missionplanner/actions/workflows/main.yml/badge.svg) ![Android](https://github.com/ardupilot/missionplanner/actions/workflows/android.yml/badge.svg) ![OSX/IOS](https://github.com/ardupilot/missionplanner/actions/workflows/mac.yml/badge.svg)
+![Build and Release](https://github.com/dhakshanl/dmp/actions/workflows/build-release.yml/badge.svg)
+
+This is a fork of Mission Planner with extra features for GPS-denied indoor flight (optical-flow no-GPS pattern flying, a no-GPS grid view on the Data page, ArUco-marker precision landing). See [dev/isro](https://github.com/dhakshanl/dmp/tree/dev/isro) for the active branch.
+
+### ⬇️ Download
+
+**[Download MissionPlanner-latest.zip](https://github.com/dhakshanl/dmp/releases/download/latest/MissionPlanner-latest.zip)** - unzip and run `MissionPlanner.exe`. No installer needed.
+
+This build auto-updates itself on startup whenever a new version is pushed, so you only need to download it once.
+
+---
+
+The sections below are the original upstream Mission Planner documentation (building from source, external services, etc.) and still apply to this fork.
 
 Website : http://ardupilot.org/planner/
 
