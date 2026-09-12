@@ -253,6 +253,17 @@ namespace MissionPlanner.Controls.Dashboard
                 });
             }
 
+            // Plan every survivor's rescue route up front and highlight the first one, so
+            // the "best path" is already drawn the moment Demo Mode switches on - nothing
+            // to click before it's visible.
+            if (scene.Survivors.Count > 0)
+            {
+                var planner = RescuePathPlanner.Build(scene);
+                foreach (var s in scene.Survivors)
+                    s.Route = planner.Plan(scene.Entry, s.Position);
+                scene.SelectedSurvivorId = scene.Survivors[0].Id;
+            }
+
             MapVersion++;
             Emit(MissionEventKind.Info, "Preview · full map, " + truthSurvivors.Count + " survivors and " +
                                         truthHazards.Count + " hazards shown for demonstration");
@@ -597,6 +608,8 @@ namespace MissionPlanner.Controls.Dashboard
             if (RevealWalls())
                 changed = true;
 
+            RescuePathPlanner survivorPlanner = null;
+
             for (var i = 0; i < truthSurvivors.Count; i++)
             {
                 var p = truthSurvivors[i];
@@ -615,6 +628,13 @@ namespace MissionPlanner.Controls.Dashboard
                 scene.Survivors.Add(d);
                 changed = true;
                 Emit(MissionEventKind.Survivor, "Survivor " + d.Name + " located · grid " + d.Grid);
+
+                // Plan and highlight its rescue route the instant it's found, so the "best
+                // path" is visible live during the flight without the operator clicking
+                // anything - built lazily since most ticks find nothing new.
+                survivorPlanner = survivorPlanner ?? RescuePathPlanner.Build(scene);
+                d.Route = survivorPlanner.Plan(scene.Entry, d.Position);
+                scene.SelectedSurvivorId = d.Id;
             }
 
             for (var i = 0; i < truthHazards.Count; i++)
