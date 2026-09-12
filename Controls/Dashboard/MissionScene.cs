@@ -37,7 +37,77 @@ namespace MissionPlanner.Controls.Dashboard
     public enum DetectionKind
     {
         Survivor,
-        Fire
+        Hazard
+    }
+
+    /// <summary>
+    /// The onboard AI's multi-class hazard output (unified RGB + thermal classification,
+    /// per the SIH26177 architecture) rather than a single fire/no-fire flag.
+    /// </summary>
+    public enum HazardType
+    {
+        Fire,
+        Flood,
+        Electrical,
+        Structural
+    }
+
+    /// <summary>Risk/priority the onboard model assigns a hazard, for triage on approach.</summary>
+    public enum HazardPriority
+    {
+        Low,
+        Medium,
+        High,
+        Critical
+    }
+
+    /// <summary>Display colour, label and marker shape for each hazard class, kept next to the model it describes.</summary>
+    public static class HazardVisuals
+    {
+        public static Color Color(HazardType type)
+        {
+            switch (type)
+            {
+                case HazardType.Flood: return System.Drawing.Color.FromArgb(80, 170, 255);
+                case HazardType.Electrical: return System.Drawing.Color.FromArgb(255, 214, 64);
+                case HazardType.Structural: return System.Drawing.Color.FromArgb(255, 150, 90);
+                default: return System.Drawing.Color.FromArgb(255, 92, 58); // Fire
+            }
+        }
+
+        public static string Label(HazardType type)
+        {
+            switch (type)
+            {
+                case HazardType.Flood: return "Flood";
+                case HazardType.Electrical: return "Electrical";
+                case HazardType.Structural: return "Structural";
+                default: return "Fire";
+            }
+        }
+
+        /// <summary>Short code used in a hazard's pin name, e.g. "F1", "W2", "E3", "C4".</summary>
+        public static string Code(HazardType type)
+        {
+            switch (type)
+            {
+                case HazardType.Flood: return "W";
+                case HazardType.Electrical: return "E";
+                case HazardType.Structural: return "C";
+                default: return "F";
+            }
+        }
+
+        public static Color PriorityColor(HazardPriority p)
+        {
+            switch (p)
+            {
+                case HazardPriority.Critical: return MissionPalette.Danger;
+                case HazardPriority.High: return MissionPalette.Warning;
+                case HazardPriority.Medium: return System.Drawing.Color.FromArgb(230, 200, 90);
+                default: return MissionPalette.TextDim;
+            }
+        }
     }
 
     /// <summary>Something the onboard sensing has found and reported a position for.</summary>
@@ -47,10 +117,16 @@ namespace MissionPlanner.Controls.Dashboard
         public DetectionKind Kind;
         public PointF Position;
 
+        /// <summary>Hazard only: which class the onboard model assigned it.</summary>
+        public HazardType Type;
+
+        /// <summary>Hazard only: the risk/priority score from onboard triage.</summary>
+        public HazardPriority Priority;
+
         /// <summary>Mission time at which it was first reported.</summary>
         public TimeSpan DetectedAt;
 
-        /// <summary>Fire only: keep-out radius the rescue route is planned around, metres.</summary>
+        /// <summary>Hazard only: keep-out radius the rescue route is planned around, metres.</summary>
         public float HazardRadius = 1.4f;
 
         /// <summary>Survivor only: safe route from the entry, null until one has been found.</summary>
@@ -81,15 +157,15 @@ namespace MissionPlanner.Controls.Dashboard
 
         public string Name
         {
-            get { return (Kind == DetectionKind.Survivor ? "S" : "F") + Id; }
+            get { return (Kind == DetectionKind.Survivor ? "S" : HazardVisuals.Code(Type)) + Id; }
         }
     }
 
     /// <summary>
-    /// The arena's grid-box naming, used for every survivor report: columns A.. west to
-    /// east, rows 1.. south (entry side) to north. The brief asks for the grid box each
-    /// survivor is in; the box size is set by the organisers on the day, so it is one
-    /// constant here.
+    /// The arena's grid-box naming, used as the geo-tag for every detection when no GPS
+    /// fix is available: columns A.. west to east, rows 1.. south (entry side) to north.
+    /// A GPS-enabled flight would geo-tag with lat/lon instead - see MissionStatus.GpsFix
+    /// in MissionStatusBar.cs for which mode the vehicle is actually in.
     /// </summary>
     public static class MissionGrid
     {
@@ -170,8 +246,11 @@ namespace MissionPlanner.Controls.Dashboard
     /// </summary>
     public class MissionScene
     {
-        public const int MaxSurvivors = 6;
+        // No fixed survivor cap: a real disaster site can hold any number, unlike a
+        // competition arena with a declared maximum. Counts are shown open-ended.
 
+        /// <summary>Footprint the 3D view renders, in metres. A stand-in for whatever
+        /// extent the deployed site's LiDAR/SLAM map actually covers.</summary>
         public float ArenaSize = 15f;
 
         /// <summary>Centre of the opening in the south wall the drone enters through.</summary>
@@ -180,7 +259,11 @@ namespace MissionPlanner.Controls.Dashboard
         /// <summary>Centre of the opening in the north wall the mission ends at.</summary>
         public PointF Exit = new PointF(13f, 15f);
 
-        /// <summary>The 2 ft x 2 ft launch pad.</summary>
+        /// <summary>
+        /// Launch point, and - per the SIH26177 "mission continuity" architecture - also
+        /// the autonomous docking/charging station the drone returns to on low battery
+        /// and resumes search from once recharged.
+        /// </summary>
         public PointF LaunchPad = new PointF(2f, 0.9f);
 
         public readonly List<Wall> Walls = new List<Wall>();

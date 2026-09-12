@@ -85,9 +85,11 @@ namespace MissionPlanner.Controls.Dashboard
 
             var found = scene?.Survivors.Count ?? 0;
 
-            TextRenderer.DrawText(g, "SURVIVORS", MissionPalette.Caps, new Point(14, 16), MissionPalette.TextDim,
+            TextRenderer.DrawText(g, "SURVIVORS FOUND", MissionPalette.Caps, new Point(14, 16), MissionPalette.TextDim,
                 TextFormatFlags.NoPadding);
-            var countText = found + " / " + MissionScene.MaxSurvivors;
+            // No fixed cap here - a real site can hold any number, so this is a plain
+            // running count, not a "found / N" ratio.
+            var countText = found.ToString();
             var countSize = TextRenderer.MeasureText(g, countText, MissionPalette.Big, Size.Empty, TextFormatFlags.NoPadding);
             TextRenderer.DrawText(g, countText, MissionPalette.Big, new Point(Width - 14 - countSize.Width, 10),
                 found > 0 ? MissionPalette.Survivor : MissionPalette.TextFaint, TextFormatFlags.NoPadding);
@@ -120,15 +122,22 @@ namespace MissionPlanner.Controls.Dashboard
 
             foreach (var h in scene.Hazards)
             {
-                using (var b = new SolidBrush(MissionPalette.Fire))
+                using (var b = new SolidBrush(HazardVisuals.Color(h.Type)))
                     g.FillEllipse(b, 16, y + HazardRowHeight / 2 - 4, 8, 8);
 
-                TextRenderer.DrawText(g, "Fire  ·  grid " + h.Grid, MissionPalette.BodyBold,
+                TextRenderer.DrawText(g, HazardVisuals.Label(h.Type) + "  ·  grid " + h.Grid, MissionPalette.BodyBold,
                     new Rectangle(32, y, Width - 40, HazardRowHeight), MissionPalette.Text,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
-                TextRenderer.DrawText(g, "keep-out " + h.HazardRadius.ToString("0.0") + " m", MissionPalette.Small,
-                    new Rectangle(32, y, Width - 46, HazardRowHeight), MissionPalette.TextFaint,
-                    TextFormatFlags.VerticalCenter | TextFormatFlags.Right | TextFormatFlags.NoPadding);
+
+                var tag = h.Priority.ToString().ToUpperInvariant();
+                var tagSize = TextRenderer.MeasureText(g, tag, MissionPalette.SmallBold, Size.Empty, TextFormatFlags.NoPadding);
+                var tagRect = new Rectangle(Width - 14 - tagSize.Width - 12, y + HazardRowHeight / 2 - 9, tagSize.Width + 12, 18);
+                using (var path = MissionPalette.RoundedRect(tagRect, 4))
+                using (var fill = new SolidBrush(Color.FromArgb(36, HazardVisuals.PriorityColor(h.Priority))))
+                    g.FillPath(fill, path);
+                TextRenderer.DrawText(g, tag, MissionPalette.SmallBold, tagRect, HazardVisuals.PriorityColor(h.Priority),
+                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+
                 y += HazardRowHeight;
             }
         }

@@ -10,19 +10,21 @@ using System.Windows.Forms;
 namespace MissionPlanner.GCSViews
 {
     /// <summary>
-    /// NIDAR AirMouse mission page: a 3D top-down-orbit view of the arena (explored floor,
-    /// mapped walls, the drone and its trail, survivors, fire hazards and the highlighted
-    /// rescue route to a selected survivor) as the centrepiece, with a small live camera
-    /// tile and the survivor/hazard list on the left, a bottom instrument strip (nav
-    /// source, mode, mission clock against the 30-minute cap, survivors found, area
-    /// explored, arming, battery), and a telemetry/log/event drawer that opens only on
-    /// request so the default view stays about the map and not a wall of numbers.
+    /// SIH26177 (Team Asunama) mission page: a 3D orbit view of the search area (explored
+    /// floor, mapped walls, the drone and its trail, survivors, multi-class hazards with
+    /// their onboard-assigned priority, and the highlighted rescue route to a selected
+    /// survivor) as the centrepiece, with dual RGB/thermal camera tiles and the
+    /// survivor/hazard list on the left, a bottom instrument strip (nav source with
+    /// GPS/GPS-denied auto-switching, mode, mission clock, survivors found, area explored,
+    /// arming, battery), and a telemetry/log/event drawer that opens only on request so
+    /// the default view stays about the map and not a wall of numbers.
     ///
     /// Two data sources feed the same MissionScene/MissionStatus models: the real vehicle
     /// (MainV2.comPort.MAV.cs, wired but necessarily thin until the companion computer's
-    /// SLAM/detection pipeline exists - see project memory) and MissionDemoSimulator, an
-    /// explicit, operator-toggled stand-in used to show the page with nothing plugged in.
-    /// Demo mode never engages itself and never blends with live data.
+    /// on-device detection pipeline exists - see project memory) and MissionDemoSimulator,
+    /// an explicit, operator-toggled stand-in - including a scripted low-battery
+    /// autonomous dock/recharge/resume cycle - used to show the page with nothing plugged
+    /// in. Demo mode never engages itself and never blends with live data.
     /// </summary>
     public partial class Mission : MyUserControl, IActivate, IDeactivate
     {
@@ -87,23 +89,34 @@ namespace MissionPlanner.GCSViews
             connectionHealthPanel.Detach();
             sceneView.Animate = false;
 
-            // Decoding video costs real CPU, so the pipeline only runs while this tab is visible.
-            liveFeed.Stop();
+            // Decoding video costs real CPU, so the pipelines only run while this tab is visible.
+            liveFeedRgb.Stop();
+            liveFeedThermal.Stop();
         }
 
         private const string MissionRgbPipelineKey = "mission_rgb_pipeline";
+        private const string MissionThermalPipelineKey = "mission_thermal_pipeline";
 
-        // Assumes the companion computer encodes the ZED left-eye view to H.264 and sends
-        // it to the GCS on its own UDP port.
+        // Assumes the companion computer (per the SIH26177 hardware stack: RGB + 2K
+        // thermal camera into an on-board Raspberry Pi 5) encodes each view to H.264 and
+        // sends it to the GCS on its own UDP port.
         private const string DefaultRgbPipeline =
             "udpsrc port=5600 caps=\"application/x-rtp,media=video,encoding-name=H264,payload=96\" " +
             "! rtpjitterbuffer ! rtph264depay ! avdec_h264 " +
             "! videoconvert ! video/x-raw,format=BGRA ! appsink name=outsink sync=false";
 
+        private const string DefaultThermalPipeline =
+            "udpsrc port=5601 caps=\"application/x-rtp,media=video,encoding-name=H264,payload=96\" " +
+            "! rtpjitterbuffer ! rtph264depay ! avdec_h264 " +
+            "! videoconvert ! video/x-raw,format=BGRA ! appsink name=outsink sync=false";
+
         private void StartLiveFeed()
         {
-            liveFeed.Caption = "ZED LEFT";
-            liveFeed.Start(Settings.Instance[MissionRgbPipelineKey, DefaultRgbPipeline]);
+            liveFeedRgb.Caption = "RGB";
+            liveFeedRgb.Start(Settings.Instance[MissionRgbPipelineKey, DefaultRgbPipeline]);
+
+            liveFeedThermal.Caption = "THERMAL";
+            liveFeedThermal.Start(Settings.Instance[MissionThermalPipelineKey, DefaultThermalPipeline]);
         }
 
         private void RefreshLogBrowser()
@@ -221,10 +234,16 @@ namespace MissionPlanner.GCSViews
             eventLog.Clear();
             telemetryReadout.ClearValues();
 
-            liveFeed.Caption = "ZED LEFT - DEMO";
-            liveFeed.Start(VideoFeedPanel.FilePipeline(
-                Settings.Instance["mission_demo_video", @"C:\Users\lnara\Downloads\zed2 slam.mp4"]));
-            liveFeed.Loop = true;
+            // Same clip on both tiles for now - a placeholder until distinct RGB/thermal
+            // demo footage exists; captions still label them separately.
+            var demoClip = VideoFeedPanel.FilePipeline(
+                Settings.Instance["mission_demo_video", @"C:\Users\lnara\Downloads\zed2 slam.mp4"]);
+            liveFeedRgb.Caption = "RGB - DEMO";
+            liveFeedRgb.Start(demoClip);
+            liveFeedRgb.Loop = true;
+            liveFeedThermal.Caption = "THERMAL - DEMO";
+            liveFeedThermal.Start(demoClip);
+            liveFeedThermal.Loop = true;
 
             logBrowser.ShowDemoLogs();
             ulogStatusLabel.Text = "";
@@ -242,7 +261,8 @@ namespace MissionPlanner.GCSViews
         private void ExitDemoMode()
         {
             demoMode = false;
-            liveFeed.Loop = false;
+            liveFeedRgb.Loop = false;
+            liveFeedThermal.Loop = false;
 
             scene.Clear();
             plannedForMapVersion = -1;
@@ -273,7 +293,7 @@ namespace MissionPlanner.GCSViews
             telemetryReadout.Set("volts", s.BatteryVolts.ToString("0.00") + " V");
             telemetryReadout.Set("current", s.CurrentAmps.ToString("0.0") + " A");
             telemetryReadout.Set("batttemp", s.BatteryTempC.ToString("0.0") + " \u00b0C");
-            telemetryReadout.Set("landed", demoSim.IsFlying ? "Flying" : "Landed");
+            telemetryReadout.Set("landed", s.Phase == DemoPhase.Charging ? "Charging" : demoSim.IsFlying ? "Flying" : "Landed");
             telemetryReadout.Set("timeinair", s.MissionTime.HasValue ? MissionPalette.FormatClock(s.MissionTime.Value) : "--");
             telemetryReadout.Set("timesincearm", s.MissionTime.HasValue ? MissionPalette.FormatClock(s.MissionTime.Value) : "--");
 
@@ -282,7 +302,7 @@ namespace MissionPlanner.GCSViews
             statusBar.SetStatus(new MissionStatus
             {
                 GpsFix = 0,
-                NavSource = "ZED VIO",
+                NavSource = "LiDAR SLAM",
                 Mode = s.Mode,
                 Armed = s.Armed,
                 BatteryPercent = s.BatteryPercent,
@@ -312,10 +332,12 @@ namespace MissionPlanner.GCSViews
             {
                 case DemoPhase.Arming: return "arming";
                 case DemoPhase.Takeoff: return "taking off";
-                case DemoPhase.Search: return "searching the arena";
+                case DemoPhase.Search: return "searching the area";
                 case DemoPhase.Exit: return "heading for the exit";
                 case DemoPhase.Landing: return "landing";
                 case DemoPhase.Returning: return "aborted — returning to pad";
+                case DemoPhase.DockingReturn: return "low battery — autonomous return to dock";
+                case DemoPhase.Charging: return "charging at dock — mission will resume";
                 case DemoPhase.Complete: return "mission complete";
                 default: return "on the ground, ready";
             }
@@ -325,7 +347,9 @@ namespace MissionPlanner.GCSViews
         {
             switch (phase)
             {
-                case DemoPhase.Returning: return MissionPalette.Danger;
+                case DemoPhase.Returning:
+                case DemoPhase.DockingReturn: return MissionPalette.Danger;
+                case DemoPhase.Charging: return MissionPalette.Accent;
                 case DemoPhase.Complete: return MissionPalette.Ok;
                 case DemoPhase.Idle: return MissionPalette.TextDim;
                 default: return MissionPalette.Warning;

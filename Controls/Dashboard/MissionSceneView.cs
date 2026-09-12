@@ -309,7 +309,7 @@ namespace MissionPlanner.Controls.Dashboard
                 foreach (var s in scene.Survivors)
                     QueueSurvivorPin(s);
                 foreach (var h in scene.Hazards)
-                    QueueFire(h, t);
+                    QueueHazard(h, t);
                 if (scene.HasDrone)
                     QueueDrone(t);
 
@@ -427,8 +427,9 @@ namespace MissionPlanner.Controls.Dashboard
                 return;
 
             var flicker = 0.8f + 0.2f * (float)Math.Sin(t * 6 + h.Id);
-            using (var fill = new SolidBrush(Color.FromArgb((int)(46 * flicker), MissionPalette.Fire)))
-            using (var pen = new Pen(Color.FromArgb(190, MissionPalette.Fire), 1.4f) { DashStyle = DashStyle.Dash })
+            var zoneColor = HazardVisuals.Color(h.Type);
+            using (var fill = new SolidBrush(Color.FromArgb((int)(46 * flicker), zoneColor)))
+            using (var pen = new Pen(Color.FromArgb(190, zoneColor), 1.4f) { DashStyle = DashStyle.Dash })
             {
                 g.FillPolygon(fill, ring);
                 g.DrawPolygon(pen, ring);
@@ -660,7 +661,12 @@ namespace MissionPlanner.Controls.Dashboard
             }));
         }
 
-        private void QueueFire(Detection h, float t)
+        /// <summary>
+        /// Renders a hazard pin with an icon matched to its onboard classification (fire,
+        /// flood, electrical, structural - the "unified multi-class hazard" output the
+        /// SIH26177 architecture produces from fused RGB + thermal), not just a flame.
+        /// </summary>
+        private void QueueHazard(Detection h, float t)
         {
             var p = new V3(h.Position.X, h.Position.Y, 0);
             PointF baseS;
@@ -669,36 +675,109 @@ namespace MissionPlanner.Controls.Dashboard
 
             var depth = Depth(p);
             var scale = focal / Math.Max(1f, depth);
+            var color = HazardVisuals.Color(h.Type);
 
             sorted.Add(new KeyValuePair<float, Action<Graphics>>(depth - 0.1f, gr =>
             {
-                // Three tongues of flame, each flickering on its own phase.
-                float[] offsets = { -0.16f, 0.14f, 0f };
-                float[] heights = { 0.55f, 0.6f, 0.85f };
-                for (var i = 0; i < 3; i++)
+                switch (h.Type)
                 {
-                    var flick = 1f + 0.18f * (float)Math.Sin(t * (8 + i * 1.7) + i * 2.1 + h.Id);
-                    var ht = heights[i] * scale * flick;
-                    var w = ht * 0.42f;
-                    var x = baseS.X + offsets[i] * scale;
-                    DrawFlame(gr, x, baseS.Y, w, ht, MissionPalette.Fire);
-                    DrawFlame(gr, x, baseS.Y, w * 0.55f, ht * 0.6f, Color.FromArgb(255, 214, 110));
+                    case HazardType.Flood: DrawFloodIcon(gr, baseS, scale, t, h.Id, color); break;
+                    case HazardType.Electrical: DrawElectricalIcon(gr, baseS, scale, t, h.Id, color); break;
+                    case HazardType.Structural: DrawStructuralIcon(gr, baseS, scale, color); break;
+                    default: DrawFireIcon(gr, baseS, scale, t, h.Id, color); break;
                 }
 
-                var label = "FIRE  " + h.Grid;
+                var label = HazardVisuals.Label(h.Type).ToUpperInvariant() + "  " + h.Grid;
                 var size = TextRenderer.MeasureText(gr, label, MissionPalette.SmallBold, Size.Empty, TextFormatFlags.NoPadding);
                 var top = baseS.Y - 0.95f * scale - size.Height - 10;
                 var r = new RectangleF(baseS.X - size.Width / 2f - 7, top, size.Width + 14, size.Height + 7);
                 using (var path = MissionPalette.RoundedRect(r, 4))
-                using (var bg = new SolidBrush(Color.FromArgb(225, 36, 16, 12)))
-                using (var border = new Pen(MissionPalette.Fire, 1f))
+                using (var bg = new SolidBrush(Color.FromArgb(225, 30, 24, 20)))
+                using (var border = new Pen(color, 1f))
                 {
                     gr.FillPath(bg, path);
                     gr.DrawPath(border, path);
                 }
-                TextRenderer.DrawText(gr, label, MissionPalette.SmallBold, Rectangle.Round(r), MissionPalette.Fire,
+                TextRenderer.DrawText(gr, label, MissionPalette.SmallBold, Rectangle.Round(r), color,
                     TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
             }));
+        }
+
+        private static void DrawFireIcon(Graphics g, PointF baseS, float scale, float t, int id, Color color)
+        {
+            // Three tongues of flame, each flickering on its own phase.
+            float[] offsets = { -0.16f, 0.14f, 0f };
+            float[] heights = { 0.55f, 0.6f, 0.85f };
+            for (var i = 0; i < 3; i++)
+            {
+                var flick = 1f + 0.18f * (float)Math.Sin(t * (8 + i * 1.7) + i * 2.1 + id);
+                var ht = heights[i] * scale * flick;
+                var w = ht * 0.42f;
+                var x = baseS.X + offsets[i] * scale;
+                DrawFlame(g, x, baseS.Y, w, ht, color);
+                DrawFlame(g, x, baseS.Y, w * 0.55f, ht * 0.6f, Color.FromArgb(255, 214, 110));
+            }
+        }
+
+        /// <summary>A shimmering puddle with ripple rings expanding outward.</summary>
+        private static void DrawFloodIcon(Graphics g, PointF baseS, float scale, float t, int id, Color color)
+        {
+            var puddle = new RectangleF(baseS.X - 0.5f * scale, baseS.Y - 0.12f * scale, scale, 0.24f * scale);
+            using (var fill = new SolidBrush(Color.FromArgb(120, color)))
+                g.FillEllipse(fill, puddle);
+
+            for (var i = 0; i < 3; i++)
+            {
+                var phase = ((t * 0.5f + id * 0.3f) + i / 3f) % 1f;
+                var rw = (0.25f + phase * 0.55f) * scale;
+                var rh = rw * 0.32f;
+                using (var pen = new Pen(Color.FromArgb((int)(200 * (1 - phase)), color), 1.6f))
+                    g.DrawEllipse(pen, baseS.X - rw / 2, baseS.Y - rh / 2, rw, rh);
+            }
+        }
+
+        /// <summary>A flickering lightning-bolt glyph for an exposed-electrical hazard.</summary>
+        private static void DrawElectricalIcon(Graphics g, PointF baseS, float scale, float t, int id, Color color)
+        {
+            var flick = 0.75f + 0.25f * (float)Math.Sin(t * 14 + id * 1.7);
+            var h = 0.85f * scale;
+            var w = 0.34f * scale;
+            var top = baseS.Y - h;
+            var pts = new[]
+            {
+                new PointF(baseS.X + w * 0.15f, top),
+                new PointF(baseS.X - w * 0.35f, top + h * 0.55f),
+                new PointF(baseS.X, top + h * 0.55f),
+                new PointF(baseS.X - w * 0.15f, top + h),
+                new PointF(baseS.X + w * 0.35f, top + h * 0.4f),
+                new PointF(baseS.X + w * 0.02f, top + h * 0.4f)
+            };
+
+            using (var glow = new SolidBrush(Color.FromArgb((int)(70 * flick), color)))
+                g.FillEllipse(glow, baseS.X - w, baseS.Y - h, w * 2, h);
+            using (var fill = new SolidBrush(Color.FromArgb((int)(255 * flick), color)))
+                g.FillPolygon(fill, pts);
+        }
+
+        /// <summary>A warning triangle for a structural-collapse risk.</summary>
+        private static void DrawStructuralIcon(Graphics g, PointF baseS, float scale, Color color)
+        {
+            var h = 0.8f * scale;
+            var apex = new PointF(baseS.X, baseS.Y - h);
+            var left = new PointF(baseS.X - 0.42f * scale, baseS.Y);
+            var right = new PointF(baseS.X + 0.42f * scale, baseS.Y);
+            var tri = new[] { apex, right, left };
+
+            using (var fill = new SolidBrush(Color.FromArgb(210, 40, 30, 20)))
+            using (var border = new Pen(color, 1.6f) { LineJoin = LineJoin.Round })
+            {
+                g.FillPolygon(fill, tri);
+                g.DrawPolygon(border, tri);
+            }
+
+            var markRect = new Rectangle((int)(baseS.X - 8), (int)(baseS.Y - h * 0.75f), 16, (int)(h * 0.55f));
+            TextRenderer.DrawText(g, "!", MissionPalette.BodyBold, markRect, color,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
         }
 
         private static void DrawFlame(Graphics g, float x, float baseY, float w, float h, Color color)
@@ -817,7 +896,7 @@ namespace MissionPlanner.Controls.Dashboard
             {
                 new KeyValuePair<string, Color>("Drone", MissionPalette.Text),
                 new KeyValuePair<string, Color>("Survivor", MissionPalette.Survivor),
-                new KeyValuePair<string, Color>("Fire", MissionPalette.Fire),
+                new KeyValuePair<string, Color>("Hazard", MissionPalette.Warning),
                 new KeyValuePair<string, Color>("Rescue route", MissionPalette.Route),
                 new KeyValuePair<string, Color>("Flown path", MissionPalette.Accent)
             };

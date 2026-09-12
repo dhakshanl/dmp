@@ -14,7 +14,14 @@ namespace MissionPlanner.Controls.Dashboard
         Exit,
         Landing,
         Returning,
-        Complete
+        Complete,
+
+        /// <summary>Autonomous return to the docking/charging station on low battery - not
+        /// a mission abort, the search resumes once recharged.</summary>
+        DockingReturn,
+
+        /// <summary>Landed and charging at the dock; disarmed, mission not yet complete.</summary>
+        Charging
     }
 
     /// <summary>
@@ -47,12 +54,15 @@ namespace MissionPlanner.Controls.Dashboard
     }
 
     /// <summary>
-    /// Fabricates a whole NIDAR AirMouse run for the Mission page's demo mode: a GPS-denied
-    /// indoor search of a 15 m arena with six survivors and two fires. The drone takes off
-    /// from the launch pad, flies a scripted room-by-room search, and everything it "sees"
-    /// (floor, walls, survivors, fires within sensor range and line of sight) is revealed
-    /// into the shared MissionScene - so the map builds up exactly as a live map feed would.
-    /// It ends by leaving through the exit and landing.
+    /// Fabricates a whole SIH26177 (Team Asunama) run for the Mission page's demo mode: a
+    /// GPS-denied indoor search that discovers survivors and multi-class hazards (fire,
+    /// flood, exposed electrical, structural) as it flies, plus a scripted low-battery
+    /// autonomous docking/recharge/resume cycle - the "Mission Continuity & Auto Charging"
+    /// loop from the architecture, not just a single flight to empty. The drone takes off
+    /// from the pad, flies a scripted room-by-room search, and everything it "sees" (floor,
+    /// walls, survivors, hazards within sensor range and line of sight) is revealed into
+    /// the shared MissionScene - so the map builds up exactly as a live map feed would. It
+    /// ends by leaving through the exit and landing.
     ///
     /// Abort flies home over the known map using the same planner as the rescue routes,
     /// then lands on the pad. It never touches MainV2.comPort; demo mode is a pure display
@@ -68,8 +78,15 @@ namespace MissionPlanner.Controls.Dashboard
         private const float ArmSeconds = 2f;
         private const float SensorRange = 3.2f;
         private const float SurvivorRange = 2.2f;
-        private const float FireRange = 3.6f;
+        private const float HazardRange = 3.6f;
         private const float WallPiece = 0.25f;
+
+        // Mission-continuity / auto-charging cycle: trigger a scripted dock-and-recharge
+        // once per run when the pack crosses DockTriggerBatteryPercent mid-search, then
+        // resume the search from exactly where it left off once charged back up.
+        private const double DockTriggerBatteryPercent = 55.0;
+        private const double ResumeBatteryPercent = 85.0;
+        private const double ChargeRatePercentPerSecond = 2.5;
 
         private readonly MissionScene scene;
         private readonly Func<double> clock;
@@ -79,12 +96,20 @@ namespace MissionPlanner.Controls.Dashboard
         // Ground truth the drone discovers.
         private readonly List<Wall> truthWalls = new List<Wall>();
         private readonly List<PointF> truthSurvivors = new List<PointF>();
-        private readonly List<PointF> truthFires = new List<PointF>();
+        private readonly List<(PointF Position, HazardType Type, HazardPriority Priority)> truthHazards =
+            new List<(PointF, HazardType, HazardPriority)>();
         private readonly List<bool[]> revealedPieces = new List<bool[]>();
 
         private List<Waypoint> route;
         private int waypointIndex;
         private double holdUntil;
+
+        // Saved so a dock-and-recharge cycle resumes the search leg it interrupted,
+        // instead of restarting the whole route from the first waypoint.
+        private List<Waypoint> savedRoute;
+        private int savedWaypointIndex;
+        private bool dockCycleDone;
+        private bool resumingFromDock;
 
         private DemoPhase phase = DemoPhase.Idle;
         private double phaseStart;
@@ -97,6 +122,9 @@ namespace MissionPlanner.Controls.Dashboard
         private float yawDeg;
         private float lastAltitude;
         private float landFromAltitude;
+
+        /// <summary>True while the current Landing phase is a dock-and-recharge stop rather than mission end.</summary>
+        private bool landingForDock;
 
         private double battery = 97;
         private double tempC = 27;
@@ -136,7 +164,7 @@ namespace MissionPlanner.Controls.Dashboard
         public bool IsFlying
         {
             get { return phase == DemoPhase.Takeoff || phase == DemoPhase.Search || phase == DemoPhase.Exit ||
-                         phase == DemoPhase.Landing || phase == DemoPhase.Returning; }
+                         phase == DemoPhase.Landing || phase == DemoPhase.Returning || phase == DemoPhase.DockingReturn; }
         }
 
         /// <summary>Bumped whenever walls, floor or detections change, so the page knows when to re-plan routes.</summary>
@@ -168,6 +196,10 @@ namespace MissionPlanner.Controls.Dashboard
             tempC = 27;
             route = null;
             waypointIndex = 0;
+            savedRoute = null;
+            savedWaypointIndex = 0;
+            dockCycleDone = false;
+            resumingFromDock = false;
             pendingEvents.Clear();
 
             scene.HasDrone = true;
@@ -205,16 +237,22 @@ namespace MissionPlanner.Controls.Dashboard
             if (home == null)
             {
                 Emit(MissionEventKind.Warning, "No known route home · landing in place");
-                BeginLanding();
+                BeginLanding(forDock: false);
                 return;
             }
 
-            route = new List<Waypoint>();
-            foreach (var p in home)
-                route.Add(new Waypoint(p.X, p.Y));
+            route = ToWaypoints(home);
             waypointIndex = 0;
             holdUntil = 0;
             SetPhase(DemoPhase.Returning);
+        }
+
+        private static List<Waypoint> ToWaypoints(List<PointF> points)
+        {
+            var wps = new List<Waypoint>(points.Count);
+            foreach (var p in points)
+                wps.Add(new Waypoint(p.X, p.Y));
+            return wps;
         }
 
         public DemoSnapshot Sample()
@@ -241,7 +279,7 @@ namespace MissionPlanner.Controls.Dashboard
             {
                 Phase = phase,
                 Mode = ModeFor(phase),
-                Armed = phase != DemoPhase.Idle && phase != DemoPhase.Complete,
+                Armed = phase != DemoPhase.Idle && phase != DemoPhase.Complete && phase != DemoPhase.Charging,
                 BatteryPercent = (int)Math.Round(battery),
                 BatteryVolts = PackVolts(),
                 CurrentAmps = CurrentFor(climb),
@@ -278,16 +316,33 @@ namespace MissionPlanner.Controls.Dashboard
                     altitude = CruiseAltitude * SmoothStep(Math.Min(1f, tp / TakeoffSeconds));
                     if (tp >= TakeoffSeconds)
                     {
-                        route = SearchRoute();
-                        waypointIndex = 0;
+                        if (resumingFromDock)
+                        {
+                            resumingFromDock = false;
+                            route = savedRoute;
+                            waypointIndex = savedWaypointIndex;
+                            savedRoute = null;
+                            Emit(MissionEventKind.Info, "Recharged · resuming search from where it left off");
+                        }
+                        else
+                        {
+                            route = SearchRoute();
+                            waypointIndex = 0;
+                            Emit(MissionEventKind.Info, "Search started · GPS-denied, navigating on LiDAR/optical-flow SLAM");
+                        }
                         SetPhase(DemoPhase.Search);
-                        Emit(MissionEventKind.Info, "Search started · GPS-denied, navigating on ZED VIO");
                     }
                     break;
 
                 case DemoPhase.Search:
                 case DemoPhase.Exit:
                 case DemoPhase.Returning:
+                case DemoPhase.DockingReturn:
+                    // A dock trigger replaces the route and phase for this tick - run the
+                    // rest of the search-leg logic next tick against the new route instead.
+                    if (phase == DemoPhase.Search && CheckDockingTrigger())
+                        break;
+
                     FollowRoute(now, dt);
                     // Eased rather than set: an abort mid-takeoff must keep climbing, not jump to cruise.
                     var hold = CruiseAltitude + 0.04f * (float)Math.Sin(now * 1.3) + (float)Noise(0.01);
@@ -300,9 +355,29 @@ namespace MissionPlanner.Controls.Dashboard
                     if (tp >= LandSeconds)
                     {
                         altitude = 0;
-                        SetPhase(DemoPhase.Complete);
-                        Emit(MissionEventKind.Info, "Landed · disarmed · " + scene.Survivors.Count + " of " +
-                                                    MissionScene.MaxSurvivors + " survivors reported");
+                        if (landingForDock)
+                        {
+                            landingForDock = false;
+                            SetPhase(DemoPhase.Charging);
+                            Emit(MissionEventKind.Info, "At dock · autonomous charging in progress");
+                        }
+                        else
+                        {
+                            SetPhase(DemoPhase.Complete);
+                            Emit(MissionEventKind.Info, "Landed · disarmed · " + scene.Survivors.Count +
+                                                        " survivors reported");
+                        }
+                    }
+                    break;
+
+                case DemoPhase.Charging:
+                    velocity = PointF.Empty;
+                    battery = Math.Min(100, battery + dt * ChargeRatePercentPerSecond);
+                    if (battery >= ResumeBatteryPercent)
+                    {
+                        resumingFromDock = true;
+                        SetPhase(DemoPhase.Takeoff);
+                        Emit(MissionEventKind.Info, "Charged to " + (int)battery + "% · resuming mission");
                     }
                     break;
             }
@@ -335,7 +410,7 @@ namespace MissionPlanner.Controls.Dashboard
                 return;
             }
 
-            var speed = phase == DemoPhase.Returning ? ReturnSpeed : CruiseSpeed;
+            var speed = phase == DemoPhase.Returning || phase == DemoPhase.DockingReturn ? ReturnSpeed : CruiseSpeed;
             var target = route[waypointIndex].P;
             var dx = target.X - pos.X;
             var dy = target.Y - pos.Y;
@@ -373,21 +448,51 @@ namespace MissionPlanner.Controls.Dashboard
 
                 case DemoPhase.Exit:
                     Emit(MissionEventKind.Info, "Clear of the arena exit · landing");
-                    BeginLanding();
+                    BeginLanding(forDock: false);
                     break;
 
                 case DemoPhase.Returning:
                     Emit(MissionEventKind.Info, "Over launch pad · landing");
-                    BeginLanding();
+                    BeginLanding(forDock: false);
+                    break;
+
+                case DemoPhase.DockingReturn:
+                    Emit(MissionEventKind.Info, "Over the dock · landing to recharge");
+                    BeginLanding(forDock: true);
                     break;
             }
         }
 
-        private void BeginLanding()
+        private void BeginLanding(bool forDock)
         {
             landFromAltitude = altitude;
+            landingForDock = forDock;
             velocity = PointF.Empty;
             SetPhase(DemoPhase.Landing);
+        }
+
+        /// <summary>
+        /// Once per run, breaks off a search leg for the "Mission Continuity & Auto
+        /// Charging" cycle: save the interrupted route, plan a route home over the known
+        /// map (same planner the rescue routes use), and head for the dock. Returns true
+        /// if it triggered this tick.
+        /// </summary>
+        private bool CheckDockingTrigger()
+        {
+            if (dockCycleDone || battery > DockTriggerBatteryPercent)
+                return false;
+
+            dockCycleDone = true;
+            savedRoute = route;
+            savedWaypointIndex = waypointIndex;
+
+            var home = RescuePathPlanner.Build(scene).Plan(pos, scene.LaunchPad);
+            route = home != null ? ToWaypoints(home) : new List<Waypoint> { new Waypoint(scene.LaunchPad.X, scene.LaunchPad.Y) };
+            waypointIndex = 0;
+            holdUntil = 0;
+            SetPhase(DemoPhase.DockingReturn);
+            Emit(MissionEventKind.Warning, "Battery at " + (int)battery + "% · autonomous return to dock for recharge");
+            return true;
         }
 
         private void TurnTowards(PointF target, float dt)
@@ -458,29 +563,31 @@ namespace MissionPlanner.Controls.Dashboard
                 scene.Survivors.Add(d);
                 changed = true;
                 Emit(MissionEventKind.Survivor, "Survivor " + d.Name + " located · grid " + d.Grid);
-                if (scene.Survivors.Count == MissionScene.MaxSurvivors)
-                    Emit(MissionEventKind.Survivor, "All " + MissionScene.MaxSurvivors + " survivors located");
             }
 
-            for (var i = 0; i < truthFires.Count; i++)
+            for (var i = 0; i < truthHazards.Count; i++)
             {
-                var p = truthFires[i];
-                if (scene.Hazards.Exists(h => h.Position == p))
+                var truth = truthHazards[i];
+                if (scene.Hazards.Exists(h => h.Position == truth.Position))
                     continue;
-                if (Distance(p, pos) > FireRange || !MissionScene.LineOfSight(pos, p, truthWalls))
+                if (Distance(truth.Position, pos) > HazardRange || !MissionScene.LineOfSight(pos, truth.Position, truthWalls))
                     continue;
 
                 var h2 = new Detection
                 {
                     Id = scene.Hazards.Count + 1,
-                    Kind = DetectionKind.Fire,
-                    Position = p,
+                    Kind = DetectionKind.Hazard,
+                    Type = truth.Type,
+                    Priority = truth.Priority,
+                    Position = truth.Position,
                     DetectedAt = MissionClock(),
                     HazardRadius = 1.4f
                 };
                 scene.Hazards.Add(h2);
                 changed = true;
-                Emit(MissionEventKind.Hazard, "Fire detected · grid " + h2.Grid + " · rescue routes re-planned");
+                Emit(MissionEventKind.Hazard, HazardVisuals.Label(h2.Type) + " hazard detected · " +
+                                              h2.Priority.ToString().ToUpperInvariant() + " priority · grid " +
+                                              h2.Grid + " · rescue routes re-planned");
             }
 
             if (changed)
@@ -585,14 +692,19 @@ namespace MissionPlanner.Controls.Dashboard
                 revealedPieces.Add(new bool[Math.Max(1, (int)Math.Round(w.Length / WallPiece))]);
             }
 
+            // Not a fixed head-count - real sites hold however many people are actually
+            // there. This is simply how many the scripted demo route happens to pass.
             truthSurvivors.AddRange(new[]
             {
                 new PointF(5.5f, 1.4f), new PointF(8.6f, 1.3f), new PointF(13.8f, 1.5f),
-                new PointF(13.6f, 13.4f), new PointF(6.6f, 14.1f), new PointF(1.5f, 14.1f)
+                new PointF(13.6f, 13.4f), new PointF(6.6f, 14.1f)
             });
 
-            truthFires.Add(new PointF(14.2f, 7.4f));
-            truthFires.Add(new PointF(7.4f, 10.0f));
+            // A spread of the onboard model's hazard classes, each with a triaged priority.
+            truthHazards.Add((new PointF(14.2f, 7.4f), HazardType.Fire, HazardPriority.Critical));
+            truthHazards.Add((new PointF(7.4f, 10.0f), HazardType.Electrical, HazardPriority.High));
+            truthHazards.Add((new PointF(4.2f, 13.6f), HazardType.Flood, HazardPriority.Medium));
+            truthHazards.Add((new PointF(12.0f, 4.6f), HazardType.Structural, HazardPriority.Low));
         }
 
         /// <summary>Room-by-room search, holding briefly wherever a survivor comes into view.</summary>
@@ -645,7 +757,7 @@ namespace MissionPlanner.Controls.Dashboard
             scene.HasDrone = true;
             scene.Drone = new Point3(pos.X, pos.Y, altitude);
             scene.DroneYawDeg = yawDeg;
-            scene.DroneArmed = phase != DemoPhase.Idle && phase != DemoPhase.Complete;
+            scene.DroneArmed = phase != DemoPhase.Idle && phase != DemoPhase.Complete && phase != DemoPhase.Charging;
         }
 
         private TimeSpan MissionClock()
@@ -663,7 +775,9 @@ namespace MissionPlanner.Controls.Dashboard
             switch (p)
             {
                 case DemoPhase.Landing: return "LAND";
-                case DemoPhase.Returning: return "RTL";
+                case DemoPhase.Returning:
+                case DemoPhase.DockingReturn: return "RTL";
+                case DemoPhase.Charging: return "HOLD";
                 case DemoPhase.Idle:
                 case DemoPhase.Complete: return "STABILIZE";
                 default: return "GUIDED";

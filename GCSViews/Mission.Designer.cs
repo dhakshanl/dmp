@@ -28,7 +28,8 @@ namespace MissionPlanner.GCSViews
         private MissionActionButton connectButton;
 
         private MissionSurface leftRail;
-        private VideoFeedPanel liveFeed;
+        private VideoFeedPanel liveFeedRgb;
+        private VideoFeedPanel liveFeedThermal;
         private SurvivorListView survivorList;
         private SectionHeader survivorsHeader;
 
@@ -47,7 +48,7 @@ namespace MissionPlanner.GCSViews
 
         private MissionStatusBar statusBar;
 
-        private const int RailWidth = 268;
+        private const int RailWidth = 300;
         private const int DrawerWidth = 340;
 
         private void InitializeComponent()
@@ -58,7 +59,7 @@ namespace MissionPlanner.GCSViews
             this.Name = "Mission";
             this.Size = new Size(1360, 860);
 
-            header = new MissionHeader { Dock = DockStyle.Top, Title = "AirMouse Mission" };
+            header = new MissionHeader { Dock = DockStyle.Top, Title = "Autonomous SAR Mission" };
             BuildHeaderButtons();
 
             statusBar = new MissionStatusBar { Dock = DockStyle.Bottom };
@@ -138,17 +139,25 @@ namespace MissionPlanner.GCSViews
         {
             var rail = new MissionSurface { Dock = DockStyle.Fill, BorderEdges = Edges.Right };
 
+            // Dual RGB + Thermal tiles side by side - the sensor fusion the deck calls
+            // out as improving detection in smoke, fire and low light.
             var feedHeader = new SectionHeader("Live Feed") { Dock = DockStyle.Top };
-            liveFeed = new VideoFeedPanel
+            var feedRow = new TableLayoutPanel
             {
                 Dock = DockStyle.Top,
                 Height = 156,
-                Margin = new Padding(10),
-                Caption = "ZED LEFT"
+                ColumnCount = 2,
+                RowCount = 1,
+                BackColor = MissionPalette.Surface
             };
-            var feedWrap = new Panel { Dock = DockStyle.Top, Height = 176, BackColor = MissionPalette.Surface, Padding = new Padding(10, 0, 10, 10) };
-            liveFeed.Dock = DockStyle.Fill;
-            feedWrap.Controls.Add(liveFeed);
+            feedRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+            feedRow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50f));
+            feedRow.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
+
+            liveFeedRgb = new VideoFeedPanel { Dock = DockStyle.Fill, Margin = new Padding(10, 10, 5, 10), Caption = "RGB", CaptionSize = 8f };
+            liveFeedThermal = new VideoFeedPanel { Dock = DockStyle.Fill, Margin = new Padding(5, 10, 10, 10), Caption = "THERMAL", CaptionSize = 8f };
+            feedRow.Controls.Add(liveFeedRgb, 0, 0);
+            feedRow.Controls.Add(liveFeedThermal, 1, 0);
 
             survivorsHeader = new SectionHeader("Survivors") { Dock = DockStyle.Top };
             survivorList = new SurvivorListView { Dock = DockStyle.Fill };
@@ -158,7 +167,7 @@ namespace MissionPlanner.GCSViews
             // pin to the top in reverse add order, leaving the list to fill what's left.
             rail.Controls.Add(survivorList);
             rail.Controls.Add(survivorsHeader);
-            rail.Controls.Add(feedWrap);
+            rail.Controls.Add(feedRow);
             rail.Controls.Add(feedHeader);
 
             return rail;

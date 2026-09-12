@@ -12,7 +12,7 @@ namespace MissionPlanner.Controls.Dashboard
         public int GpsFix = -1;
         public int Satellites;
 
-        /// <summary>What the autopilot is navigating on while GPS-denied, e.g. "ZED VIO". Optional.</summary>
+        /// <summary>What the autopilot is navigating on while GPS-denied, e.g. "LiDAR SLAM". Optional.</summary>
         public string NavSource;
 
         public string Mode;
@@ -72,8 +72,10 @@ namespace MissionPlanner.Controls.Dashboard
             x = DrawNavigation(g, x, right);
             x = DrawSegment(g, x, right, 118, "MODE", string.IsNullOrEmpty(status.Mode) ? "--" : status.Mode.ToUpperInvariant(), MissionPalette.Text);
             x = DrawMissionClock(g, x, right);
-            x = DrawSegment(g, x, right, 104, "SURVIVORS",
-                status.SurvivorsFound < 0 ? "--" : status.SurvivorsFound + " / " + MissionScene.MaxSurvivors,
+            // No fixed cap - a real site can hold any number of survivors, so this is a
+            // plain running count rather than a competition-style "found / N" ratio.
+            x = DrawSegment(g, x, right, 90, "SURVIVORS",
+                status.SurvivorsFound < 0 ? "--" : status.SurvivorsFound.ToString(),
                 status.SurvivorsFound > 0 ? MissionPalette.Survivor : MissionPalette.Text);
             DrawSegment(g, x, right, 100, "EXPLORED",
                 status.ExploredFraction < 0 ? "--" : (status.ExploredFraction * 100).ToString("0") + " %",
