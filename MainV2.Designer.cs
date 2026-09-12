@@ -48,6 +48,7 @@ namespace MissionPlanner
             this.MenuInitConfig = new System.Windows.Forms.ToolStripButton();
             this.MenuConfigTune = new System.Windows.Forms.ToolStripButton();
             this.MenuSimulation = new System.Windows.Forms.ToolStripButton();
+            this.MenuMission = new System.Windows.Forms.ToolStripButton();
             this.MenuHelp = new System.Windows.Forms.ToolStripButton();
             this.MenuConnect = new System.Windows.Forms.ToolStripButton();
             this.toolStripConnectionControl = new MissionPlanner.Controls.ToolStripConnectionControl();
@@ -72,6 +73,7 @@ namespace MissionPlanner
             this.MenuInitConfig,
             this.MenuConfigTune,
             this.MenuSimulation,
+            this.MenuMission,
             this.MenuHelp,
             this.MenuConnect,
             this.toolStripConnectionControl,
@@ -165,9 +167,17 @@ namespace MissionPlanner
             this.MenuSimulation.Margin = new System.Windows.Forms.Padding(0);
             this.MenuSimulation.Name = "MenuSimulation";
             this.MenuSimulation.Click += new System.EventHandler(this.MenuSimulation_Click);
-            // 
+            //
+            // MenuMission
+            //
+            this.MenuMission.ForeColor = System.Drawing.SystemColors.ControlLight;
+            resources.ApplyResources(this.MenuMission, "MenuMission");
+            this.MenuMission.Margin = new System.Windows.Forms.Padding(0);
+            this.MenuMission.Name = "MenuMission";
+            this.MenuMission.Click += new System.EventHandler(this.MenuMission_Click);
+            //
             // MenuHelp
-            // 
+            //
             this.MenuHelp.BackColor = System.Drawing.SystemColors.Control;
             this.MenuHelp.ForeColor = System.Drawing.SystemColors.Control;
             resources.ApplyResources(this.MenuHelp, "MenuHelp");
@@ -268,5 +278,6 @@ namespace MissionPlanner
         public Controls.Status status1;
         private Controls.ToolStripConnectionControl toolStripConnectionControl;
         public System.Windows.Forms.ToolStripButton MenuHelp;
+        public System.Windows.Forms.ToolStripButton MenuMission;
     }
 }

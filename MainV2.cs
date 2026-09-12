@@ -3164,6 +3164,7 @@ namespace MissionPlanner
             MyView.AddScreen(new MainSwitcher.Screen("SWConfig", typeof(GCSViews.SoftwareConfig), false));
             MyView.AddScreen(new MainSwitcher.Screen("Simulation", Simulation, true));
             MyView.AddScreen(new MainSwitcher.Screen("Help", typeof(GCSViews.Help), false));
+            MyView.AddScreen(new MainSwitcher.Screen("Mission", typeof(GCSViews.Mission), false));
 
             try
             {
@@ -4031,6 +4032,11 @@ namespace MissionPlanner
         private void MenuHelp_Click(object sender, EventArgs e)
         {
             MyView.ShowScreen("Help");
+        }
+
+        private void MenuMission_Click(object sender, EventArgs e)
+        {
+            MyView.ShowScreen("Mission");
         }
 
 

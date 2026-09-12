@@ -68,77 +68,43 @@ namespace MissionPlanner.GCSViews
                 if (ofd.ShowDialog() != DialogResult.OK)
                     return;
 
-                try
-                {
-                    var ulog = new ULog();
-                    using (var fs = File.OpenRead(ofd.FileName))
-                        ulog.read(fs);
-
-                    ulogAttitude = ulog.Data.Where(a => a.Type == "vehicle_attitude" && a.MultiID == 0).OrderBy(GetTimestamp).ToList();
-                    ulogBattery = ulog.Data.Where(a => a.Type == "battery_status" && a.MultiID == 0).OrderBy(GetTimestamp).ToList();
-                    ulogLocalPos = ulog.Data.Where(a => a.Type == "vehicle_local_position" && a.MultiID == 0).OrderBy(GetTimestamp).ToList();
-                    ulogLandDetected = ulog.Data.Where(a => a.Type == "vehicle_land_detected" && a.MultiID == 0).OrderBy(GetTimestamp).ToList();
-                    ulogArmed = ulog.Data.Where(a => a.Type == "actuator_armed" && a.MultiID == 0).OrderBy(GetTimestamp).ToList();
-
-                    var allTimestamps = ulogAttitude.Concat(ulogBattery).Concat(ulogLocalPos).Concat(ulogLandDetected).Concat(ulogArmed)
-                        .Select(GetTimestamp).Where(t => t > 0).ToList();
-
-                    if (allTimestamps.Count == 0)
-                    {
-                        guna2HtmlLabelULogStatus.Text = "No recognised topics found in this log.";
-                        return;
-                    }
-
-                    idxAttitude = idxBattery = idxLocalPos = idxLand = idxArmed = 0;
-                    ulogArmedTimestamp = null;
-                    ulogAirborneTimestamp = null;
-                    ulogBaseTimestamp = allTimestamps.Min();
-                    ulogEndTimestamp = allTimestamps.Max();
-
-                    ulogPlaybackActive = true;
-                    ulogWallStart = DateTime.UtcNow;
-                    guna2HtmlLabelULogStatus.Text = $"Playing: {Path.GetFileName(ofd.FileName)}";
-                    ulogTimer.Stop();
-                    ulogTimer.Start();
-                }
-                catch (Exception ex)
-                {
-                    guna2HtmlLabelULogStatus.Text = "Failed to load log.";
-                    CustomMessageBox.Show("Failed to load ULog file: " + ex.Message, Strings.ERROR);
-                }
+                LoadULogFile(ofd.FileName);
             }
         }
 
-        private static ulong GetTimestamp(ULog.message_data_s msg)
+        internal void LoadULogFile(string filePath)
         {
-            if (msg.Raw != null && msg.Raw.TryGetValue("timestamp", out var t))
-                return Convert.ToUInt64(t);
-            return 0;
-        }
-
-        private static bool TryGetDouble(Dictionary<string, object> raw, string key, out double value)
-        {
-            value = 0;
-            if (raw == null || !raw.TryGetValue(key, out var obj) || obj == null)
-                return false;
             try
             {
-                value = Convert.ToDouble(obj);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+                var topics = ULogLoader.Load(filePath);
 
-        private static bool TryGetArray(Dictionary<string, object> raw, string key, out object[] value)
-        {
-            value = null;
-            if (raw == null || !raw.TryGetValue(key, out var obj) || !(obj is object[] arr))
-                return false;
-            value = arr;
-            return true;
+                ulogAttitude = topics.Attitude;
+                ulogBattery = topics.Battery;
+                ulogLocalPos = topics.LocalPos;
+                ulogLandDetected = topics.LandDetected;
+                ulogArmed = topics.Armed;
+
+                idxAttitude = idxBattery = idxLocalPos = idxLand = idxArmed = 0;
+                ulogArmedTimestamp = null;
+                ulogAirborneTimestamp = null;
+                ulogBaseTimestamp = topics.BaseTimestamp;
+                ulogEndTimestamp = topics.EndTimestamp;
+
+                ulogPlaybackActive = true;
+                ulogWallStart = DateTime.UtcNow;
+                guna2HtmlLabelULogStatus.Text = $"Playing: {Path.GetFileName(filePath)}";
+                ulogTimer.Stop();
+                ulogTimer.Start();
+            }
+            catch (InvalidOperationException ex)
+            {
+                guna2HtmlLabelULogStatus.Text = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                guna2HtmlLabelULogStatus.Text = "Failed to load log.";
+                CustomMessageBox.Show("Failed to load ULog file: " + ex.Message, Strings.ERROR);
+            }
         }
 
         private static int CellVoltsToPercent(double volts)
@@ -191,7 +157,7 @@ namespace MissionPlanner.GCSViews
 
         private void AdvanceAndApply(List<ULog.message_data_s> list, ref int idx, ulong targetTimestamp, Action<ULog.message_data_s> apply)
         {
-            while (idx < list.Count && GetTimestamp(list[idx]) <= targetTimestamp)
+            while (idx < list.Count && ULogLoader.GetTimestamp(list[idx]) <= targetTimestamp)
             {
                 try
                 {
@@ -207,7 +173,7 @@ namespace MissionPlanner.GCSViews
 
         private void ApplyAttitude(ULog.message_data_s msg)
         {
-            if (!TryGetArray(msg.Raw, "q", out var q) || q.Length < 4)
+            if (!ULogLoader.TryGetArray(msg.Raw, "q", out var q) || q.Length < 4)
                 return;
 
             double qw = Convert.ToDouble(q[0]);
@@ -224,17 +190,17 @@ namespace MissionPlanner.GCSViews
 
         private void ApplyBattery(ULog.message_data_s msg)
         {
-            if (TryGetDouble(msg.Raw, "remaining", out var remaining))
+            if (ULogLoader.TryGetDouble(msg.Raw, "remaining", out var remaining))
             {
                 guna2CircleProgressBarCHARGE.Value = Math.Max(0, Math.Min(100, (int)(remaining * 100)));
             }
 
-            if (TryGetDouble(msg.Raw, "temperature", out var temp))
+            if (ULogLoader.TryGetDouble(msg.Raw, "temperature", out var temp))
             {
                 guna2TextBoxBatteryTemperature.Text = temp.ToString("0.0") + " °C";
             }
 
-            if (TryGetArray(msg.Raw, "voltage_cell_v", out var cells))
+            if (ULogLoader.TryGetArray(msg.Raw, "voltage_cell_v", out var cells))
             {
                 if (cells.Length > 0) UpdateCellBar(guna2VProgressBarCell1, CellVoltsToPercent(Convert.ToDouble(cells[0])));
                 if (cells.Length > 1) UpdateCellBar(guna2VProgressBarCell2, CellVoltsToPercent(Convert.ToDouble(cells[1])));
@@ -244,7 +210,7 @@ namespace MissionPlanner.GCSViews
 
         private void ApplyLocalPosition(ULog.message_data_s msg)
         {
-            if (TryGetDouble(msg.Raw, "z", out var z))
+            if (ULogLoader.TryGetDouble(msg.Raw, "z", out var z))
             {
                 guna2TextBoxAltitude.Text = (-z).ToString("0.00") + " m";
             }
@@ -258,7 +224,7 @@ namespace MissionPlanner.GCSViews
                 guna2TextBoxLandedState.Text = landed ? "Landed" : "Flying";
 
                 if (!landed && ulogAirborneTimestamp == null)
-                    ulogAirborneTimestamp = GetTimestamp(msg);
+                    ulogAirborneTimestamp = ULogLoader.GetTimestamp(msg);
                 else if (landed)
                     ulogAirborneTimestamp = null;
             }
@@ -270,7 +236,7 @@ namespace MissionPlanner.GCSViews
             {
                 bool armed = Convert.ToBoolean(armedObj);
                 if (armed && ulogArmedTimestamp == null)
-                    ulogArmedTimestamp = GetTimestamp(msg);
+                    ulogArmedTimestamp = ULogLoader.GetTimestamp(msg);
                 else if (!armed)
                     ulogArmedTimestamp = null;
             }
