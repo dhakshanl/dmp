@@ -99,7 +99,8 @@ namespace MissionPlanner.GCSViews
 
         // Assumes the companion computer (per the SIH26177 hardware stack: RGB + 2K
         // thermal camera into an on-board Raspberry Pi 5) encodes each view to H.264 and
-        // sends it to the GCS on its own UDP port.
+        // sends it to the GCS on its own UDP port - see companion\rgb_thermal_stream.py,
+        // which sends on exactly these two ports by default.
         private const string DefaultRgbPipeline =
             "udpsrc port=5600 caps=\"application/x-rtp,media=video,encoding-name=H264,payload=96\" " +
             "! rtpjitterbuffer ! rtph264depay ! avdec_h264 " +
@@ -229,7 +230,10 @@ namespace MissionPlanner.GCSViews
             ulogTimer.Stop();
             connectionHealthPanel.Detach();
 
-            demoSim.Reset();
+            // Preview shows a finished-looking map/telemetry immediately - nothing to wait
+            // on for a quick look or a screenshot. Start Mission throws this away and flies
+            // the real scripted discovery from a blank map instead (see StartMission).
+            demoSim.Preview();
             plannedForMapVersion = -1;
             eventLog.Clear();
             telemetryReadout.ClearValues();
@@ -251,7 +255,7 @@ namespace MissionPlanner.GCSViews
             logFilePathLabel.Text = "File path: -";
 
             demoToggleButton.Toggled = true;
-            header.SetPhase("DEMO — arming", MissionPalette.Warning);
+            header.SetPhase("DEMO — preview (press Start Mission to fly it live)", MissionPalette.TextDim);
             UpdateConnectButton();
 
             sceneView.Subtitle = "Demo scenario";

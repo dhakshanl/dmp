@@ -208,13 +208,65 @@ namespace MissionPlanner.Controls.Dashboard
             MapVersion++;
         }
 
+        /// <summary>
+        /// Instant fake dataset for showing the finished picture without waiting through a
+        /// flight: the whole map explored, every survivor and hazard already reported, the
+        /// drone parked disarmed on the pad. This is what "Demo Mode" shows the moment it's
+        /// switched on. "Start Mission" still throws all of this away and flies the real
+        /// scripted discovery from a blank map - see StartMission.
+        /// </summary>
+        public void Preview()
+        {
+            Reset();
+
+            for (var cy = 0; cy < scene.Explored.Size; cy++)
+                for (var cx = 0; cx < scene.Explored.Size; cx++)
+                    scene.Explored.Mark(cx, cy);
+
+            for (var w = 0; w < revealedPieces.Count; w++)
+                for (var i = 0; i < revealedPieces[w].Length; i++)
+                    revealedPieces[w][i] = true;
+            RebuildSceneWalls();
+
+            foreach (var p in truthSurvivors)
+            {
+                scene.Survivors.Add(new Detection
+                {
+                    Id = scene.Survivors.Count + 1,
+                    Kind = DetectionKind.Survivor,
+                    Position = p,
+                    DetectedAt = TimeSpan.Zero
+                });
+            }
+
+            foreach (var h in truthHazards)
+            {
+                scene.Hazards.Add(new Detection
+                {
+                    Id = scene.Hazards.Count + 1,
+                    Kind = DetectionKind.Hazard,
+                    Type = h.Type,
+                    Priority = h.Priority,
+                    Position = h.Position,
+                    DetectedAt = TimeSpan.Zero,
+                    HazardRadius = 1.4f
+                });
+            }
+
+            MapVersion++;
+            Emit(MissionEventKind.Info, "Preview · full map, " + truthSurvivors.Count + " survivors and " +
+                                        truthHazards.Count + " hazards shown for demonstration");
+        }
+
         public void StartMission()
         {
-            if (phase == DemoPhase.Complete)
-                Reset();
-            if (phase != DemoPhase.Idle)
+            if (phase != DemoPhase.Idle && phase != DemoPhase.Complete)
                 return;
 
+            // Always a clean slate - if Preview() populated a fake finished map, the real
+            // scripted flight still discovers everything itself rather than flying over
+            // ground already marked explored.
+            Reset();
             SetPhase(DemoPhase.Arming);
             Emit(MissionEventKind.Info, "Mission start requested · arming");
         }
