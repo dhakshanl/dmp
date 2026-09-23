@@ -120,9 +120,9 @@ namespace MissionPlanner.GCSViews
             demoToggleButton = new MissionActionButton { Text = "Demo Mode", Size = new Size(104, 32), Outline = true };
             demoToggleButton.Click += new EventHandler(this.demoToggleButton_Click);
 
-            // Demo-only: jump the static preview to the other navigation mode's tagging on
-            // demand, rather than only ever seeing the world map when a scripted flight
-            // happens to be on the pad. Hidden outside Demo Mode - see EnterDemoMode.
+            // Demo-only: manually force the other navigation mode at any point in the demo
+            // (static preview or mid-flight) - there's no real drone/GPS fix to switch it
+            // for you. Hidden outside Demo Mode - see EnterDemoMode.
             gpsPreviewToggleButton = new MissionActionButton { Text = "World Map", Size = new Size(100, 32), Outline = true, Visible = false };
             gpsPreviewToggleButton.Click += new EventHandler(this.gpsPreviewToggleButton_Click);
 

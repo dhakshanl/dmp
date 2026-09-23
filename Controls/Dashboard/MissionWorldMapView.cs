@@ -31,6 +31,9 @@ namespace MissionPlanner.Controls.Dashboard
         private readonly GMapOverlay droneOverlay = new GMapOverlay("mission_drone");
         private readonly Label hud;
         private readonly Label hint;
+        private readonly Label tileNotice;
+        private readonly Timer tileCheckTimer;
+        private bool tileEverLoaded;
 
         private MissionScene scene;
         private bool everFocused;
@@ -53,7 +56,13 @@ namespace MissionPlanner.Controls.Dashboard
                 DragButton = MouseButtons.Left,
                 ShowTileGridLines = false,
                 MapScaleInfoEnabled = false,
-                DisableFocusOnMouseEnter = true
+                DisableFocusOnMouseEnter = true,
+                // Themed rather than GMap.NET's default white/grey: without a live internet
+                // connection (a venue's wifi, say) no tiles ever arrive and this is what
+                // fills the whole control - it should still look deliberate, not broken.
+                // Overlays (drone/survivor/hazard markers) render regardless of whether any
+                // tile ever loads, so the fake data is visible either way.
+                EmptyTileColor = MissionPalette.Background
             };
             map.Overlays.Add(hazardsOverlay);
             map.Overlays.Add(survivorsOverlay);
@@ -85,10 +94,61 @@ namespace MissionPlanner.Controls.Dashboard
                 Tag = "custom"
             };
 
+            // Shown only if no tile has actually loaded a few seconds after this view
+            // becomes visible - a venue with no usable internet, say - so a blank basemap
+            // reads as "tiles unavailable, markers are still accurate" rather than broken.
+            // Hidden the moment a tile does come in, from OnAnyTileLoaded below.
+            tileNotice = new Label
+            {
+                AutoSize = true,
+                BackColor = Color.FromArgb(230, MissionPalette.SurfaceRaised),
+                ForeColor = MissionPalette.Warning,
+                Font = MissionPalette.SmallBold,
+                Padding = new Padding(10, 6, 10, 6),
+                Text = "Map tiles need internet — markers below are still accurate",
+                Visible = false,
+                Tag = "custom"
+            };
+
+            map.OnTileLoadComplete += OnAnyTileLoaded;
+            tileCheckTimer = new Timer { Interval = 4000 };
+            tileCheckTimer.Tick += (s, e) =>
+            {
+                tileCheckTimer.Stop();
+                if (!tileEverLoaded)
+                    tileNotice.Visible = true;
+            };
+
             Controls.Add(hud);
             Controls.Add(hint);
+            Controls.Add(tileNotice);
             hud.BringToFront();
             hint.BringToFront();
+            tileNotice.BringToFront();
+        }
+
+        private void OnAnyTileLoaded(long elapsedMilliseconds)
+        {
+            tileEverLoaded = true;
+            RunOnUiThread(() => tileNotice.Visible = false);
+        }
+
+        private void RunOnUiThread(Action action)
+        {
+            if (IsDisposed || !IsHandleCreated)
+                return;
+
+            try
+            {
+                if (InvokeRequired)
+                    BeginInvoke(action);
+                else
+                    action();
+            }
+            catch (ObjectDisposedException)
+            {
+                // control torn down between the guard above and the marshalled call
+            }
         }
 
         public void Bind(MissionScene s)
@@ -111,6 +171,13 @@ namespace MissionPlanner.Controls.Dashboard
                 new PointF(scene.ArenaSize / 2f, scene.ArenaSize / 2f));
             map.Position = new PointLatLng(lat, lon);
             map.Zoom = 19;
+
+            if (!tileEverLoaded)
+            {
+                tileNotice.Visible = false;
+                tileCheckTimer.Stop();
+                tileCheckTimer.Start();
+            }
         }
 
         /// <summary>
@@ -178,6 +245,22 @@ namespace MissionPlanner.Controls.Dashboard
         {
             if (item?.Tag is int id)
                 SurvivorClicked?.Invoke(id);
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            tileNotice.Location = new Point(12, Height - tileNotice.Height - 12);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                tileCheckTimer.Stop();
+                tileCheckTimer.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

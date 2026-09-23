@@ -248,26 +248,26 @@ namespace MissionPlanner.GCSViews
                 EnterDemoMode();
         }
 
-        /// <summary>Demo-only: jump the static preview straight to the other navigation
-        /// mode's tagging, instead of waiting for a scripted flight to reach the pad.</summary>
+        /// <summary>
+        /// Demo-only: manually force the other navigation mode, at any point in the demo -
+        /// static preview or mid-flight. There's no real drone/GPS fix here to switch it
+        /// automatically, so this is the stand-in; it stays in force until the flight is
+        /// reset (Start Mission) or toggled again - see MissionDemoSimulator.SetGpsMode.
+        /// </summary>
         private void gpsPreviewToggleButton_Click(object sender, EventArgs e)
         {
             if (!demoMode)
                 return;
 
-            if (demoSim.SetPreviewGpsMode(!scene.GpsAvailable))
-            {
-                SetGpsAvailable(scene.GpsAvailable);
-                UpdateGpsPreviewButton();
-            }
+            demoSim.SetGpsMode(!scene.GpsAvailable);
+            SetGpsAvailable(scene.GpsAvailable);
+            UpdateGpsPreviewButton();
         }
 
         private void UpdateGpsPreviewButton()
         {
-            var mid = demoSim.Phase != DemoPhase.Idle && demoSim.Phase != DemoPhase.Complete;
-            gpsPreviewToggleButton.Enabled = !mid;
             gpsPreviewToggleButton.Toggled = scene.GpsAvailable;
-            gpsPreviewToggleButton.Text = mid ? "Auto-switching" : scene.GpsAvailable ? "Indoor View" : "World Map";
+            gpsPreviewToggleButton.Text = scene.GpsAvailable ? "Indoor View" : "World Map";
         }
 
         private void EnterDemoMode()

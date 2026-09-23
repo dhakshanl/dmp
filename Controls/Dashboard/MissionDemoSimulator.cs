@@ -111,6 +111,16 @@ namespace MissionPlanner.Controls.Dashboard
         private bool dockCycleDone;
         private bool resumingFromDock;
 
+        /// <summary>
+        /// Operator-set override for which navigation mode the page shows - null means
+        /// "automatic", following the phase-based logic in UpdateDroneInScene. Set by
+        /// GCSViews\Mission.cs's World Map toggle so the mode can be inspected on demand,
+        /// at any point in the demo (static preview or mid-flight), since there's no real
+        /// GPS fix here to switch it automatically. Cleared on Reset - a fresh flight goes
+        /// back to automatic unless toggled again.
+        /// </summary>
+        private bool? gpsManualOverride;
+
         private DemoPhase phase = DemoPhase.Idle;
         private double phaseStart;
         private double lastSample;
@@ -204,6 +214,7 @@ namespace MissionPlanner.Controls.Dashboard
             savedWaypointIndex = 0;
             dockCycleDone = false;
             resumingFromDock = false;
+            gpsManualOverride = null;
             pendingEvents.Clear();
 
             scene.HasDrone = true;
@@ -225,7 +236,11 @@ namespace MissionPlanner.Controls.Dashboard
 
             // This is specifically a preview of the GPS-denied indoor result (what the
             // local grid-tagged map looks like once everything's found) - not the "on the
-            // pad, GPS available" state Reset()'s Idle phase would otherwise imply.
+            // pad, GPS available" state Reset()'s Idle phase would otherwise imply. Held as
+            // a manual override (not just the flag) so the next tick's automatic
+            // recomputation in UpdateDroneInScene doesn't immediately flip it back; the
+            // World Map toggle in Mission.cs overrides this the moment the operator asks.
+            gpsManualOverride = false;
             scene.GpsAvailable = false;
 
             for (var cy = 0; cy < scene.Explored.Size; cy++)
@@ -279,21 +294,18 @@ namespace MissionPlanner.Controls.Dashboard
         }
 
         /// <summary>
-        /// On-demand look at the other navigation mode's tagging, for the static preview
-        /// only - flips MissionScene.GpsAvailable without touching anything else, so every
-        /// survivor/hazard the preview already populated just re-tags itself (grid box vs
-        /// lat/lon) and the page's own "Automatic Switching" swaps the centre pane to
-        /// match. A no-op once a flight is actually running (phase past Idle/Complete):
-        /// that transition is the scripted flight's own to make, not something a manual
-        /// toggle should fight mid-air. Returns whether it actually changed anything.
+        /// Manual, sticky override of which navigation mode the page shows - usable at any
+        /// point in the demo, static preview or mid-flight, not just while idle: there's no
+        /// real drone/GPS here, so the operator is the "automatic switching." Every
+        /// survivor/hazard already on the map just re-tags itself (grid box vs lat/lon) and
+        /// the centre pane swaps to match. Stays in force - including through the rest of a
+        /// running flight - until Reset() (a fresh Start Mission) clears it, or it's toggled
+        /// again.
         /// </summary>
-        public bool SetPreviewGpsMode(bool gpsAvailable)
+        public void SetGpsMode(bool gpsAvailable)
         {
-            if (phase != DemoPhase.Idle && phase != DemoPhase.Complete)
-                return false;
-
+            gpsManualOverride = gpsAvailable;
             scene.GpsAvailable = gpsAvailable;
-            return true;
         }
 
         public void StartMission()
@@ -861,10 +873,13 @@ namespace MissionPlanner.Controls.Dashboard
             // Simplified stand-in for "Automatic Switching": GPS treated as available on
             // and around the pad (outside the structure) and unavailable while actually
             // transiting the mapped interior. The live-vehicle path in GCSViews\Mission.cs
-            // drives the same flag off the real GPS fix instead of guessing from phase.
-            scene.GpsAvailable = phase == DemoPhase.Idle || phase == DemoPhase.Arming ||
-                                  phase == DemoPhase.Takeoff || phase == DemoPhase.Landing ||
-                                  phase == DemoPhase.Charging || phase == DemoPhase.Complete;
+            // drives the same flag off the real GPS fix instead of guessing from phase. A
+            // manual override (SetGpsMode) takes priority over all of this, so the operator
+            // can inspect either mode on demand without a real fix to switch it for them.
+            scene.GpsAvailable = gpsManualOverride ?? (
+                phase == DemoPhase.Idle || phase == DemoPhase.Arming ||
+                phase == DemoPhase.Takeoff || phase == DemoPhase.Landing ||
+                phase == DemoPhase.Charging || phase == DemoPhase.Complete);
         }
 
         private TimeSpan MissionClock()
