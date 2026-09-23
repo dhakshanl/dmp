@@ -24,6 +24,7 @@ namespace MissionPlanner.GCSViews
         private MissionActionButton startMissionButton;
         private MissionActionButton abortButton;
         private MissionActionButton demoToggleButton;
+        private MissionActionButton gpsPreviewToggleButton;
         private MissionActionButton drawerToggleButton;
         private MissionActionButton connectButton;
 
@@ -119,6 +120,12 @@ namespace MissionPlanner.GCSViews
             demoToggleButton = new MissionActionButton { Text = "Demo Mode", Size = new Size(104, 32), Outline = true };
             demoToggleButton.Click += new EventHandler(this.demoToggleButton_Click);
 
+            // Demo-only: jump the static preview to the other navigation mode's tagging on
+            // demand, rather than only ever seeing the world map when a scripted flight
+            // happens to be on the pad. Hidden outside Demo Mode - see EnterDemoMode.
+            gpsPreviewToggleButton = new MissionActionButton { Text = "World Map", Size = new Size(100, 32), Outline = true, Visible = false };
+            gpsPreviewToggleButton.Click += new EventHandler(this.gpsPreviewToggleButton_Click);
+
             abortButton = new MissionActionButton
             {
                 Text = "Abort / E-Stop",
@@ -142,6 +149,7 @@ namespace MissionPlanner.GCSViews
             header.AddRight(connectButton);
             header.AddRight(drawerToggleButton);
             header.AddRight(demoToggleButton);
+            header.AddRight(gpsPreviewToggleButton);
             header.AddRight(abortButton);
             header.AddRight(startMissionButton);
         }

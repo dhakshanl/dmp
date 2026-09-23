@@ -278,6 +278,24 @@ namespace MissionPlanner.Controls.Dashboard
                                         truthHazards.Count + " hazards shown for demonstration");
         }
 
+        /// <summary>
+        /// On-demand look at the other navigation mode's tagging, for the static preview
+        /// only - flips MissionScene.GpsAvailable without touching anything else, so every
+        /// survivor/hazard the preview already populated just re-tags itself (grid box vs
+        /// lat/lon) and the page's own "Automatic Switching" swaps the centre pane to
+        /// match. A no-op once a flight is actually running (phase past Idle/Complete):
+        /// that transition is the scripted flight's own to make, not something a manual
+        /// toggle should fight mid-air. Returns whether it actually changed anything.
+        /// </summary>
+        public bool SetPreviewGpsMode(bool gpsAvailable)
+        {
+            if (phase != DemoPhase.Idle && phase != DemoPhase.Complete)
+                return false;
+
+            scene.GpsAvailable = gpsAvailable;
+            return true;
+        }
+
         public void StartMission()
         {
             if (phase != DemoPhase.Idle && phase != DemoPhase.Complete)

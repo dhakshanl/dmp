@@ -248,6 +248,28 @@ namespace MissionPlanner.GCSViews
                 EnterDemoMode();
         }
 
+        /// <summary>Demo-only: jump the static preview straight to the other navigation
+        /// mode's tagging, instead of waiting for a scripted flight to reach the pad.</summary>
+        private void gpsPreviewToggleButton_Click(object sender, EventArgs e)
+        {
+            if (!demoMode)
+                return;
+
+            if (demoSim.SetPreviewGpsMode(!scene.GpsAvailable))
+            {
+                SetGpsAvailable(scene.GpsAvailable);
+                UpdateGpsPreviewButton();
+            }
+        }
+
+        private void UpdateGpsPreviewButton()
+        {
+            var mid = demoSim.Phase != DemoPhase.Idle && demoSim.Phase != DemoPhase.Complete;
+            gpsPreviewToggleButton.Enabled = !mid;
+            gpsPreviewToggleButton.Toggled = scene.GpsAvailable;
+            gpsPreviewToggleButton.Text = mid ? "Auto-switching" : scene.GpsAvailable ? "Indoor View" : "World Map";
+        }
+
         private void EnterDemoMode()
         {
             demoMode = true;
@@ -282,6 +304,9 @@ namespace MissionPlanner.GCSViews
             logFilePathLabel.Text = "File path: -";
 
             demoToggleButton.Toggled = true;
+            gpsPreviewToggleButton.Visible = true;
+            UpdateGpsPreviewButton();
+            header.PerformLayout();
             header.SetPhase("DEMO — preview (press Start Mission to fly it live)", MissionPalette.TextDim);
             UpdateConnectButton();
 
@@ -302,6 +327,8 @@ namespace MissionPlanner.GCSViews
             SetGpsAvailable(false);
 
             demoToggleButton.Toggled = false;
+            gpsPreviewToggleButton.Visible = false;
+            header.PerformLayout();
             header.SetPhase("", MissionPalette.TextDim);
 
             ResetTelemetryDisplay();
@@ -356,6 +383,7 @@ namespace MissionPlanner.GCSViews
                 selected.Route = planner?.Plan(scene.Entry, selected.Position);
 
             SetGpsAvailable(scene.GpsAvailable);
+            UpdateGpsPreviewButton();
             sceneView.Invalidate();
             survivorList.Invalidate();
         }
