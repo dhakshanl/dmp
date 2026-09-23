@@ -4,6 +4,45 @@ using System.Drawing;
 
 namespace MissionPlanner.Controls.Dashboard
 {
+    /// <summary>
+    /// Anchors the local arena frame (MissionScene's metres, X east/Y north) onto a real
+    /// GPS coordinate, so a local (x, y) can be converted to lat/lon the moment GPS
+    /// becomes available - the "Geo-Tagging" GPS-enabled-mode capability the SIH26177
+    /// architecture lists alongside GPS-denied mode's local grid boxes.
+    ///
+    /// A flat-earth (equirectangular) approximation - accurate to well under a centimetre
+    /// across a site this size, nowhere near GPS's own few-metre error budget.
+    /// </summary>
+    public struct GeoOrigin
+    {
+        private const double MetresPerDegLat = 111320.0;
+
+        public double Lat;
+        public double Lon;
+
+        /// <summary>Compass heading, degrees, that the local +Y axis actually points at.
+        /// 0 (the default) means local north is already true north - fine until a real
+        /// site survey supplies the building's actual orientation.</summary>
+        public float HeadingDeg;
+
+        public GeoOrigin(double lat, double lon, float headingDeg = 0f)
+        {
+            Lat = lat;
+            Lon = lon;
+            HeadingDeg = headingDeg;
+        }
+
+        public (double Lat, double Lon) ToLatLon(PointF local)
+        {
+            var rad = HeadingDeg * Math.PI / 180.0;
+            var east = local.X * Math.Cos(rad) + local.Y * Math.Sin(rad);
+            var north = -local.X * Math.Sin(rad) + local.Y * Math.Cos(rad);
+
+            var metresPerDegLon = MetresPerDegLat * Math.Cos(Lat * Math.PI / 180.0);
+            return (Lat + north / MetresPerDegLat, Lon + east / metresPerDegLon);
+        }
+    }
+
     /// <summary>A mapped wall, as a centreline segment in arena metres.</summary>
     public struct Wall
     {
@@ -280,9 +319,41 @@ namespace MissionPlanner.Controls.Dashboard
         /// <summary>Survivor whose rescue route is highlighted; 0 for none.</summary>
         public int SelectedSurvivorId;
 
+        /// <summary>
+        /// Anchors this scene's local metres onto the real world; null until something has
+        /// supplied one (the demo simulator's fabricated site coordinate, or the live
+        /// vehicle's home position once it has a fix). Without it, GPS-enabled mode has
+        /// nothing to geo-tag against and the page stays on local grid boxes.
+        /// </summary>
+        public GeoOrigin? GpsOrigin;
+
+        /// <summary>
+        /// True while there's a GPS fix good enough to navigate and geo-tag with - drives
+        /// the page's "Automatic Switching" between the world map (GPS-enabled) and the
+        /// local 3D view (GPS-denied), matching the SIH26177 architecture's two modes.
+        /// </summary>
+        public bool GpsAvailable;
+
         public MissionScene()
         {
             Explored = new ExploredMap(ArenaSize);
+        }
+
+        /// <summary>
+        /// How a detection at this position should be labelled right now: a real lat/lon
+        /// once GPS is available and anchored, otherwise the local grid box GPS-denied
+        /// mode reports instead. One call site for both list rows and event-log text, so
+        /// they can never disagree about which mode the vehicle is actually in.
+        /// </summary>
+        public string FormatTag(PointF position)
+        {
+            if (GpsAvailable && GpsOrigin.HasValue)
+            {
+                var (lat, lon) = GpsOrigin.Value.ToLatLon(position);
+                return "GPS " + lat.ToString("0.00000") + ", " + lon.ToString("0.00000");
+            }
+
+            return "Grid " + MissionGrid.Label(position);
         }
 
         public Detection SelectedSurvivor

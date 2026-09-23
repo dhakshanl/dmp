@@ -34,6 +34,7 @@ namespace MissionPlanner.GCSViews
         private SectionHeader survivorsHeader;
 
         private MissionSceneView sceneView;
+        private MissionWorldMapView worldMapView;
 
         private MissionSurface drawer;
         private TelemetryReadout telemetryReadout;
@@ -77,14 +78,24 @@ namespace MissionPlanner.GCSViews
             rootLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
 
             leftRail = BuildLeftRail();
+
+            // Local 3D view (GPS-denied) and world map (GPS-available) share one host
+            // panel and swap Visible between them - see Mission.cs's SetGpsAvailable. Never
+            // both visible together: the two are the page's "Automatic Switching" pair, not
+            // a split view.
+            var centerHost = new Panel { Dock = DockStyle.Fill, BackColor = MissionPalette.Background };
             sceneView = new MissionSceneView { Dock = DockStyle.Fill };
             sceneView.SurvivorClicked += this.Scene_SurvivorSelected;
+            worldMapView = new MissionWorldMapView { Dock = DockStyle.Fill, Visible = false };
+            worldMapView.SurvivorClicked += this.Scene_SurvivorSelected;
+            centerHost.Controls.Add(worldMapView);
+            centerHost.Controls.Add(sceneView);
 
             drawer = BuildDrawer();
             drawer.Visible = false;
 
             rootLayout.Controls.Add(leftRail, 0, 0);
-            rootLayout.Controls.Add(sceneView, 1, 0);
+            rootLayout.Controls.Add(centerHost, 1, 0);
             rootLayout.Controls.Add(drawer, 2, 0);
 
             // Docked bottom-to-top so the status bar and header claim their strips before

@@ -7,11 +7,12 @@ using System.Windows.Forms;
 namespace MissionPlanner.Controls.Dashboard
 {
     /// <summary>
-    /// Left-rail list of everything the drone has located: each survivor with its grid box
-    /// (what the brief asks the GCS to report), when it was found and the length of its
-    /// safe rescue route, then known fire hazards. Clicking a survivor selects the route the
-    /// 3D view highlights. Reads the shared MissionScene directly; call Invalidate after
-    /// the scene changes.
+    /// Left-rail list of everything the drone has located: each survivor with its position
+    /// tag (a local grid box while GPS-denied, a real lat/lon once GPS is available - see
+    /// MissionScene.FormatTag), when it was found and the length of its safe rescue route,
+    /// then known hazards with their onboard-assigned priority. Clicking a survivor selects
+    /// the route the centre pane highlights. Reads the shared MissionScene directly; call
+    /// Invalidate after the scene changes.
     /// </summary>
     public class SurvivorListView : Control
     {
@@ -98,7 +99,7 @@ namespace MissionPlanner.Controls.Dashboard
 
             if (found == 0)
             {
-                TextRenderer.DrawText(g, "None located yet.\nDetections from the onboard camera appear here with their grid box.",
+                TextRenderer.DrawText(g, "None located yet.\nDetections from the onboard camera appear here, tagged by grid box or GPS coordinate.",
                     MissionPalette.Small, new Rectangle(14, y, Width - 28, 44), MissionPalette.TextFaint,
                     TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
                 y += 52;
@@ -125,7 +126,7 @@ namespace MissionPlanner.Controls.Dashboard
                 using (var b = new SolidBrush(HazardVisuals.Color(h.Type)))
                     g.FillEllipse(b, 16, y + HazardRowHeight / 2 - 4, 8, 8);
 
-                TextRenderer.DrawText(g, HazardVisuals.Label(h.Type) + "  ·  grid " + h.Grid, MissionPalette.BodyBold,
+                TextRenderer.DrawText(g, HazardVisuals.Label(h.Type) + "  ·  " + scene.FormatTag(h.Position), MissionPalette.BodyBold,
                     new Rectangle(32, y, Width - 40, HazardRowHeight), MissionPalette.Text,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
 
@@ -168,7 +169,7 @@ namespace MissionPlanner.Controls.Dashboard
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
 
             var textX = r.X + 48;
-            TextRenderer.DrawText(g, "Grid " + s.Grid, MissionPalette.BodyBold, new Point(textX, r.Y + 6),
+            TextRenderer.DrawText(g, scene.FormatTag(s.Position), MissionPalette.BodyBold, new Point(textX, r.Y + 6),
                 MissionPalette.Text, TextFormatFlags.NoPadding);
 
             var len = s.RouteLength;

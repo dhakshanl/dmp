@@ -37,6 +37,11 @@ namespace MissionPlanner.GCSViews
         private bool demoMode;
         private MissionDemoSimulator demoSim;
 
+        // Which of sceneView/worldMapView is currently shown in the centre pane - the
+        // page's "Automatic Switching" between GPS-denied (local 3D) and GPS-available
+        // (world map) navigation. See SetGpsAvailable.
+        private bool showingWorldMap;
+
         // ULog replay state.
         private bool ulogPlaybackActive;
         private readonly System.Windows.Forms.Timer ulogTimer;
@@ -54,6 +59,7 @@ namespace MissionPlanner.GCSViews
 
             demoSim = new MissionDemoSimulator(scene);
             sceneView.Bind(scene);
+            worldMapView.Bind(scene);
             survivorList.Bind(scene);
 
             telemetryTimer = new System.Windows.Forms.Timer { Interval = 100 };
@@ -178,6 +184,26 @@ namespace MissionPlanner.GCSViews
             rootLayout.PerformLayout();
         }
 
+        /// <summary>
+        /// Swaps the centre pane between the local 3D view and the world map, and keeps
+        /// the map's markers current while it's the one showing. Idempotent - safe to call
+        /// every tick with whatever MissionScene.GpsAvailable currently is.
+        /// </summary>
+        private void SetGpsAvailable(bool available)
+        {
+            if (available != showingWorldMap)
+            {
+                showingWorldMap = available;
+                sceneView.Visible = !available;
+                worldMapView.Visible = available;
+                if (available)
+                    worldMapView.FocusOnScene();
+            }
+
+            if (available)
+                worldMapView.RefreshMarkers();
+        }
+
         private void Scene_SurvivorSelected(int id)
         {
             scene.SelectedSurvivorId = id;
@@ -237,6 +263,7 @@ namespace MissionPlanner.GCSViews
             plannedForMapVersion = -1;
             eventLog.Clear();
             telemetryReadout.ClearValues();
+            SetGpsAvailable(scene.GpsAvailable);
 
             // Same clip on both tiles for now - a placeholder until distinct RGB/thermal
             // demo footage exists; captions still label them separately.
@@ -272,6 +299,7 @@ namespace MissionPlanner.GCSViews
             plannedForMapVersion = -1;
             sceneView.Subtitle = "Live map";
             sceneView.EmptyMessage = "Waiting for vehicle position";
+            SetGpsAvailable(false);
 
             demoToggleButton.Toggled = false;
             header.SetPhase("", MissionPalette.TextDim);
@@ -305,7 +333,8 @@ namespace MissionPlanner.GCSViews
 
             statusBar.SetStatus(new MissionStatus
             {
-                GpsFix = 0,
+                GpsFix = scene.GpsAvailable ? 3 : 0,
+                Satellites = scene.GpsAvailable ? 12 : 0,
                 NavSource = "LiDAR SLAM",
                 Mode = s.Mode,
                 Armed = s.Armed,
@@ -326,6 +355,7 @@ namespace MissionPlanner.GCSViews
             if (selected != null && selected.Route == null)
                 selected.Route = planner?.Plan(scene.Entry, selected.Position);
 
+            SetGpsAvailable(scene.GpsAvailable);
             sceneView.Invalidate();
             survivorList.Invalidate();
         }
@@ -395,6 +425,8 @@ namespace MissionPlanner.GCSViews
             if (!IsConnected())
             {
                 statusBar.SetStatus(new MissionStatus());
+                scene.GpsAvailable = false;
+                SetGpsAvailable(false);
                 return;
             }
 
@@ -421,6 +453,13 @@ namespace MissionPlanner.GCSViews
             scene.DroneYawDeg = cs.yaw;
             scene.DroneArmed = cs.armed;
 
+            // "Automatic Switching": once there's a real fix, anchor the local frame onto
+            // the vehicle's actual home position so FormatTag/the world map can geo-tag
+            // with real lat/lon instead of the local grid - see MissionScene.GpsOrigin.
+            scene.GpsAvailable = cs.gpsstatus >= 3;
+            if (scene.GpsAvailable && (cs.HomeLocation.Lat != 0 || cs.HomeLocation.Lng != 0))
+                scene.GpsOrigin = new GeoOrigin(cs.HomeLocation.Lat, cs.HomeLocation.Lng);
+
             statusBar.SetStatus(new MissionStatus
             {
                 GpsFix = (int)cs.gpsstatus,
@@ -434,6 +473,7 @@ namespace MissionPlanner.GCSViews
                 ExploredFraction = scene.Explored.Fraction
             });
 
+            SetGpsAvailable(scene.GpsAvailable);
             sceneView.Invalidate();
         }
 

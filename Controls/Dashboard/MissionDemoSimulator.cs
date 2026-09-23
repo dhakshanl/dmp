@@ -154,6 +154,10 @@ namespace MissionPlanner.Controls.Dashboard
             this.clock = clock;
 
             BuildArena();
+
+            // Fabricated demo site coordinate - stands in for the vehicle's real home
+            // position, which is what would anchor this in an actual deployment.
+            scene.GpsOrigin = new GeoOrigin(12.97160, 77.59460);
         }
 
         public DemoPhase Phase
@@ -218,6 +222,11 @@ namespace MissionPlanner.Controls.Dashboard
         public void Preview()
         {
             Reset();
+
+            // This is specifically a preview of the GPS-denied indoor result (what the
+            // local grid-tagged map looks like once everything's found) - not the "on the
+            // pad, GPS available" state Reset()'s Idle phase would otherwise imply.
+            scene.GpsAvailable = false;
 
             for (var cy = 0; cy < scene.Explored.Size; cy++)
                 for (var cx = 0; cx < scene.Explored.Size; cx++)
@@ -627,7 +636,7 @@ namespace MissionPlanner.Controls.Dashboard
                 };
                 scene.Survivors.Add(d);
                 changed = true;
-                Emit(MissionEventKind.Survivor, "Survivor " + d.Name + " located · grid " + d.Grid);
+                Emit(MissionEventKind.Survivor, "Survivor " + d.Name + " located · " + scene.FormatTag(d.Position));
 
                 // Plan and highlight its rescue route the instant it's found, so the "best
                 // path" is visible live during the flight without the operator clicking
@@ -658,8 +667,8 @@ namespace MissionPlanner.Controls.Dashboard
                 scene.Hazards.Add(h2);
                 changed = true;
                 Emit(MissionEventKind.Hazard, HazardVisuals.Label(h2.Type) + " hazard detected · " +
-                                              h2.Priority.ToString().ToUpperInvariant() + " priority · grid " +
-                                              h2.Grid + " · rescue routes re-planned");
+                                              h2.Priority.ToString().ToUpperInvariant() + " priority · " +
+                                              scene.FormatTag(h2.Position) + " · rescue routes re-planned");
             }
 
             if (changed)
@@ -830,6 +839,14 @@ namespace MissionPlanner.Controls.Dashboard
             scene.Drone = new Point3(pos.X, pos.Y, altitude);
             scene.DroneYawDeg = yawDeg;
             scene.DroneArmed = phase != DemoPhase.Idle && phase != DemoPhase.Complete && phase != DemoPhase.Charging;
+
+            // Simplified stand-in for "Automatic Switching": GPS treated as available on
+            // and around the pad (outside the structure) and unavailable while actually
+            // transiting the mapped interior. The live-vehicle path in GCSViews\Mission.cs
+            // drives the same flag off the real GPS fix instead of guessing from phase.
+            scene.GpsAvailable = phase == DemoPhase.Idle || phase == DemoPhase.Arming ||
+                                  phase == DemoPhase.Takeoff || phase == DemoPhase.Landing ||
+                                  phase == DemoPhase.Charging || phase == DemoPhase.Complete;
         }
 
         private TimeSpan MissionClock()
