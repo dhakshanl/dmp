@@ -4,6 +4,8 @@
 
 This is a fork of Mission Planner with extra features for GPS-denied indoor flight (optical-flow no-GPS pattern flying, a no-GPS grid view on the Data page, ArUco-marker precision landing). See [dev/isro](https://github.com/dhakshanl/dmp/tree/dev/isro) for the active branch.
 
+> **Smart India Hackathon 2026 (SIH26177, Team Asunama):** see **[SIH2026_README.md](SIH2026_README.md)** for the search-and-rescue Mission page, the demo walkthrough and the hardware setup.
+
 ### ⬇️ Download
 
 **[Download MissionPlanner-latest.zip](https://github.com/dhakshanl/dmp/releases/download/latest/MissionPlanner-latest.zip)** - unzip and run `MissionPlanner.exe`. No installer needed.

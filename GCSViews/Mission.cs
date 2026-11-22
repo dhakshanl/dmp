@@ -38,7 +38,7 @@ namespace MissionPlanner.GCSViews
         private MissionDemoSimulator demoSim;
 
         // Which of sceneView/worldMapView is currently shown in the centre pane - the
-        // page's "Automatic Switching" between GPS-denied (local 3D) and GPS-available
+        // page's "Automatic Switching" between GPS-denied (local 3D) and GPS-enabled
         // (world map) navigation. See SetGpsAvailable.
         private bool showingWorldMap;
 
@@ -208,6 +208,8 @@ namespace MissionPlanner.GCSViews
         {
             scene.SelectedSurvivorId = id;
             EnsureRoute(id);
+            if (showingWorldMap)
+                worldMapView.RefreshMarkers();
             sceneView.Invalidate();
             survivorList.Invalidate();
         }
@@ -236,6 +238,34 @@ namespace MissionPlanner.GCSViews
                 s.Route = planner.Plan(scene.Entry, s.Position);
         }
 
+        /// <summary>
+        /// Keeps MissionScene.RtlRoute current for the world map: the shortest safe path
+        /// from the drone back to <paramref name="home"/> over the known map, or a straight
+        /// leg when the map has none or <paramref name="straight"/> says the drone flies
+        /// above obstacles anyway (which is also what a flight controller's own RTL flies).
+        /// Only worked out while the world map is showing - it's the only view that draws it.
+        /// </summary>
+        private void UpdateRtlRoute(PointF home, bool airborne, bool returning, bool straight)
+        {
+            scene.RtlHome = home;
+            scene.RtlActive = returning;
+
+            if (!airborne || !scene.HasDrone || !scene.GpsAvailable)
+            {
+                scene.RtlRoute = null;
+                return;
+            }
+
+            var from = new PointF(scene.Drone.X, scene.Drone.Y);
+            List<PointF> path = null;
+            if (!straight)
+            {
+                RebuildPlannerIfNeeded();
+                path = planner?.Plan(from, home);
+            }
+            scene.RtlRoute = path ?? new List<PointF> { from, home };
+        }
+
         #endregion
 
         #region demo mode
@@ -249,25 +279,34 @@ namespace MissionPlanner.GCSViews
         }
 
         /// <summary>
-        /// Demo-only: manually force the other navigation mode, at any point in the demo -
-        /// static preview or mid-flight. There's no real drone/GPS fix here to switch it
-        /// automatically, so this is the stand-in; it stays in force until the flight is
-        /// reset (Start Mission) or toggled again - see MissionDemoSimulator.SetGpsMode.
+        /// Demo-only: swap between the two demo scenarios - the indoor GPS-denied search
+        /// (3D view) and the outdoor GPS-enabled lawnmower survey (world map). Each loads
+        /// its own finished preview; Start Mission then flies whichever one is showing. Any
+        /// flight in progress is dropped, since the two happen on different sites.
         /// </summary>
         private void gpsPreviewToggleButton_Click(object sender, EventArgs e)
         {
             if (!demoMode)
                 return;
 
-            demoSim.SetGpsMode(!scene.GpsAvailable);
+            demoSim.SetScenario(!demoSim.IsOutdoor);
+            demoSim.Preview();
+            plannedForMapVersion = -1;
+            eventLog.Clear();
             SetGpsAvailable(scene.GpsAvailable);
+
+            // Already on the map (e.g. the indoor flight's on-the-pad GPS moment), so the
+            // visibility swap won't refit it to the new site - do it here.
+            if (scene.GpsAvailable)
+                worldMapView.FocusOnScene();
+
             UpdateGpsPreviewButton();
         }
 
         private void UpdateGpsPreviewButton()
         {
-            gpsPreviewToggleButton.Toggled = scene.GpsAvailable;
-            gpsPreviewToggleButton.Text = scene.GpsAvailable ? "Indoor View" : "World Map";
+            gpsPreviewToggleButton.Toggled = demoSim.IsOutdoor;
+            gpsPreviewToggleButton.Text = demoSim.IsOutdoor ? "Indoor View" : "World Map";
         }
 
         private void EnterDemoMode()
@@ -320,6 +359,8 @@ namespace MissionPlanner.GCSViews
             liveFeedRgb.Loop = false;
             liveFeedThermal.Loop = false;
 
+            // Live data always uses the indoor-sized local frame; next demo starts indoors too.
+            demoSim.SetScenario(false);
             scene.Clear();
             plannedForMapVersion = -1;
             sceneView.Subtitle = "Live map";
@@ -362,7 +403,7 @@ namespace MissionPlanner.GCSViews
             {
                 GpsFix = scene.GpsAvailable ? 3 : 0,
                 Satellites = scene.GpsAvailable ? 12 : 0,
-                NavSource = "LiDAR SLAM",
+                NavSource = demoSim.IsOutdoor ? "GNSS" : "LiDAR SLAM",
                 Mode = s.Mode,
                 Armed = s.Armed,
                 BatteryPercent = s.BatteryPercent,
@@ -372,7 +413,7 @@ namespace MissionPlanner.GCSViews
                 ExploredFraction = scene.Explored.Fraction
             });
 
-            header.SetPhase("DEMO — " + DescribePhase(s.Phase), PhaseColor(s.Phase));
+            header.SetPhase("DEMO — " + DescribePhase(s.Phase, demoSim.IsOutdoor), PhaseColor(s.Phase));
 
             foreach (var ev in demoSim.DrainEvents())
                 eventLog.Add(ev);
@@ -382,14 +423,30 @@ namespace MissionPlanner.GCSViews
             if (selected != null && selected.Route == null)
                 selected.Route = planner?.Plan(scene.Entry, selected.Position);
 
+            // Outdoors the post-survey leg home (the Exit phase) is an RTL too.
+            UpdateRtlRoute(scene.LaunchPad, demoSim.IsFlying,
+                s.Phase == DemoPhase.Returning || s.Phase == DemoPhase.DockingReturn ||
+                (demoSim.IsOutdoor && s.Phase == DemoPhase.Exit),
+                straight: demoSim.IsOutdoor);
+
             SetGpsAvailable(scene.GpsAvailable);
             UpdateGpsPreviewButton();
             sceneView.Invalidate();
             survivorList.Invalidate();
         }
 
-        private static string DescribePhase(DemoPhase phase)
+        private static string DescribePhase(DemoPhase phase, bool outdoor)
         {
+            if (outdoor)
+            {
+                switch (phase)
+                {
+                    case DemoPhase.Search: return "lawnmower survey · tagging victims and hazards";
+                    case DemoPhase.Exit: return "survey complete — RTL to base";
+                    case DemoPhase.Returning: return "aborted — RTL to base";
+                }
+            }
+
             switch (phase)
             {
                 case DemoPhase.Arming: return "arming";
@@ -500,6 +557,11 @@ namespace MissionPlanner.GCSViews
                 SurvivorsFound = scene.Survivors.Count,
                 ExploredFraction = scene.Explored.Fraction
             });
+
+            // Home is the local frame's origin: GpsOrigin above is the vehicle's home
+            // position. SMART_RTL counts too - it's still a return to home.
+            UpdateRtlRoute(PointF.Empty, cs.armed && !cs.landed,
+                cs.mode != null && cs.mode.ToUpperInvariant().Contains("RTL"), straight: false);
 
             SetGpsAvailable(scene.GpsAvailable);
             sceneView.Invalidate();

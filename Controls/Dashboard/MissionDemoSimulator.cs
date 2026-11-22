@@ -67,19 +67,70 @@ namespace MissionPlanner.Controls.Dashboard
     /// Abort flies home over the known map using the same planner as the rescue routes,
     /// then lands on the pad. It never touches MainV2.comPort; demo mode is a pure display
     /// overlay (see GCSViews\Mission.cs).
+    ///
+    /// The outdoor scenario (SetScenario(true) - the page's World Map toggle) is the
+    /// GPS-enabled counterpart: a 150 m disaster field with collapsed buildings, flown as a
+    /// lawnmower (boustrophedon) survey at 30 m. Every victim and hazard inside the camera
+    /// swath is geo-tagged with real lat/lon as it passes, each victim gets the best ground
+    /// route from the rescue staging point, and the drone RTLs to base when the pattern ends.
     /// </summary>
     public class MissionDemoSimulator
     {
-        private const float CruiseAltitude = 1.6f;
-        private const float CruiseSpeed = 0.62f;
-        private const float ReturnSpeed = 0.9f;
-        private const float TakeoffSeconds = 5f;
-        private const float LandSeconds = 5f;
         private const float ArmSeconds = 2f;
-        private const float SensorRange = 3.2f;
-        private const float SurvivorRange = 2.2f;
-        private const float HazardRange = 3.6f;
         private const float WallPiece = 0.25f;
+
+        /// <summary>How the two demo scenarios differ in flight and sensing - everything else is shared.</summary>
+        private class Profile
+        {
+            public float CruiseAltitude, CruiseSpeed, ReturnSpeed, TakeoffSeconds, LandSeconds;
+
+            /// <summary>Radius mapped/explored around the drone - the camera swath, outdoors.</summary>
+            public float SensorRange;
+
+            public float SurvivorRange, HazardRange, HazardRadius;
+
+            /// <summary>Minimum spacing between trail points, metres.</summary>
+            public float TrailStep;
+
+            /// <summary>Degrees of bank/pitch per m/s - a 12 m/s survey pass shouldn't read as a 100 degree roll.</summary>
+            public float RollPerMps, PitchPerMps;
+
+            /// <summary>Indoors walls block the sensors; from 30 m up nothing on the ground does.</summary>
+            public bool WallsBlockSight;
+
+            /// <summary>Hover this long over a newly found victim to confirm and geo-tag it.</summary>
+            public float ConfirmHoldSeconds;
+        }
+
+        private static readonly Profile Indoor = new Profile
+        {
+            CruiseAltitude = 1.6f, CruiseSpeed = 0.62f, ReturnSpeed = 0.9f, TakeoffSeconds = 5f, LandSeconds = 5f,
+            SensorRange = 3.2f, SurvivorRange = 2.2f, HazardRange = 3.6f, HazardRadius = 1.4f,
+            TrailStep = 0.15f, RollPerMps = 9f, PitchPerMps = 7.5f, WallsBlockSight = true, ConfirmHoldSeconds = 0f
+        };
+
+        private static readonly Profile Outdoor = new Profile
+        {
+            CruiseAltitude = 30f, CruiseSpeed = 12f, ReturnSpeed = 15f, TakeoffSeconds = 8f, LandSeconds = 8f,
+            SensorRange = 11f, SurvivorRange = 10f, HazardRange = 12f, HazardRadius = 8f,
+            TrailStep = 1.5f, RollPerMps = 1.4f, PitchPerMps = 1.2f, WallsBlockSight = false, ConfirmHoldSeconds = 2f
+        };
+
+        private Profile profile = Indoor;
+
+        private float CruiseAltitude { get { return profile.CruiseAltitude; } }
+        private float CruiseSpeed { get { return profile.CruiseSpeed; } }
+        private float ReturnSpeed { get { return profile.ReturnSpeed; } }
+        private float TakeoffSeconds { get { return profile.TakeoffSeconds; } }
+        private float LandSeconds { get { return profile.LandSeconds; } }
+        private float SensorRange { get { return profile.SensorRange; } }
+        private float SurvivorRange { get { return profile.SurvivorRange; } }
+        private float HazardRange { get { return profile.HazardRange; } }
+
+        // Outdoor survey geometry: a square field, lanes run south-north, stepping east.
+        private const float OutdoorSiteSize = 150f;
+        private const float SurveyMargin = 8f;
+        private const float MaxLaneSpacing = 18f;
 
         // Mission-continuity / auto-charging cycle: trigger a scripted dock-and-recharge
         // once per run when the pack crosses DockTriggerBatteryPercent mid-search, then
@@ -110,16 +161,6 @@ namespace MissionPlanner.Controls.Dashboard
         private int savedWaypointIndex;
         private bool dockCycleDone;
         private bool resumingFromDock;
-
-        /// <summary>
-        /// Operator-set override for which navigation mode the page shows - null means
-        /// "automatic", following the phase-based logic in UpdateDroneInScene. Set by
-        /// GCSViews\Mission.cs's World Map toggle so the mode can be inspected on demand,
-        /// at any point in the demo (static preview or mid-flight), since there's no real
-        /// GPS fix here to switch it automatically. Cleared on Reset - a fresh flight goes
-        /// back to automatic unless toggled again.
-        /// </summary>
-        private bool? gpsManualOverride;
 
         private DemoPhase phase = DemoPhase.Idle;
         private double phaseStart;
@@ -163,7 +204,7 @@ namespace MissionPlanner.Controls.Dashboard
             }
             this.clock = clock;
 
-            BuildArena();
+            BuildIndoorArena();
 
             // Fabricated demo site coordinate - stands in for the vehicle's real home
             // position, which is what would anchor this in an actual deployment.
@@ -173,6 +214,25 @@ namespace MissionPlanner.Controls.Dashboard
         public DemoPhase Phase
         {
             get { return phase; }
+        }
+
+        /// <summary>True for the GPS-enabled outdoor lawnmower survey, false for the indoor search.</summary>
+        public bool IsOutdoor { get; private set; }
+
+        /// <summary>
+        /// Swaps the whole scenario - site, ground truth, flight profile - between the
+        /// indoor GPS-denied search and the outdoor GPS-enabled area survey. Leaves the
+        /// scene reset on the pad; call Preview() or StartMission() next.
+        /// </summary>
+        public void SetScenario(bool outdoor)
+        {
+            IsOutdoor = outdoor;
+            profile = outdoor ? Outdoor : Indoor;
+            if (outdoor)
+                BuildOutdoorSite();
+            else
+                BuildIndoorArena();
+            Reset();
         }
 
         public bool IsFlying
@@ -214,7 +274,6 @@ namespace MissionPlanner.Controls.Dashboard
             savedWaypointIndex = 0;
             dockCycleDone = false;
             resumingFromDock = false;
-            gpsManualOverride = null;
             pendingEvents.Clear();
 
             scene.HasDrone = true;
@@ -233,15 +292,6 @@ namespace MissionPlanner.Controls.Dashboard
         public void Preview()
         {
             Reset();
-
-            // This is specifically a preview of the GPS-denied indoor result (what the
-            // local grid-tagged map looks like once everything's found) - not the "on the
-            // pad, GPS available" state Reset()'s Idle phase would otherwise imply. Held as
-            // a manual override (not just the flag) so the next tick's automatic
-            // recomputation in UpdateDroneInScene doesn't immediately flip it back; the
-            // World Map toggle in Mission.cs overrides this the moment the operator asks.
-            gpsManualOverride = false;
-            scene.GpsAvailable = false;
 
             for (var cy = 0; cy < scene.Explored.Size; cy++)
                 for (var cx = 0; cx < scene.Explored.Size; cx++)
@@ -273,9 +323,14 @@ namespace MissionPlanner.Controls.Dashboard
                     Priority = h.Priority,
                     Position = h.Position,
                     DetectedAt = TimeSpan.Zero,
-                    HazardRadius = 1.4f
+                    HazardRadius = profile.HazardRadius
                 });
             }
+
+            // Outdoors, show the finished lawnmower pass itself - the whole pattern as flown.
+            if (scene.SurveyPattern != null)
+                foreach (var p in scene.SurveyPattern)
+                    scene.Trail.Add(new Point3(p.X, p.Y, CruiseAltitude));
 
             // Plan every survivor's rescue route up front and highlight the first one, so
             // the "best path" is already drawn the moment Demo Mode switches on - nothing
@@ -289,23 +344,13 @@ namespace MissionPlanner.Controls.Dashboard
             }
 
             MapVersion++;
-            Emit(MissionEventKind.Info, "Preview · full map, " + truthSurvivors.Count + " survivors and " +
-                                        truthHazards.Count + " hazards shown for demonstration");
-        }
-
-        /// <summary>
-        /// Manual, sticky override of which navigation mode the page shows - usable at any
-        /// point in the demo, static preview or mid-flight, not just while idle: there's no
-        /// real drone/GPS here, so the operator is the "automatic switching." Every
-        /// survivor/hazard already on the map just re-tags itself (grid box vs lat/lon) and
-        /// the centre pane swaps to match. Stays in force - including through the rest of a
-        /// running flight - until Reset() (a fresh Start Mission) clears it, or it's toggled
-        /// again.
-        /// </summary>
-        public void SetGpsMode(bool gpsAvailable)
-        {
-            gpsManualOverride = gpsAvailable;
-            scene.GpsAvailable = gpsAvailable;
+            if (IsOutdoor)
+                Emit(MissionEventKind.Info, "Preview · lawnmower survey of " + (int)OutdoorSiteSize + " × " +
+                                            (int)OutdoorSiteSize + " m, " + truthSurvivors.Count + " victims and " +
+                                            truthHazards.Count + " hazards geo-tagged");
+            else
+                Emit(MissionEventKind.Info, "Preview · full map, " + truthSurvivors.Count + " survivors and " +
+                                            truthHazards.Count + " hazards shown for demonstration");
         }
 
         public void StartMission()
@@ -333,9 +378,11 @@ namespace MissionPlanner.Controls.Dashboard
             if (phase != DemoPhase.Takeoff && phase != DemoPhase.Search && phase != DemoPhase.Exit)
                 return;
 
-            Emit(MissionEventKind.Critical, "ABORT · returning to launch pad over mapped area");
+            Emit(MissionEventKind.Critical, IsOutdoor
+                ? "ABORT · RTL to base"
+                : "ABORT · returning to launch pad over mapped area");
 
-            var home = RescuePathPlanner.Build(scene).Plan(pos, scene.LaunchPad);
+            var home = HomeRoute();
             if (home == null)
             {
                 Emit(MissionEventKind.Warning, "No known route home · landing in place");
@@ -347,6 +394,18 @@ namespace MissionPlanner.Controls.Dashboard
             waypointIndex = 0;
             holdUntil = 0;
             SetPhase(DemoPhase.Returning);
+        }
+
+        /// <summary>
+        /// Path back to the pad: over the known map indoors (walls are in the way), a
+        /// straight RTL leg outdoors where the drone is well above everything. Null if the
+        /// known map has no way home.
+        /// </summary>
+        private List<PointF> HomeRoute()
+        {
+            if (IsOutdoor)
+                return new List<PointF> { pos, scene.LaunchPad };
+            return RescuePathPlanner.Build(scene).Plan(pos, scene.LaunchPad);
         }
 
         private static List<Waypoint> ToWaypoints(List<PointF> points)
@@ -389,8 +448,8 @@ namespace MissionPlanner.Controls.Dashboard
                 AltitudeM = altitude,
                 ClimbRate = climb,
                 GroundSpeed = speed,
-                RollDeg = IsFlying ? across * 9.0 + Noise(0.4) : Noise(0.1),
-                PitchDeg = IsFlying ? -along * 7.5 + Noise(0.4) : Noise(0.1),
+                RollDeg = IsFlying ? across * profile.RollPerMps + Noise(0.4) : Noise(0.1),
+                PitchDeg = IsFlying ? -along * profile.PitchPerMps + Noise(0.4) : Noise(0.1),
                 YawDeg = (yawDeg + 360) % 360,
                 MissionTime = takeoffAt >= 0 ? TimeSpan.FromSeconds(now - takeoffAt) : (TimeSpan?)null,
                 LinkQuality = linkQuality,
@@ -425,6 +484,14 @@ namespace MissionPlanner.Controls.Dashboard
                             waypointIndex = savedWaypointIndex;
                             savedRoute = null;
                             Emit(MissionEventKind.Info, "Recharged · resuming search from where it left off");
+                        }
+                        else if (IsOutdoor)
+                        {
+                            route = ToWaypoints(scene.SurveyPattern);
+                            waypointIndex = 0;
+                            Emit(MissionEventKind.Info, "Lawnmower survey started · " + scene.SurveyPattern.Count / 2 +
+                                                        " lanes at " + LaneSpacing().ToString("0.0") + " m spacing · " +
+                                                        (int)CruiseAltitude + " m AGL · GPS 3D fix");
                         }
                         else
                         {
@@ -467,7 +534,7 @@ namespace MissionPlanner.Controls.Dashboard
                         {
                             SetPhase(DemoPhase.Complete);
                             Emit(MissionEventKind.Info, "Landed · disarmed · " + scene.Survivors.Count +
-                                                        " survivors reported");
+                                                        (IsOutdoor ? " victims tagged" : " survivors reported"));
                         }
                     }
                     break;
@@ -489,7 +556,7 @@ namespace MissionPlanner.Controls.Dashboard
             if (IsFlying)
             {
                 Reveal();
-                if (scene.Trail.Count == 0 || Distance(scene.Trail[scene.Trail.Count - 1], pos) > 0.15f)
+                if (scene.Trail.Count == 0 || Distance(scene.Trail[scene.Trail.Count - 1], pos) > profile.TrailStep)
                     scene.Trail.Add(new Point3(pos.X, pos.Y, altitude));
             }
         }
@@ -541,6 +608,18 @@ namespace MissionPlanner.Controls.Dashboard
             switch (phase)
             {
                 case DemoPhase.Search:
+                    if (IsOutdoor)
+                    {
+                        // Outdoors "Exit" is the RTL leg home once the pattern is finished.
+                        route = ToWaypoints(HomeRoute());
+                        waypointIndex = 0;
+                        SetPhase(DemoPhase.Exit);
+                        Emit(MissionEventKind.Info, "Survey complete · " + (int)(scene.Explored.Fraction * 100) +
+                                                    "% of area covered · " + scene.Survivors.Count + " victims, " +
+                                                    scene.Hazards.Count + " hazards tagged · RTL to base");
+                        break;
+                    }
+
                     route = ExitRoute();
                     waypointIndex = 0;
                     SetPhase(DemoPhase.Exit);
@@ -549,7 +628,7 @@ namespace MissionPlanner.Controls.Dashboard
                     break;
 
                 case DemoPhase.Exit:
-                    Emit(MissionEventKind.Info, "Clear of the arena exit · landing");
+                    Emit(MissionEventKind.Info, IsOutdoor ? "Over base · landing" : "Clear of the arena exit · landing");
                     BeginLanding(forDock: false);
                     break;
 
@@ -588,7 +667,7 @@ namespace MissionPlanner.Controls.Dashboard
             savedRoute = route;
             savedWaypointIndex = waypointIndex;
 
-            var home = RescuePathPlanner.Build(scene).Plan(pos, scene.LaunchPad);
+            var home = HomeRoute();
             route = home != null ? ToWaypoints(home) : new List<Waypoint> { new Waypoint(scene.LaunchPad.X, scene.LaunchPad.Y) };
             waypointIndex = 0;
             holdUntil = 0;
@@ -639,7 +718,7 @@ namespace MissionPlanner.Controls.Dashboard
                         continue;
 
                     var c = new PointF((cx + 0.5f) * res, (cy + 0.5f) * res);
-                    if (Distance(c, pos) <= SensorRange && MissionScene.LineOfSight(pos, c, truthWalls))
+                    if (Distance(c, pos) <= SensorRange && CanSee(c))
                         changed |= scene.Explored.Mark(cx, cy);
                 }
             }
@@ -654,7 +733,7 @@ namespace MissionPlanner.Controls.Dashboard
                 var p = truthSurvivors[i];
                 if (scene.Survivors.Exists(s => s.Position == p))
                     continue;
-                if (Distance(p, pos) > SurvivorRange || !MissionScene.LineOfSight(pos, p, truthWalls))
+                if (Distance(p, pos) > SurvivorRange || !CanSee(p))
                     continue;
 
                 var d = new Detection
@@ -666,7 +745,13 @@ namespace MissionPlanner.Controls.Dashboard
                 };
                 scene.Survivors.Add(d);
                 changed = true;
-                Emit(MissionEventKind.Survivor, "Survivor " + d.Name + " located · " + scene.FormatTag(d.Position));
+                Emit(MissionEventKind.Survivor,
+                    (IsOutdoor ? "Victim " + d.Name + " tagged · " : "Survivor " + d.Name + " located · ") +
+                    scene.FormatTag(d.Position));
+
+                // Outdoors, pause the pass briefly over the victim to confirm before moving on.
+                if (profile.ConfirmHoldSeconds > 0)
+                    holdUntil = Math.Max(holdUntil, clock() + profile.ConfirmHoldSeconds);
 
                 // Plan and highlight its rescue route the instant it's found, so the "best
                 // path" is visible live during the flight without the operator clicking
@@ -681,7 +766,7 @@ namespace MissionPlanner.Controls.Dashboard
                 var truth = truthHazards[i];
                 if (scene.Hazards.Exists(h => h.Position == truth.Position))
                     continue;
-                if (Distance(truth.Position, pos) > HazardRange || !MissionScene.LineOfSight(pos, truth.Position, truthWalls))
+                if (Distance(truth.Position, pos) > HazardRange || !CanSee(truth.Position))
                     continue;
 
                 var h2 = new Detection
@@ -692,7 +777,7 @@ namespace MissionPlanner.Controls.Dashboard
                     Priority = truth.Priority,
                     Position = truth.Position,
                     DetectedAt = MissionClock(),
-                    HazardRadius = 1.4f
+                    HazardRadius = profile.HazardRadius
                 };
                 scene.Hazards.Add(h2);
                 changed = true;
@@ -703,6 +788,11 @@ namespace MissionPlanner.Controls.Dashboard
 
             if (changed)
                 MapVersion++;
+        }
+
+        private bool CanSee(PointF target)
+        {
+            return !profile.WallsBlockSight || MissionScene.LineOfSight(pos, target, truthWalls);
         }
 
         /// <summary>
@@ -731,7 +821,7 @@ namespace MissionPlanner.Controls.Dashboard
                     // Aim just short of the wall so the wall itself does not block the ray.
                     var probe = new PointF(mid.X + (pos.X - mid.X) * 0.05f / Math.Max(d, 0.05f),
                                            mid.Y + (pos.Y - mid.Y) * 0.05f / Math.Max(d, 0.05f));
-                    if (MissionScene.LineOfSight(pos, probe, truthWalls))
+                    if (CanSee(probe))
                     {
                         pieces[i] = true;
                         any = true;
@@ -777,8 +867,15 @@ namespace MissionPlanner.Controls.Dashboard
         /// A 15 m arena of rooms off a central corridor, entry bottom-left, exit top-right.
         /// Doors are all at least 1.5 m (the brief's minimum corridor is 1 m).
         /// </summary>
-        private void BuildArena()
+        private void BuildIndoorArena()
         {
+            ClearTruth();
+            scene.Resize(15f);
+            scene.Entry = new PointF(2f, 0f);
+            scene.Exit = new PointF(13f, 15f);
+            scene.LaunchPad = new PointF(2f, 0.9f);
+            scene.SurveyPattern = null;
+
             float[,] walls =
             {
                 // perimeter, with the entry (x 1-3) and exit (x 12-14) gaps
@@ -796,12 +893,7 @@ namespace MissionPlanner.Controls.Dashboard
                 { 4.5f, 13, 4.5f, 15 }                                  // partition, room 4
             };
 
-            for (var i = 0; i < walls.GetLength(0); i++)
-            {
-                var w = new Wall(walls[i, 0], walls[i, 1], walls[i, 2], walls[i, 3]);
-                truthWalls.Add(w);
-                revealedPieces.Add(new bool[Math.Max(1, (int)Math.Round(w.Length / WallPiece))]);
-            }
+            AddTruthWalls(walls);
 
             // Not a fixed head-count - real sites hold however many people are actually
             // there. This is simply how many the scripted demo route happens to pass.
@@ -816,6 +908,86 @@ namespace MissionPlanner.Controls.Dashboard
             truthHazards.Add((new PointF(7.4f, 10.0f), HazardType.Electrical, HazardPriority.High));
             truthHazards.Add((new PointF(4.2f, 13.6f), HazardType.Flood, HazardPriority.Medium));
             truthHazards.Add((new PointF(12.0f, 4.6f), HazardType.Structural, HazardPriority.Low));
+        }
+
+        private void ClearTruth()
+        {
+            truthWalls.Clear();
+            revealedPieces.Clear();
+            truthSurvivors.Clear();
+            truthHazards.Clear();
+        }
+
+        private void AddTruthWalls(float[,] walls)
+        {
+            for (var i = 0; i < walls.GetLength(0); i++)
+            {
+                var w = new Wall(walls[i, 0], walls[i, 1], walls[i, 2], walls[i, 3]);
+                truthWalls.Add(w);
+                revealedPieces.Add(new bool[Math.Max(1, (int)Math.Round(w.Length / WallPiece))]);
+            }
+        }
+
+        /// <summary>
+        /// A 150 m square disaster field for the GPS-enabled survey: base and launch pad in
+        /// the south-west corner, three collapsed buildings the ground team has to route
+        /// around, victims scattered in the open and a hazard of each class.
+        /// </summary>
+        private void BuildOutdoorSite()
+        {
+            ClearTruth();
+            scene.Resize(OutdoorSiteSize);
+            scene.LaunchPad = new PointF(SurveyMargin, SurveyMargin);
+            scene.Entry = new PointF(16f, 3f); // rescue team staging point, by the road
+            scene.Exit = scene.LaunchPad;
+
+            AddTruthWalls(new float[,]
+            {
+                { 40, 50, 62, 50 }, { 62, 50, 62, 70 }, { 62, 70, 40, 70 }, { 40, 70, 40, 50 },          // block A
+                { 90, 30, 115, 30 }, { 115, 30, 115, 48 }, { 115, 48, 90, 48 }, { 90, 48, 90, 30 },      // block B
+                { 70, 95, 100, 95 }, { 100, 95, 100, 112 }, { 100, 112, 70, 112 }, { 70, 112, 70, 95 }   // block C
+            });
+
+            truthSurvivors.AddRange(new[]
+            {
+                new PointF(30f, 90f), new PointF(78f, 60f), new PointF(124f, 82f),
+                new PointF(55f, 130f), new PointF(132f, 134f), new PointF(102f, 16f)
+            });
+
+            truthHazards.Add((new PointF(66f, 82f), HazardType.Fire, HazardPriority.Critical));
+            truthHazards.Add((new PointF(106f, 68f), HazardType.Flood, HazardPriority.High));
+            truthHazards.Add((new PointF(34f, 30f), HazardType.Electrical, HazardPriority.High));
+            truthHazards.Add((new PointF(86f, 120f), HazardType.Structural, HazardPriority.Medium));
+
+            scene.SurveyPattern = LawnmowerPattern();
+        }
+
+        private float LaneSpacing()
+        {
+            var span = scene.ArenaSize - 2 * SurveyMargin;
+            return span / (float)Math.Ceiling(span / MaxLaneSpacing);
+        }
+
+        /// <summary>
+        /// Boustrophedon ("lawnmower") coverage: parallel south-north lanes, alternating
+        /// direction, stepped east by no more than the camera swath so passes overlap and
+        /// nothing between them is missed. Starts at the pad, so there's no transit leg.
+        /// </summary>
+        private List<PointF> LawnmowerPattern()
+        {
+            float min = SurveyMargin, max = scene.ArenaSize - SurveyMargin, spacing = LaneSpacing();
+            var lanes = (int)Math.Round((max - min) / spacing) + 1;
+            var pattern = new List<PointF>(lanes * 2);
+
+            for (var i = 0; i < lanes; i++)
+            {
+                var x = min + i * spacing;
+                var northbound = i % 2 == 0;
+                pattern.Add(new PointF(x, northbound ? min : max));
+                pattern.Add(new PointF(x, northbound ? max : min));
+            }
+
+            return pattern;
         }
 
         /// <summary>Room-by-room search, holding briefly wherever a survivor comes into view.</summary>
@@ -870,16 +1042,13 @@ namespace MissionPlanner.Controls.Dashboard
             scene.DroneYawDeg = yawDeg;
             scene.DroneArmed = phase != DemoPhase.Idle && phase != DemoPhase.Complete && phase != DemoPhase.Charging;
 
-            // Simplified stand-in for "Automatic Switching": GPS treated as available on
-            // and around the pad (outside the structure) and unavailable while actually
-            // transiting the mapped interior. The live-vehicle path in GCSViews\Mission.cs
-            // drives the same flag off the real GPS fix instead of guessing from phase. A
-            // manual override (SetGpsMode) takes priority over all of this, so the operator
-            // can inspect either mode on demand without a real fix to switch it for them.
-            scene.GpsAvailable = gpsManualOverride ?? (
-                phase == DemoPhase.Idle || phase == DemoPhase.Arming ||
-                phase == DemoPhase.Takeoff || phase == DemoPhase.Landing ||
-                phase == DemoPhase.Charging || phase == DemoPhase.Complete);
+            // The scenario decides the navigation mode for the whole flight: the indoor
+            // search is GPS-denied start to finish (3D view), the outdoor survey is under
+            // open sky (world map). Flipping to GPS for the indoor takeoff/landing used to
+            // put the indoor flight on the world map, where it read as the survey not
+            // working. The live-vehicle path in GCSViews\Mission.cs drives this flag off
+            // the real GPS fix instead.
+            scene.GpsAvailable = IsOutdoor;
         }
 
         private TimeSpan MissionClock()
@@ -892,8 +1061,13 @@ namespace MissionPlanner.Controls.Dashboard
             pendingEvents.Add(new MissionEvent(MissionClock(), kind, text));
         }
 
-        private static string ModeFor(DemoPhase p)
+        private string ModeFor(DemoPhase p)
         {
+            if (IsOutdoor && p == DemoPhase.Search)
+                return "AUTO";
+            if (IsOutdoor && p == DemoPhase.Exit)
+                return "RTL";
+
             switch (p)
             {
                 case DemoPhase.Landing: return "LAND";

@@ -334,9 +334,38 @@ namespace MissionPlanner.Controls.Dashboard
         /// </summary>
         public bool GpsAvailable;
 
+        /// <summary>
+        /// Where RTL brings the drone back to, in arena metres: LaunchPad (the dock) in the
+        /// demo, the local-frame origin (the vehicle's home) for a live flight.
+        /// </summary>
+        public PointF RtlHome;
+
+        /// <summary>
+        /// Shortest known path from the drone back to RtlHome, kept current while airborne
+        /// so the world map can always show where an RTL would take it; null on the ground.
+        /// </summary>
+        public List<PointF> RtlRoute;
+
+        /// <summary>True while the vehicle is actually flying that return leg (RTL / return to dock).</summary>
+        public bool RtlActive;
+
+        /// <summary>
+        /// Outdoor (GPS-enabled) area survey only: the planned lawnmower pattern as its lane
+        /// end points in flying order, so the world map can draw the pattern ahead of the
+        /// drone. Null for the indoor room-by-room search, which has no such pattern.
+        /// </summary>
+        public List<PointF> SurveyPattern;
+
         public MissionScene()
         {
             Explored = new ExploredMap(ArenaSize);
+        }
+
+        /// <summary>Switches to a site of a different footprint; everything explored so far is dropped.</summary>
+        public void Resize(float arenaSize)
+        {
+            ArenaSize = arenaSize;
+            Explored = new ExploredMap(arenaSize);
         }
 
         /// <summary>
@@ -371,6 +400,8 @@ namespace MissionPlanner.Controls.Dashboard
             HasDrone = false;
             DroneArmed = false;
             SelectedSurvivorId = 0;
+            RtlRoute = null;
+            RtlActive = false;
         }
 
         /// <summary>True if nothing in <paramref name="walls"/> crosses the segment a-b.</summary>

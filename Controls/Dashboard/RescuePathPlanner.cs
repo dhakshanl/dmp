@@ -14,51 +14,63 @@ namespace MissionPlanner.Controls.Dashboard
     /// Grid A* (8-connected, no corner cutting) followed by line-of-sight string pulling,
     /// which turns the staircase grid path into the few straight legs a person would walk.
     /// A 15 m arena at 0.25 m is 3600 cells, so a plan is well under a millisecond; the
-    /// grid is built once per map update and reused for every survivor.
+    /// grid is built once per map update and reused for every survivor. Bigger sites (the
+    /// outdoor survey area) coarsen the cell so the grid never grows past ~120 a side.
     /// </summary>
     public class RescuePathPlanner
     {
-        private const float Cell = 0.25f;
+        private const float MinCell = 0.25f;
+        private const int MaxCellsPerSide = 120;
 
         /// <summary>Half a shoulder width plus margin, metres.</summary>
-        private const float WallClearance = 0.4f;
+        private const float MinWallClearance = 0.4f;
 
         /// <summary>How far a blocked start/goal may be nudged to the nearest free cell.</summary>
         private const int SnapRadiusCells = 5;
 
+        private readonly float cell;
+
+        /// <summary>
+        /// Never less than 3/4 of a cell, or a wall line could pass between two cell
+        /// centres and leave a gap the search walks straight through.
+        /// </summary>
+        private readonly float wallClearance;
+
         private readonly int n;
         private readonly bool[] blocked;
 
-        private RescuePathPlanner(int size)
+        private RescuePathPlanner(float arenaSize)
         {
-            n = size;
+            cell = Math.Max(MinCell, arenaSize / MaxCellsPerSide);
+            wallClearance = Math.Max(MinWallClearance, cell * 0.75f);
+            n = (int)Math.Ceiling(arenaSize / cell);
             blocked = new bool[n * n];
         }
 
         public static RescuePathPlanner Build(MissionScene scene)
         {
-            var planner = new RescuePathPlanner((int)Math.Ceiling(scene.ArenaSize / Cell));
+            var planner = new RescuePathPlanner(scene.ArenaSize);
 
             for (var cy = 0; cy < planner.n; cy++)
             {
                 for (var cx = 0; cx < planner.n; cx++)
                 {
-                    var p = new PointF((cx + 0.5f) * Cell, (cy + 0.5f) * Cell);
-                    planner.blocked[cy * planner.n + cx] = !IsWalkable(scene, p);
+                    var p = new PointF((cx + 0.5f) * planner.cell, (cy + 0.5f) * planner.cell);
+                    planner.blocked[cy * planner.n + cx] = !planner.IsWalkable(scene, p);
                 }
             }
 
             return planner;
         }
 
-        private static bool IsWalkable(MissionScene scene, PointF p)
+        private bool IsWalkable(MissionScene scene, PointF p)
         {
             if (!scene.Explored.IsExplored(p.X, p.Y))
                 return false;
 
             foreach (var w in scene.Walls)
             {
-                if (MissionScene.DistanceToSegment(p, w.A, w.B) < WallClearance)
+                if (MissionScene.DistanceToSegment(p, w.A, w.B) < wallClearance)
                     return false;
             }
 
@@ -95,14 +107,14 @@ namespace MissionPlanner.Controls.Dashboard
 
         private int ToCell(PointF p)
         {
-            var cx = Math.Max(0, Math.Min(n - 1, (int)Math.Floor(p.X / Cell)));
-            var cy = Math.Max(0, Math.Min(n - 1, (int)Math.Floor(p.Y / Cell)));
+            var cx = Math.Max(0, Math.Min(n - 1, (int)Math.Floor(p.X / cell)));
+            var cy = Math.Max(0, Math.Min(n - 1, (int)Math.Floor(p.Y / cell)));
             return cy * n + cx;
         }
 
         private PointF CellCentre(int index)
         {
-            return new PointF((index % n + 0.5f) * Cell, (index / n + 0.5f) * Cell);
+            return new PointF((index % n + 0.5f) * cell, (index / n + 0.5f) * cell);
         }
 
         /// <summary>Nearest free cell to <paramref name="index"/> within the snap radius; -1 if none.</summary>
@@ -238,7 +250,7 @@ namespace MissionPlanner.Controls.Dashboard
         {
             var dx = b.X - a.X;
             var dy = b.Y - a.Y;
-            var steps = (int)Math.Ceiling(Math.Sqrt(dx * dx + dy * dy) / (Cell * 0.5f));
+            var steps = (int)Math.Ceiling(Math.Sqrt(dx * dx + dy * dy) / (cell * 0.5f));
 
             for (var i = 1; i < steps; i++)
             {

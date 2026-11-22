@@ -80,7 +80,7 @@ namespace MissionPlanner.GCSViews
 
             leftRail = BuildLeftRail();
 
-            // Local 3D view (GPS-denied) and world map (GPS-available) share one host
+            // Local 3D view (GPS-denied) and world map (GPS-enabled) share one host
             // panel and swap Visible between them - see Mission.cs's SetGpsAvailable. Never
             // both visible together: the two are the page's "Automatic Switching" pair, not
             // a split view.
